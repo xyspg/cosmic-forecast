@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import marketsData from "@/data/markets.json";
 import type { Market } from "@/lib/types";
-import { Navbar } from "@/components/Navbar";
+import { Navbar, CategoryTabs } from "@/components/Navbar";
 import { MarketGrid } from "@/components/MarketGrid";
 
 const markets = marketsData as Market[];
@@ -13,7 +13,7 @@ export default function MarketsPage() {
 
   const filtered = useMemo(
     () =>
-      category === "All"
+      category === "All" || category === "Trending" || category === "New"
         ? markets
         : markets.filter((m) => m.category === category),
     [category],
@@ -21,12 +21,10 @@ export default function MarketsPage() {
 
   return (
     <>
-      <Navbar activeCategory={category} onCategoryChange={setCategory} />
-      <main className="mx-auto max-w-7xl px-4 py-6">
-        <h1 className="mb-6 text-2xl font-bold">
-          {category === "All" ? "All Markets" : `${category} Markets`}
-        </h1>
-        <MarketGrid markets={filtered} />
+      <Navbar />
+      <CategoryTabs active={category} onChange={setCategory} />
+      <main className="mx-auto max-w-5xl px-4 py-6">
+        <MarketGrid markets={filtered} title="All markets" />
       </main>
     </>
   );

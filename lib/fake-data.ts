@@ -53,7 +53,7 @@ export function randomWallet(): string {
 }
 
 export function randomAmount(): number {
-  const amounts = [5, 10, 15, 20, 25, 50, 75, 100, 150, 200, 250, 500, 1000];
+  const amounts = [2, 3, 5, 5, 5, 10, 10, 12, 15, 20, 25, 50, 75, 100];
   return amounts[Math.floor(Math.random() * amounts.length)];
 }
 
@@ -63,7 +63,7 @@ export function randomSide(): "YES" | "NO" {
 
 export function formatVolume(volume: number): string {
   if (volume >= 1_000_000) {
-    return `$${(volume / 1_000_000).toFixed(1)}M`;
+    return `$${(volume / 1_000_000).toFixed(0)}M`;
   }
   if (volume >= 1_000) {
     return `$${(volume / 1_000).toFixed(0)}K`;
@@ -75,4 +75,96 @@ export function formatNumber(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
   return n.toString();
+}
+
+// --- Fake usernames and comments for Polymarket-style comment feed ---
+
+const USERNAMES = [
+  "MooreM",
+  "CryptoKing99",
+  "DegenTrader",
+  "Blue31",
+  "Cardenas",
+  "ghachu",
+  "It-aint-much",
+  "hodl4life",
+  "95Wal-1yX28",
+  "ONTHE7THDAY",
+  "bearish_bill",
+  "CosmicDegen",
+  "yolo_finance",
+  "MarketMaker42",
+  "AlphaSeeker",
+  "diamond_hands",
+  "paper_hands",
+  "whale_watcher",
+  "data_nerd",
+  "prediction_pro",
+];
+
+const COMMENTS = [
+  "This is easy money",
+  "I just keep buying. Seems like the best risk/reward in the field",
+  "Happens every year!",
+  "Waiting for more data before I go bigger",
+  "The market is wrong on this one",
+  "I refreshed like 500 times today :D",
+  "Waiting for 1min market",
+  "I've been studying this market for several hours now... My conclusion is that it can go either way",
+  "You can like only one comment at a time",
+  "Buying the dip",
+  "This feels like free money tbh",
+  "No way this hits",
+  "Already priced in",
+  "The odds are off. This should be higher",
+  "Sold my position. Taking profits",
+  "Just went all in",
+  "Anyone else seeing this price action?",
+  "Markets are irrational",
+  "Trust the process",
+  "This is the one",
+  "I'm not selling",
+  "Doubling down here",
+  "Interesting setup. Watching closely",
+  "The smart money is on the other side",
+  "Let's see how this plays out",
+];
+
+const AVATAR_COLORS = [
+  "#f87171",
+  "#fb923c",
+  "#fbbf24",
+  "#a3e635",
+  "#34d399",
+  "#22d3ee",
+  "#60a5fa",
+  "#a78bfa",
+  "#f472b6",
+  "#c084fc",
+];
+
+export function randomUsername(): string {
+  return USERNAMES[Math.floor(Math.random() * USERNAMES.length)];
+}
+
+export function randomComment(): string {
+  return COMMENTS[Math.floor(Math.random() * COMMENTS.length)];
+}
+
+export function randomAvatarColor(): string {
+  return AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+}
+
+// Category icon/emoji for market cards
+const CATEGORY_ICONS: Record<string, string> = {
+  Politics: "🏛️",
+  Crypto: "₿",
+  Sports: "⚽",
+  Tech: "💻",
+  Culture: "🎬",
+  Science: "🔬",
+};
+
+export function getCategoryIcon(category: string): string {
+  return CATEGORY_ICONS[category] || "📊";
 }

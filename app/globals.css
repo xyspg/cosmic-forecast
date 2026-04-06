@@ -114,6 +114,22 @@ body {
   animation: count-pulse 0.3s ease-out;
 }
 
+/* Floating dollar amounts on chart */
+@keyframes floatUp {
+  0% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-30px); }
+}
+
+/* Hide scrollbar for category tabs */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

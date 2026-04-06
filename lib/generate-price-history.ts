@@ -1,6 +1,7 @@
 /**
  * Generates deterministic fake price history from a slug.
  * Uses a seeded PRNG so the same market always gets the same chart.
+ * Produces realistic micro-noise like real trading data.
  */
 
 function seededRandom(seed: number): () => number {
@@ -22,34 +23,56 @@ function hashString(str: string): number {
 }
 
 export interface PricePoint {
-  time: number; // index
-  price: number;
+  time: number;
+  date: Date;
+  yes: number;
+  no: number;
 }
 
 export function generatePriceHistory(
   slug: string,
   currentPrice: number,
-  points = 100,
+  points = 200,
 ): PricePoint[] {
   const rand = seededRandom(hashString(slug));
   const history: PricePoint[] = [];
 
-  // Start from a slightly different price and random-walk to current
-  let price = currentPrice + (rand() - 0.5) * 0.3;
-  price = Math.max(0.02, Math.min(0.98, price));
+  // Start from a different price and walk toward current
+  let yesPrice = currentPrice + (rand() - 0.5) * 0.3;
+  yesPrice = Math.max(0.03, Math.min(0.97, yesPrice));
+
+  const now = Date.now();
+  const timeSpan = 30 * 24 * 60 * 60 * 1000; // 30 days
 
   for (let i = 0; i < points; i++) {
-    history.push({ time: i, price: Math.round(price * 1000) / 1000 });
+    const t = i / (points - 1);
+    const date = new Date(now - timeSpan * (1 - t));
 
-    // Random walk with mean reversion toward current price
-    const drift = (currentPrice - price) * 0.02;
-    const noise = (rand() - 0.5) * 0.04;
-    price += drift + noise;
-    price = Math.max(0.02, Math.min(0.98, price));
+    history.push({
+      time: i,
+      date,
+      yes: Math.round(yesPrice * 1000) / 1000,
+      no: Math.round((1 - yesPrice) * 1000) / 1000,
+    });
+
+    // Realistic price movement: mean reversion + noise + occasional jumps
+    const drift = (currentPrice - yesPrice) * 0.015;
+    const noise = (rand() - 0.5) * 0.025;
+
+    // Occasional larger moves (step changes like real prediction markets)
+    const jumpChance = rand();
+    const jump = jumpChance > 0.95 ? (rand() - 0.5) * 0.08 : 0;
+
+    // Micro-noise for realistic texture
+    const micro = (rand() - 0.5) * 0.005;
+
+    yesPrice += drift + noise + jump + micro;
+    yesPrice = Math.max(0.02, Math.min(0.98, yesPrice));
   }
 
-  // Make sure last point is close to current price
-  history[history.length - 1].price = currentPrice;
+  // Ensure last point matches current
+  history[history.length - 1].yes = currentPrice;
+  history[history.length - 1].no = Math.round((1 - currentPrice) * 100) / 100;
 
   return history;
 }

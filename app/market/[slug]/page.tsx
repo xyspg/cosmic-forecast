@@ -10,6 +10,7 @@ import { PriceChart } from "@/components/PriceChart";
 import { BettingPanel } from "@/components/BettingPanel";
 import { OrderBook } from "@/components/OrderBook";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { CommentFeed } from "@/components/CommentFeed";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
 import { CosmicReport } from "@/components/CosmicReport";
@@ -160,14 +161,14 @@ function MarketPageContent({ market }: { market: Market }) {
       <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
       <Navbar />
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto max-w-5xl px-4 py-6">
         {/* Breadcrumb */}
-        <div className="mb-4 flex items-center gap-2 text-sm text-muted">
-          <Link href="/" className="hover:text-foreground transition-colors">
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
+          <Link href="/" className="hover:text-gray-900 transition-colors">
             Markets
           </Link>
           <span>/</span>
-          <span className="text-foreground">{market.category}</span>
+          <span className="text-gray-900">{market.category}</span>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
@@ -175,10 +176,10 @@ function MarketPageContent({ market }: { market: Market }) {
           <div className="space-y-6">
             {/* Question */}
             <div>
-              <h1 className="text-2xl font-bold leading-tight mb-3">
+              <h1 className="text-2xl font-bold leading-tight text-gray-900 mb-3">
                 {market.question}
               </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                 <span className="flex items-center gap-1">
                   <svg
                     viewBox="0 0 24 24"
@@ -208,15 +209,18 @@ function MarketPageContent({ market }: { market: Market }) {
               />
             )}
 
+            {/* Comments */}
+            <CommentFeed />
+
             {/* Order book */}
             <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />
 
             {/* Market info */}
-            <div className="rounded-xl border border-border bg-card p-4">
-              <h3 className="mb-3 text-sm font-semibold">
+            <div className="rounded-xl border border-gray-200 bg-white p-4">
+              <h3 className="mb-3 text-sm font-bold text-gray-900">
                 Resolution Criteria
               </h3>
-              <p className="text-sm text-muted leading-relaxed">
+              <p className="text-sm text-gray-500 leading-relaxed">
                 This market resolves based on real-time astronomical data from
                 NASA&apos;s DONKI (Space Weather Database). The outcome is
                 deterministically computed using SHA-256 hashing of the latest
@@ -227,22 +231,22 @@ function MarketPageContent({ market }: { market: Market }) {
             {/* Related markets */}
             {relatedMarkets.length > 0 && (
               <div>
-                <h3 className="mb-3 text-sm font-semibold">Related Markets</h3>
+                <h3 className="mb-3 text-sm font-bold text-gray-900">Related Markets</h3>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   {relatedMarkets.map((rm) => (
                     <Link
                       key={rm.id}
                       href={`/market/${rm.id}`}
-                      className="rounded-lg border border-border p-3 transition-colors hover:border-gray-300"
+                      className="rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300"
                     >
-                      <p className="text-sm font-medium line-clamp-2 mb-2">
+                      <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
                         {rm.question}
                       </p>
                       <div className="flex items-center gap-2 text-xs">
                         <span className="font-bold text-green tabular-nums">
                           {Math.round(rm.yesPrice * 100)}¢ Yes
                         </span>
-                        <span className="text-muted">
+                        <span className="text-gray-400">
                           {formatVolume(rm.volume)}
                         </span>
                       </div>
