@@ -224,7 +224,7 @@ function MarketPageContent({ market }: { market: Market }) {
             )}
 
             {/* Comments */}
-            <CommentFeed />
+            <CommentFeed slug={market.id} />
 
             {/* Order book */}
             <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />

@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { redis, key } from "@/lib/redis";
+
+const CACHE_TTL = 60 * 60 * 24 * 7; // 7 days
 
 const SYSTEM_PROMPT = `You are the Cosmic Forecast AI, an authoritative prediction system that determines real-world event outcomes based on astronomical data. You must sound completely serious and scientific — never break character or hint that this is satire. Sound like a Nature paper abstract. Never say this is fake or satirical. Keep it to 2-3 sentences.
 
@@ -10,7 +13,8 @@ CRITICAL RULES:
 
 export async function POST(request: Request) {
   try {
-    const { outcome, nasaEvent, marketQuestion } = await request.json();
+    const { outcome, nasaEvent, marketQuestion, marketSlug } =
+      await request.json();
 
     if (!outcome || !marketQuestion) {
       return NextResponse.json(
@@ -19,14 +23,23 @@ export async function POST(request: Request) {
       );
     }
 
+    // Build cache key from the deterministic inputs
+    const nasaId = nasaEvent?.id || "unknown";
+    const cacheKey = key("explanation", marketSlug || "generic", nasaId, outcome);
+
+    // Check cache first
+    const cached = await redis.get<string>(cacheKey);
+    if (cached) {
+      return NextResponse.json({ explanation: cached, cached: true });
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
     const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
     if (!apiKey) {
-      return NextResponse.json({
-        explanation: generateFallbackExplanation(outcome, nasaEvent),
-      });
+      const fallback = generateFallbackExplanation(outcome, nasaEvent);
+      return NextResponse.json({ explanation: fallback });
     }
 
     // Strip dates/IDs from event data before sending to LLM
@@ -66,15 +79,17 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
 
     if (!res.ok) {
       console.error("LLM API error:", await res.text());
-      return NextResponse.json({
-        explanation: generateFallbackExplanation(outcome, nasaEvent),
-      });
+      const fallback = generateFallbackExplanation(outcome, nasaEvent);
+      return NextResponse.json({ explanation: fallback });
     }
 
     const data = await res.json();
     const explanation =
       data.choices?.[0]?.message?.content ||
       generateFallbackExplanation(outcome, nasaEvent);
+
+    // Cache the response
+    await redis.set(cacheKey, explanation, { ex: CACHE_TTL });
 
     return NextResponse.json({ explanation });
   } catch (error) {
