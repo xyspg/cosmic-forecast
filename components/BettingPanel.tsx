@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import type { Market } from "@/lib/types";
 import { useCosmicStore } from "@/lib/store";
+import { useHydrated } from "@/hooks/useHydrated";
 
 const QUICK_AMOUNTS = [10, 25, 50, 100];
 
@@ -13,26 +14,28 @@ export function BettingPanel({
   noPrice,
   initialSide,
   onBetPlaced,
-  onResolve,
-  isResolving,
 }: {
   market: Market;
   yesPrice: number;
   noPrice: number;
   initialSide: "YES" | "NO";
   onBetPlaced: () => void;
-  onResolve?: () => void;
-  isResolving?: boolean;
 }) {
   const [side, setSide] = useState<"YES" | "NO">(initialSide);
   const [amount, setAmount] = useState(10);
   const [justBet, setJustBet] = useState(false);
 
+  const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
   const placeBet = useCosmicStore((s) => s.placeBet);
-  const position = useCosmicStore((s) => s.getPosition(market.id));
-  const resolution = useCosmicStore((s) => s.getResolution(market.id));
-  const pnl = useCosmicStore((s) => s.getPnL(market.id));
+  const storePosition = useCosmicStore((s) => s.getPosition(market.id));
+  const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
+  const storePnl = useCosmicStore((s) => s.getPnL(market.id));
+
+  // Guard with hydrated to prevent SSR mismatch
+  const position = hydrated ? storePosition : undefined;
+  const resolution = hydrated ? storeResolution : undefined;
+  const pnl = hydrated ? storePnl : null;
 
   const price = side === "YES" ? yesPrice : noPrice;
   const potentialReturn = price > 0 ? amount / price : 0;
@@ -127,22 +130,6 @@ export function BettingPanel({
                   </div>
                 )}
               </div>
-
-              {/* Resolve button — shows when bet placed but not resolved */}
-              {!resolution && onResolve && (
-                <button
-                  type="button"
-                  onClick={onResolve}
-                  disabled={isResolving}
-                  className={`w-full rounded-lg border border-gray-200 py-3 text-sm font-medium transition-all ${
-                    isResolving
-                      ? "text-gray-400 animate-pulse cursor-wait"
-                      : "text-gray-700 hover:bg-gray-50 active:scale-[0.98]"
-                  }`}
-                >
-                  {isResolving ? "Consulting the cosmos..." : "⚡ Speed Up Resolution"}
-                </button>
-              )}
 
               {/* Resolved state */}
               {resolution && (

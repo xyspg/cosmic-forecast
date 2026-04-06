@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo, useCallback, useState } from "react";
+import { use, useMemo, useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams, notFound } from "next/navigation";
 import marketsData from "@/data/markets.json";
@@ -64,6 +64,17 @@ function MarketPageContent({ market }: { market: Market }) {
       setShowSpeedUp(true);
     }, 2000);
   }, []);
+
+  // Returning user: has position but no resolution → auto-trigger overlay
+  const existingPosition = useCosmicStore((s) => s.getPosition(market.id));
+  useEffect(() => {
+    if (existingPosition && !existingResolution && !showSpeedUp && !showWarp) {
+      const timer = setTimeout(() => {
+        setShowSpeedUp(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [existingPosition, existingResolution, showSpeedUp, showWarp]);
 
   // User clicks "Speed Up Time" → start warp + fire API calls
   const handleSpeedUp = useCallback(async () => {
@@ -268,8 +279,6 @@ function MarketPageContent({ market }: { market: Market }) {
               noPrice={ticker.noPrice}
               initialSide={initialSide}
               onBetPlaced={handleBetPlaced}
-              onResolve={handleSpeedUp}
-              isResolving={showWarp}
             />
             <ActivityFeed markets={markets.slice(0, 10)} />
           </div>
