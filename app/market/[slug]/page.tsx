@@ -1,0 +1,271 @@
+"use client";
+
+import { use, useMemo, useCallback, useState } from "react";
+import Link from "next/link";
+import { useSearchParams, notFound } from "next/navigation";
+import marketsData from "@/data/markets.json";
+import type { Market } from "@/lib/types";
+import { Navbar } from "@/components/Navbar";
+import { PriceChart } from "@/components/PriceChart";
+import { BettingPanel } from "@/components/BettingPanel";
+import { OrderBook } from "@/components/OrderBook";
+import { ActivityFeed } from "@/components/ActivityFeed";
+import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
+import { WarpAnimation } from "@/components/WarpAnimation";
+import { CosmicReport } from "@/components/CosmicReport";
+import { useMarketTicker } from "@/hooks/useMarketTicker";
+import { useCosmicStore } from "@/lib/store";
+import { formatVolume, formatNumber } from "@/lib/fake-data";
+
+const markets = marketsData as Market[];
+
+export default function MarketPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = use(params);
+  const market = markets.find((m) => m.id === slug);
+
+  if (!market) {
+    notFound();
+  }
+
+  return <MarketPageContent market={market} />;
+}
+
+function MarketPageContent({ market }: { market: Market }) {
+  const searchParams = useSearchParams();
+  const sideParam = searchParams.get("side");
+  const initialSide: "YES" | "NO" =
+    sideParam?.toLowerCase() === "no" ? "NO" : "YES";
+
+  const ticker = useMarketTicker(market);
+  const resolveMarket = useCosmicStore((s) => s.resolveMarket);
+  const existingResolution = useCosmicStore((s) => s.getResolution(market.id));
+
+  // Flow states
+  const [showSpeedUp, setShowSpeedUp] = useState(false);
+  const [showWarp, setShowWarp] = useState(false);
+  const [apiResult, setApiResult] = useState<{
+    outcome: "YES" | "NO";
+    explanation: string;
+    nasaEventId: string;
+    nasaEventType: string;
+    hash: string;
+  } | null>(null);
+  const [warpDone, setWarpDone] = useState(false);
+
+  // After user places a bet → wait 2s → show dark overlay
+  const handleBetPlaced = useCallback(() => {
+    setTimeout(() => {
+      setShowSpeedUp(true);
+    }, 2000);
+  }, []);
+
+  // User clicks "Speed Up Time" → start warp + fire API calls
+  const handleSpeedUp = useCallback(async () => {
+    setShowSpeedUp(false);
+    setShowWarp(true);
+    ticker.freeze();
+
+    // Fire API calls in parallel during animation
+    const date = new Date().toISOString().split("T")[0];
+
+    try {
+      const resolveRes = await fetch("/api/resolve-bet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketSlug: market.id, date }),
+      });
+
+      const resolveData = await resolveRes.json();
+
+      // Now get explanation, passing the NASA event data
+      const explanationRes = await fetch("/api/generate-explanation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          marketSlug: market.id,
+          outcome: resolveData.outcome,
+          nasaEvent: resolveData.nasaEvent,
+          marketQuestion: resolveData.marketQuestion,
+        }),
+      });
+
+      const explData = await explanationRes.json();
+
+      setApiResult({
+        outcome: resolveData.outcome,
+        explanation:
+          explData.explanation || "The universe has spoken decisively.",
+        nasaEventId: resolveData.nasaEventId,
+        nasaEventType: resolveData.nasaEventType || "Solar Flare",
+        hash: resolveData.hash,
+      });
+    } catch {
+      // Fallback
+      setApiResult({
+        outcome: Math.random() > 0.5 ? "YES" : "NO",
+        explanation:
+          "The cosmic signal was received but partially obscured by interstellar noise. The SHA-256 resonance pattern remains unambiguous.",
+        nasaEventId: "FLR-FALLBACK",
+        nasaEventType: "Solar Flare",
+        hash: "0".repeat(64),
+      });
+    }
+  }, [market.id, ticker]);
+
+  // Warp animation finishes → reveal result
+  const handleWarpComplete = useCallback(() => {
+    setWarpDone(true);
+    setShowWarp(false);
+
+    if (apiResult) {
+      const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
+      ticker.setOutcome(apiResult.outcome);
+      resolveMarket(
+        market.id,
+        apiResult.outcome,
+        apiResult.explanation,
+        apiResult.nasaEventId,
+        apiResult.nasaEventType,
+        apiResult.hash,
+        confidence,
+      );
+    }
+  }, [apiResult, market.id, ticker, resolveMarket]);
+
+  // Related markets
+  const relatedMarkets = useMemo(
+    () =>
+      markets
+        .filter((m) => m.category === market.category && m.id !== market.id)
+        .slice(0, 4),
+    [market.category, market.id],
+  );
+
+  const endDate = new Date(market.endDate);
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((endDate.getTime() - Date.now()) / 86400000),
+  );
+
+  // Get resolution from store (either existing or just created)
+  const resolution = useCosmicStore((s) => s.getResolution(market.id));
+
+  return (
+    <>
+      <SpeedUpOverlay visible={showSpeedUp} onSpeedUp={handleSpeedUp} />
+      <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
+      <Navbar />
+
+      <main className="mx-auto max-w-7xl px-4 py-6">
+        {/* Breadcrumb */}
+        <div className="mb-4 flex items-center gap-2 text-sm text-muted">
+          <Link href="/" className="hover:text-foreground transition-colors">
+            Markets
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">{market.category}</span>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
+          {/* Left column */}
+          <div className="space-y-6">
+            {/* Question */}
+            <div>
+              <h1 className="text-2xl font-bold leading-tight mb-3">
+                {market.question}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted">
+                <span className="flex items-center gap-1">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  {daysLeft > 0 ? `${daysLeft} days left` : "Ending soon"}
+                </span>
+                <span>{formatVolume(ticker.volume)} Volume</span>
+                <span>{formatNumber(ticker.totalBettors)} Bettors</span>
+              </div>
+            </div>
+
+            {/* Price chart */}
+            <PriceChart slug={market.id} currentPrice={ticker.yesPrice} />
+
+            {/* Cosmic report — show after resolution */}
+            {resolution && (
+              <CosmicReport
+                resolution={resolution}
+                marketQuestion={market.question}
+              />
+            )}
+
+            {/* Order book */}
+            <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />
+
+            {/* Market info */}
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h3 className="mb-3 text-sm font-semibold">
+                Resolution Criteria
+              </h3>
+              <p className="text-sm text-muted leading-relaxed">
+                This market resolves based on real-time astronomical data from
+                NASA&apos;s DONKI (Space Weather Database). The outcome is
+                deterministically computed using SHA-256 hashing of the latest
+                solar event ID, current date, and market identifier.
+              </p>
+            </div>
+
+            {/* Related markets */}
+            {relatedMarkets.length > 0 && (
+              <div>
+                <h3 className="mb-3 text-sm font-semibold">Related Markets</h3>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {relatedMarkets.map((rm) => (
+                    <Link
+                      key={rm.id}
+                      href={`/market/${rm.id}`}
+                      className="rounded-lg border border-border p-3 transition-colors hover:border-gray-300"
+                    >
+                      <p className="text-sm font-medium line-clamp-2 mb-2">
+                        {rm.question}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-bold text-green tabular-nums">
+                          {Math.round(rm.yesPrice * 100)}¢ Yes
+                        </span>
+                        <span className="text-muted">
+                          {formatVolume(rm.volume)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Right column */}
+          <div className="space-y-6">
+            <BettingPanel
+              market={market}
+              yesPrice={ticker.yesPrice}
+              noPrice={ticker.noPrice}
+              initialSide={initialSide}
+              onBetPlaced={handleBetPlaced}
+            />
+            <ActivityFeed markets={markets.slice(0, 10)} />
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
