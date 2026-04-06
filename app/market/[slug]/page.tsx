@@ -16,6 +16,7 @@ import { WarpAnimation } from "@/components/WarpAnimation";
 import { CosmicReport } from "@/components/CosmicReport";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { useCosmicStore } from "@/lib/store";
+import { useHydrated } from "@/hooks/useHydrated";
 import { formatVolume, formatNumber } from "@/lib/fake-data";
 
 const markets = marketsData as Market[];
@@ -152,8 +153,10 @@ function MarketPageContent({ market }: { market: Market }) {
     Math.ceil((endDate.getTime() - Date.now()) / 86400000),
   );
 
-  // Get resolution from store (either existing or just created)
-  const resolution = useCosmicStore((s) => s.getResolution(market.id));
+  // Get resolution from store — guard with hydrated to avoid mismatch
+  const hydrated = useHydrated();
+  const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
+  const resolution = hydrated ? storeResolution : undefined;
 
   return (
     <>
@@ -265,6 +268,8 @@ function MarketPageContent({ market }: { market: Market }) {
               noPrice={ticker.noPrice}
               initialSide={initialSide}
               onBetPlaced={handleBetPlaced}
+              onResolve={handleSpeedUp}
+              isResolving={showWarp}
             />
             <ActivityFeed markets={markets.slice(0, 10)} />
           </div>

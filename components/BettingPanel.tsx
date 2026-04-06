@@ -13,12 +13,16 @@ export function BettingPanel({
   noPrice,
   initialSide,
   onBetPlaced,
+  onResolve,
+  isResolving,
 }: {
   market: Market;
   yesPrice: number;
   noPrice: number;
   initialSide: "YES" | "NO";
   onBetPlaced: () => void;
+  onResolve?: () => void;
+  isResolving?: boolean;
 }) {
   const [side, setSide] = useState<"YES" | "NO">(initialSide);
   const [amount, setAmount] = useState(10);
@@ -123,6 +127,22 @@ export function BettingPanel({
                   </div>
                 )}
               </div>
+
+              {/* Resolve button — shows when bet placed but not resolved */}
+              {!resolution && onResolve && (
+                <button
+                  type="button"
+                  onClick={onResolve}
+                  disabled={isResolving}
+                  className={`w-full rounded-lg border border-gray-200 py-3 text-sm font-medium transition-all ${
+                    isResolving
+                      ? "text-gray-400 animate-pulse cursor-wait"
+                      : "text-gray-700 hover:bg-gray-50 active:scale-[0.98]"
+                  }`}
+                >
+                  {isResolving ? "Consulting the cosmos..." : "⚡ Speed Up Resolution"}
+                </button>
+              )}
 
               {/* Resolved state */}
               {resolution && (
