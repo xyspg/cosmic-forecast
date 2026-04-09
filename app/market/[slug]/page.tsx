@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo, useCallback, useState, useEffect } from "react";
+import { use, useMemo, useCallback, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams, notFound } from "next/navigation";
 import marketsData from "@/data/markets.json";
@@ -49,14 +49,34 @@ function MarketPageContent({ market }: { market: Market }) {
   // Flow states
   const [showSpeedUp, setShowSpeedUp] = useState(false);
   const [showWarp, setShowWarp] = useState(false);
-  const [apiResult, setApiResult] = useState<{
+
+  // Refs to coordinate two async events: animation done + API response
+  type ApiResult = {
     outcome: "YES" | "NO";
     explanation: string;
     nasaEventId: string;
     nasaEventType: string;
     hash: string;
-  } | null>(null);
-  const [warpDone, setWarpDone] = useState(false);
+  };
+  const apiResultRef = useRef<ApiResult | null>(null);
+  const warpDoneRef = useRef(false);
+
+  // Always-fresh resolve function via ref (avoids stale closures in callbacks)
+  const resolveRef = useRef<(result: ApiResult) => void>(() => {});
+  resolveRef.current = (result) => {
+    setShowWarp(false);
+    const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
+    ticker.setOutcome(result.outcome);
+    resolveMarket(
+      market.id,
+      result.outcome,
+      result.explanation,
+      result.nasaEventId,
+      result.nasaEventType,
+      result.hash,
+      confidence,
+    );
+  };
 
   // After user places a bet → wait 2s → show dark overlay
   const handleBetPlaced = useCallback(() => {
@@ -80,10 +100,12 @@ function MarketPageContent({ market }: { market: Market }) {
   const handleSpeedUp = useCallback(async () => {
     setShowSpeedUp(false);
     setShowWarp(true);
+    apiResultRef.current = null;
+    warpDoneRef.current = false;
     ticker.freeze();
 
-    // Fire API calls in parallel during animation
     const date = new Date().toISOString().split("T")[0];
+    let result: ApiResult;
 
     try {
       const resolveRes = await fetch("/api/resolve-bet", {
@@ -94,7 +116,6 @@ function MarketPageContent({ market }: { market: Market }) {
 
       const resolveData = await resolveRes.json();
 
-      // Now get explanation, passing the NASA event data
       const explanationRes = await fetch("/api/generate-explanation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,46 +129,41 @@ function MarketPageContent({ market }: { market: Market }) {
 
       const explData = await explanationRes.json();
 
-      setApiResult({
+      result = {
         outcome: resolveData.outcome,
         explanation:
           explData.explanation || "The universe has spoken decisively.",
         nasaEventId: resolveData.nasaEventId,
         nasaEventType: resolveData.nasaEventType || "Solar Flare",
         hash: resolveData.hash,
-      });
+      };
     } catch {
-      // Fallback
-      setApiResult({
+      result = {
         outcome: Math.random() > 0.5 ? "YES" : "NO",
         explanation:
           "The cosmic signal was received but partially obscured by interstellar noise. The SHA-256 resonance pattern remains unambiguous.",
         nasaEventId: "FLR-FALLBACK",
         nasaEventType: "Solar Flare",
         hash: "0".repeat(64),
-      });
+      };
+    }
+
+    // API done — if animation already finished, resolve immediately
+    apiResultRef.current = result;
+    if (warpDoneRef.current) {
+      resolveRef.current(result);
     }
   }, [market.id, ticker]);
 
-  // Warp animation finishes → reveal result
+  // Warp animation finishes — if API already returned, resolve immediately
+  // Otherwise animation stays visible until handleSpeedUp resolves
   const handleWarpComplete = useCallback(() => {
-    setWarpDone(true);
-    setShowWarp(false);
-
-    if (apiResult) {
-      const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
-      ticker.setOutcome(apiResult.outcome);
-      resolveMarket(
-        market.id,
-        apiResult.outcome,
-        apiResult.explanation,
-        apiResult.nasaEventId,
-        apiResult.nasaEventType,
-        apiResult.hash,
-        confidence,
-      );
+    warpDoneRef.current = true;
+    const result = apiResultRef.current;
+    if (result) {
+      resolveRef.current(result);
     }
-  }, [apiResult, market.id, ticker, resolveMarket]);
+  }, []);
 
   // Related markets
   const relatedMarkets = useMemo(
