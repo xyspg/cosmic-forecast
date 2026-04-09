@@ -16,12 +16,15 @@ interface NasaCME {
   note: string;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
     const today = new Date();
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 86400000);
-    const startDate = thirtyDaysAgo.toISOString().split("T")[0];
-    const endDate = today.toISOString().split("T")[0];
+    const startDate =
+      searchParams.get("startDate") || thirtyDaysAgo.toISOString().split("T")[0];
+    const endDate =
+      searchParams.get("endDate") || today.toISOString().split("T")[0];
 
     // Fetch solar flares and CMEs from NASA DONKI (no API key needed)
     const [flaresRes, cmesRes] = await Promise.all([

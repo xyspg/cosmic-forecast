@@ -5,6 +5,15 @@ import type { Market } from "@/lib/types";
 
 const markets = marketsData as Market[];
 
+// Simple deterministic hash from string → positive integer
+function slugHash(slug: string): number {
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) {
+    h = ((h << 5) - h + slug.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
 export async function POST(request: Request) {
   try {
     const { marketSlug, date } = await request.json();
@@ -20,12 +29,17 @@ export async function POST(request: Request) {
     const market = markets.find((m) => m.id === marketSlug);
     const marketQuestion = market?.question || marketSlug;
 
-    // Fetch latest NASA event
+    // Fetch last 30 days of NASA events, pick one deterministically per market
+    const hash = slugHash(marketSlug);
     const cosmicRes = await fetch(
       new URL("/api/cosmic-data", request.url).toString(),
     );
     const cosmicData = await cosmicRes.json();
-    const nasaEvent = cosmicData.events?.[0];
+
+    const events = cosmicData.events || [];
+    const nasaEvent = events.length > 0
+      ? events[hash % events.length]
+      : null;
 
     if (!nasaEvent) {
       return NextResponse.json(
@@ -35,7 +49,7 @@ export async function POST(request: Request) {
     }
 
     // Compute outcome using SHA-256 hash
-    const { outcome, hash } = await computeCosmicOutcome(
+    const { outcome, hash: cosmicHash } = await computeCosmicOutcome(
       nasaEvent.id,
       date,
       marketSlug,
@@ -43,7 +57,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       outcome,
-      hash,
+      hash: cosmicHash,
       nasaEventId: nasaEvent.id,
       nasaEventType: nasaEvent.type,
       nasaEvent,
