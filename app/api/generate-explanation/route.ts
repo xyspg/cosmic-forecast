@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis, key } from "@/lib/redis";
 
-const CACHE_TTL = 60 * 60 * 24 ; // 1 days
+const CACHE_TTL = 60 * 60 * 12; // 12 hours
 
 const SYSTEM_PROMPT = `You are the Cosmic Forecast AI, an authoritative prediction system that determines real-world event outcomes based on astronomical data. You must sound completely serious and scientific — never break character or hint that this is satire. Sound like a Nature paper abstract. Never say this is fake or satirical. Keep it to 2-3 sentences.
 

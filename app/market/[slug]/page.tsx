@@ -191,7 +191,7 @@ function MarketPageContent({ market }: { market: Market }) {
       <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
       <Navbar />
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="mx-auto max-w-5xl overflow-x-hidden px-4 py-6">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
           <Link href="/" className="hover:text-gray-900 transition-colors">
@@ -203,7 +203,7 @@ function MarketPageContent({ market }: { market: Market }) {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
           {/* Left column */}
-          <div className="space-y-6">
+          <div className="min-w-0 space-y-6">
             {/* Question */}
             <div>
               <h1 className="text-2xl font-bold leading-tight text-gray-900 mb-3">
@@ -230,6 +230,17 @@ function MarketPageContent({ market }: { market: Market }) {
 
             {/* Price chart */}
             <PriceChart slug={market.id} currentPrice={ticker.yesPrice} />
+
+            {/* Betting panel — below chart on mobile, sidebar on desktop */}
+            <div className="lg:hidden">
+              <BettingPanel
+                market={market}
+                yesPrice={ticker.yesPrice}
+                noPrice={ticker.noPrice}
+                initialSide={initialSide}
+                onBetPlaced={handleBetPlaced}
+              />
+            </div>
 
             {/* Cosmic report — show after resolution */}
             {resolution && (
@@ -287,8 +298,8 @@ function MarketPageContent({ market }: { market: Market }) {
             )}
           </div>
 
-          {/* Right column */}
-          <div className="space-y-6">
+          {/* Right column — hidden on mobile (betting panel is inline above) */}
+          <div className="hidden lg:block space-y-6">
             <BettingPanel
               market={market}
               yesPrice={ticker.yesPrice}
