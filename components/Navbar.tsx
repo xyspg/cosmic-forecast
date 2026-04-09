@@ -108,17 +108,18 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Right side — balance only */}
-        <div className="flex items-center">
-          <div className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-1.5">
-            <div className="h-2 w-2 rounded-full bg-green" />
-            <RollingNumber
-              value={hydrated ? balance : 1000}
-              prefix="$"
-              className="text-sm font-semibold text-gray-900"
-            />
-          </div>
-        </div>
+        {/* Right side — balance link to wallet */}
+        <Link
+          href="/wallet"
+          className="flex items-center gap-2 rounded-full border border-gray-200 px-4 py-1.5 transition-colors hover:bg-gray-50"
+        >
+          <div className="h-2 w-2 rounded-full bg-green" />
+          <RollingNumber
+            value={hydrated ? balance : 1000}
+            prefix="$"
+            className="text-sm font-semibold text-gray-900"
+          />
+        </Link>
       </div>
     </header>
   );

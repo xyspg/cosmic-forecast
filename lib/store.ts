@@ -48,6 +48,7 @@ interface CosmicStore {
   getPosition: (marketId: string) => Position | undefined;
   getResolution: (marketId: string) => Resolution | undefined;
   getPnL: (marketId: string) => number | null;
+  addBalance: (amount: number) => void;
   resetAll: () => void;
 }
 
@@ -153,6 +154,11 @@ export const useCosmicStore = create<CosmicStore>()(
         }
 
         return Math.round((totalReturn - totalSpent) * 100) / 100;
+      },
+
+      addBalance: (amount) => {
+        const { balance } = get();
+        set({ balance: Math.round((balance + amount) * 100) / 100 });
       },
 
       resetAll: () => {
