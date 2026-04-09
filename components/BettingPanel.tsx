@@ -165,7 +165,7 @@ export function BettingPanel({
                     type="number"
                     value={amount}
                     onChange={(e) =>
-                      setAmount(Math.max(1, Number(e.target.value) || 0))
+                      setAmount(Number(e.target.value) || 0)
                     }
                     className="w-full rounded-lg border border-border bg-white py-2.5 pl-7 pr-3 text-sm font-medium tabular-nums focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
                   />

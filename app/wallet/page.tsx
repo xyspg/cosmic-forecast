@@ -233,7 +233,7 @@ export default function WalletPage() {
                   type="number"
                   value={depositAmount}
                   onChange={(e) =>
-                    setDepositAmount(Math.max(1, Number(e.target.value) || 0))
+                    setDepositAmount(Number(e.target.value) || 0)
                   }
                   className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-7 pr-3 text-sm font-medium tabular-nums focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
                 />
