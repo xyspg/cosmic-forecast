@@ -122,19 +122,19 @@ export function PriceChart({
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4">
       {/* Header */}
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-y-2">
+        <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2">
             <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
             <span className="text-sm text-gray-600">Yes</span>
-            <span className="text-2xl font-black tabular-nums text-gray-900">
+            <span className="text-xl sm:text-2xl font-black tabular-nums text-gray-900">
               {Math.round(activePoint.yes * 100)}%
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="h-2.5 w-2.5 rounded-full bg-blue-300" />
             <span className="text-sm text-gray-600">No</span>
-            <span className="text-2xl font-black tabular-nums text-gray-900">
+            <span className="text-xl sm:text-2xl font-black tabular-nums text-gray-900">
               {Math.round(activePoint.no * 100)}%
             </span>
           </div>
