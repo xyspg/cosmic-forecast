@@ -23,9 +23,8 @@ export async function POST(request: Request) {
       );
     }
 
-    // Build cache key from the deterministic inputs
-    const nasaId = nasaEvent?.id || "unknown";
-    const cacheKey = key("explanation", marketSlug || "generic", nasaId, outcome);
+    // Cache by market + outcome only (NASA event may shift with the 30-day window)
+    const cacheKey = key("explanation", marketSlug || "generic", outcome);
 
     // Check cache first
     const cached = await redis.get<string>(cacheKey);
