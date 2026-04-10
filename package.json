@@ -9,6 +9,9 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
+    "test": "playwright test --grep-invert \"30 concurrent\"",
+    "test:load": "playwright test tests/e2e/load.spec.ts",
+    "test:all": "playwright test",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
@@ -25,6 +28,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
