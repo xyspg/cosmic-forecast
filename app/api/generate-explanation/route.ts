@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redis, key } from "@/lib/redis";
+import { getRedis, key } from "@/lib/redis";
 
 const CACHE_TTL = 60 * 60 * 12; // 12 hours
 
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     const cacheKey = key("explanation", marketSlug || "generic", outcome);
 
     // Check cache first
+    const redis = getRedis();
     const cached = await redis.get<string>(cacheKey);
     if (cached) {
       return NextResponse.json({ explanation: cached, cached: true });

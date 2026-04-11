@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redis, key } from "@/lib/redis";
+import { getRedis, key } from "@/lib/redis";
 
 const COMMENT_TTL = 60 * 60 * 24; // 1 day
 const MAX_COMMENTS = 100;
@@ -20,6 +20,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "slug required" }, { status: 400 });
   }
 
+  const redis = getRedis();
   const comments = await redis.lrange<StoredComment>(
     key("comments", slug),
     0,
@@ -50,6 +51,7 @@ export async function POST(request: Request) {
     const k = key("comments", slug);
 
     // Pipeline: single HTTP round-trip for all three operations
+    const redis = getRedis();
     const pipe = redis.pipeline();
     pipe.lpush(k, comment);
     pipe.ltrim(k, 0, MAX_COMMENTS - 1);
