@@ -21,6 +21,7 @@ interface ApplePaySessionInstance {
 }
 import { useCosmicStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/useHydrated";
+import { WalletSkeleton } from "@/components/Skeleton";
 
 const DEPOSIT_AMOUNTS = [100, 250, 500, 1000];
 
@@ -182,6 +183,15 @@ export default function WalletPage() {
     }
   };
 
+  if (!hydrated) {
+    return (
+      <>
+        <Navbar />
+        <WalletSkeleton />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
@@ -190,14 +200,12 @@ export default function WalletPage() {
         <div className="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
           <p className="text-sm text-muted mb-1">Total Balance</p>
           <p className="text-4xl font-black tabular-nums text-gray-900 mb-1">
-            ${hydrated ? balance.toFixed(2) : "1,000.00"}
+            ${balance.toFixed(2)}
           </p>
           <p
             className={`text-sm font-medium tabular-nums ${netPnL >= 0 ? "text-green" : "text-red"}`}
           >
-            {hydrated
-              ? `${netPnL >= 0 ? "+" : ""}$${netPnL.toFixed(2)} All Time`
-              : "$0.00 All Time"}
+            {netPnL >= 0 ? "+" : ""}${netPnL.toFixed(2)} All Time
           </p>
 
           <div className="mt-5 flex gap-3">
@@ -264,33 +272,29 @@ export default function WalletPage() {
         </div>
 
         {/* Stats Grid */}
-        {hydrated && (
-          <div className="grid grid-cols-3 gap-3 mb-6">
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <p className="text-xs text-muted mb-1">Total Wagered</p>
-              <p className="text-lg font-bold tabular-nums">
-                ${stats.totalWagered.toFixed(2)}
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <p className="text-xs text-muted mb-1">Win Rate</p>
-              <p className="text-lg font-bold tabular-nums">
-                {stats.wins + stats.losses > 0
-                  ? `${Math.round((stats.wins / (stats.wins + stats.losses)) * 100)}%`
-                  : "—"}
-              </p>
-            </div>
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <p className="text-xs text-muted mb-1">Active Bets</p>
-              <p className="text-lg font-bold tabular-nums">
-                {stats.activeBets}
-              </p>
-            </div>
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="text-xs text-muted mb-1">Total Wagered</p>
+            <p className="text-lg font-bold tabular-nums">
+              ${stats.totalWagered.toFixed(2)}
+            </p>
           </div>
-        )}
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="text-xs text-muted mb-1">Win Rate</p>
+            <p className="text-lg font-bold tabular-nums">
+              {stats.wins + stats.losses > 0
+                ? `${Math.round((stats.wins / (stats.wins + stats.losses)) * 100)}%`
+                : "—"}
+            </p>
+          </div>
+          <div className="rounded-xl border border-gray-200 bg-white p-4">
+            <p className="text-xs text-muted mb-1">Active Bets</p>
+            <p className="text-lg font-bold tabular-nums">{stats.activeBets}</p>
+          </div>
+        </div>
 
         {/* Positions */}
-        {hydrated && positions.length > 0 && (
+        {positions.length > 0 && (
           <div className="mb-6">
             <h2 className="text-sm font-bold text-gray-900 mb-3">
               Your Positions
@@ -365,7 +369,7 @@ export default function WalletPage() {
           <h2 className="text-sm font-bold text-gray-900 mb-3">
             Transaction History
           </h2>
-          {hydrated && transactions.length > 0 ? (
+          {transactions.length > 0 ? (
             <div className="rounded-xl border border-gray-200 bg-white divide-y divide-gray-100">
               {transactions.map((tx) => (
                 <div
