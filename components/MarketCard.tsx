@@ -16,10 +16,14 @@ export function MarketCard({ market }: { market: Market }) {
 
   const isResolved = hydrated && !!resolution;
   const yesPct = isResolved
-    ? resolution.outcome === "YES" ? 100 : 0
+    ? resolution.outcome === "YES"
+      ? 100
+      : 0
     : Math.round(yesPrice * 100);
   const noPct = isResolved
-    ? resolution.outcome === "NO" ? 100 : 0
+    ? resolution.outcome === "NO"
+      ? 100
+      : 0
     : Math.round(noPrice * 100);
 
   const icon = getCategoryIcon(market.category);

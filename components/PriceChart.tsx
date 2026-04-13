@@ -74,17 +74,20 @@ export function PriceChart({
   // Floating dollars
   useEffect(() => {
     let nextId = 0;
-    const interval = setInterval(() => {
-      setFloatingDollars((prev) => [
-        ...prev.slice(-5),
-        {
-          id: nextId++,
-          amount: randomAmount(),
-          x: 15 + Math.random() * 65,
-          y: 15 + Math.random() * 50,
-        },
-      ]);
-    }, 2000 + Math.random() * 1500);
+    const interval = setInterval(
+      () => {
+        setFloatingDollars((prev) => [
+          ...prev.slice(-5),
+          {
+            id: nextId++,
+            amount: randomAmount(),
+            x: 15 + Math.random() * 65,
+            y: 15 + Math.random() * 50,
+          },
+        ]);
+      },
+      2000 + Math.random() * 1500,
+    );
     return () => clearInterval(interval);
   }, []);
 
@@ -170,7 +173,10 @@ export function PriceChart({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
-        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto pointer-events-none">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full h-auto pointer-events-none"
+        >
           {/* Dotted grid */}
           {gridLines.map((p) => {
             const y = yScale(p);

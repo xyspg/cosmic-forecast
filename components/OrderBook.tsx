@@ -20,8 +20,7 @@ function generateOrders(
   for (let i = 0; i < count; i++) {
     hash = (hash * 16807) % 2147483647;
     const offset = (i + 1) * 0.01;
-    const price =
-      side === "bid" ? centerPrice - offset : centerPrice + offset;
+    const price = side === "bid" ? centerPrice - offset : centerPrice + offset;
     const clampedPrice = Math.max(0.01, Math.min(0.99, price));
     const size = Math.floor((Math.abs(hash) % 5000) + 100);
     cumulative += size;
@@ -73,7 +72,10 @@ export function OrderBook({
       {/* Asks (reversed so highest is on top) */}
       <div className="border-b border-border">
         {[...asks].reverse().map((order, i) => (
-          <div key={`ask-${i}`} className="relative grid grid-cols-3 px-4 py-1 text-xs">
+          <div
+            key={`ask-${i}`}
+            className="relative grid grid-cols-3 px-4 py-1 text-xs"
+          >
             <div
               className="absolute inset-y-0 right-0 bg-red/5"
               style={{ width: `${(order.total / maxTotal) * 100}%` }}
@@ -102,7 +104,10 @@ export function OrderBook({
       {/* Bids */}
       <div>
         {bids.map((order, i) => (
-          <div key={`bid-${i}`} className="relative grid grid-cols-3 px-4 py-1 text-xs">
+          <div
+            key={`bid-${i}`}
+            className="relative grid grid-cols-3 px-4 py-1 text-xs"
+          >
             <div
               className="absolute inset-y-0 right-0 bg-green/5"
               style={{ width: `${(order.total / maxTotal) * 100}%` }}

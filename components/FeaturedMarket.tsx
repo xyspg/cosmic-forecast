@@ -65,17 +65,20 @@ export function FeaturedMarket({ market }: { market: Market }) {
     setComments(initial);
     let nextId = 12;
 
-    const interval = setInterval(() => {
-      setComments((prev) => [
-        ...prev,
-        {
-          id: nextId++,
-          username: randomUsername(),
-          comment: randomComment(),
-          color: randomAvatarColor(),
-        },
-      ]);
-    }, 3500 + Math.random() * 2000);
+    const interval = setInterval(
+      () => {
+        setComments((prev) => [
+          ...prev,
+          {
+            id: nextId++,
+            username: randomUsername(),
+            comment: randomComment(),
+            color: randomAvatarColor(),
+          },
+        ]);
+      },
+      3500 + Math.random() * 2000,
+    );
 
     return () => clearInterval(interval);
   }, [market.id]);
@@ -96,16 +99,22 @@ export function FeaturedMarket({ market }: { market: Market }) {
   const yesAreaD = `${yesPathD} L ${xS(history.length - 1)} ${PAD.top + CH} L ${xS(0)} ${PAD.top + CH} Z`;
 
   // Active point for header display
-  const activePoint = hoverIndex !== null ? history[hoverIndex] : history[history.length - 1];
+  const activePoint =
+    hoverIndex !== null ? history[hoverIndex] : history[history.length - 1];
   const activeYesPct = Math.round(activePoint.yes * 100);
   const activeNoPct = Math.round(activePoint.no * 100);
 
   // Hover date
-  const hoverDate = hoverIndex !== null
-    ? history[hoverIndex].date.toLocaleString("en-US", {
-        month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
-      })
-    : null;
+  const hoverDate =
+    hoverIndex !== null
+      ? history[hoverIndex].date.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : null;
 
   // Chart mouse handlers
   function handleChartMouseMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -128,7 +137,10 @@ export function FeaturedMarket({ market }: { market: Market }) {
   const timeIndices = [0, Math.floor(history.length * 0.5), history.length - 1];
   const timeLabels = timeIndices.map((idx) => ({
     x: xS(idx),
-    text: history[idx].date.toLocaleString("en-US", { month: "short", day: "numeric" }),
+    text: history[idx].date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+    }),
   }));
 
   return (
@@ -158,7 +170,9 @@ export function FeaturedMarket({ market }: { market: Market }) {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-500" />
-                <span className="text-xs text-gray-500">Yes {activeYesPct}%</span>
+                <span className="text-xs text-gray-500">
+                  Yes {activeYesPct}%
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-300" />
@@ -186,7 +200,9 @@ export function FeaturedMarket({ market }: { market: Market }) {
 
         {/* Hover date */}
         <div className="h-4 mb-1">
-          {hoverDate && <span className="text-xs text-gray-400">{hoverDate}</span>}
+          {hoverDate && (
+            <span className="text-xs text-gray-400">{hoverDate}</span>
+          )}
         </div>
 
         {/* Chart with hover — mouse events on this div */}
@@ -196,14 +212,30 @@ export function FeaturedMarket({ market }: { market: Market }) {
           onMouseMove={handleChartMouseMove}
           onMouseLeave={handleChartMouseLeave}
         >
-          <svg viewBox={`0 0 ${CW_TOTAL} ${CH_TOTAL}`} className="w-full h-auto pointer-events-none">
+          <svg
+            viewBox={`0 0 ${CW_TOTAL} ${CH_TOTAL}`}
+            className="w-full h-auto pointer-events-none"
+          >
             {/* Dotted grid */}
             {[0, 0.2, 0.4, 0.6, 0.8, 1.0].map((p) => {
               const y = yS(p);
               return (
                 <g key={p}>
-                  <line x1={PAD.left} y1={y} x2={CW_TOTAL - PAD.right} y2={y} stroke="#e5e7eb" strokeWidth={0.5} strokeDasharray="4 4" />
-                  <text x={CW_TOTAL - PAD.right + 4} y={y + 3} textAnchor="start" className="text-[9px] fill-gray-400">
+                  <line
+                    x1={PAD.left}
+                    y1={y}
+                    x2={CW_TOTAL - PAD.right}
+                    y2={y}
+                    stroke="#e5e7eb"
+                    strokeWidth={0.5}
+                    strokeDasharray="4 4"
+                  />
+                  <text
+                    x={CW_TOTAL - PAD.right + 4}
+                    y={y + 3}
+                    textAnchor="start"
+                    className="text-[9px] fill-gray-400"
+                  >
                     {Math.round(p * 100)}%
                   </text>
                 </g>
@@ -212,34 +244,95 @@ export function FeaturedMarket({ market }: { market: Market }) {
 
             {/* Time labels */}
             {timeLabels.map((l) => (
-              <text key={l.text} x={l.x} y={CH_TOTAL - 3} textAnchor="middle" className="text-[9px] fill-gray-400">
+              <text
+                key={l.text}
+                x={l.x}
+                y={CH_TOTAL - 3}
+                textAnchor="middle"
+                className="text-[9px] fill-gray-400"
+              >
                 {l.text}
               </text>
             ))}
 
             {/* Area + lines */}
             <path d={yesAreaD} fill="#3b82f6" opacity={0.04} />
-            <path d={noPathD} fill="none" stroke="#93c5fd" strokeWidth={1.5} strokeLinejoin="round" />
-            <path d={yesPathD} fill="none" stroke="#3b82f6" strokeWidth={2} strokeLinejoin="round" />
+            <path
+              d={noPathD}
+              fill="none"
+              stroke="#93c5fd"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+            />
+            <path
+              d={yesPathD}
+              fill="none"
+              stroke="#3b82f6"
+              strokeWidth={2}
+              strokeLinejoin="round"
+            />
 
             {/* Hover crosshair */}
             {hoverIndex !== null && (
               <>
                 <line
-                  x1={xS(hoverIndex)} y1={PAD.top}
-                  x2={xS(hoverIndex)} y2={PAD.top + CH}
-                  stroke="#d1d5db" strokeWidth={1}
+                  x1={xS(hoverIndex)}
+                  y1={PAD.top}
+                  x2={xS(hoverIndex)}
+                  y2={PAD.top + CH}
+                  stroke="#d1d5db"
+                  strokeWidth={1}
                 />
-                <circle cx={xS(hoverIndex)} cy={yS(history[hoverIndex].yes)} r={4} fill="white" stroke="#3b82f6" strokeWidth={2} />
-                <circle cx={xS(hoverIndex)} cy={yS(history[hoverIndex].no)} r={3} fill="white" stroke="#93c5fd" strokeWidth={2} />
+                <circle
+                  cx={xS(hoverIndex)}
+                  cy={yS(history[hoverIndex].yes)}
+                  r={4}
+                  fill="white"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                />
+                <circle
+                  cx={xS(hoverIndex)}
+                  cy={yS(history[hoverIndex].no)}
+                  r={3}
+                  fill="white"
+                  stroke="#93c5fd"
+                  strokeWidth={2}
+                />
                 {/* Yes tooltip — always above the dot */}
-                <rect x={xS(hoverIndex) - 40} y={yS(history[hoverIndex].yes) - 24} width={80} height={18} rx={3} fill="#3b82f6" opacity={0.9} />
-                <text x={xS(hoverIndex)} y={yS(history[hoverIndex].yes) - 12} textAnchor="middle" className="text-[9px] fill-white font-semibold">
+                <rect
+                  x={xS(hoverIndex) - 40}
+                  y={yS(history[hoverIndex].yes) - 24}
+                  width={80}
+                  height={18}
+                  rx={3}
+                  fill="#3b82f6"
+                  opacity={0.9}
+                />
+                <text
+                  x={xS(hoverIndex)}
+                  y={yS(history[hoverIndex].yes) - 12}
+                  textAnchor="middle"
+                  className="text-[9px] fill-white font-semibold"
+                >
                   Yes {Math.round(history[hoverIndex].yes * 1000) / 10}%
                 </text>
                 {/* No tooltip — always below the dot */}
-                <rect x={xS(hoverIndex) - 35} y={yS(history[hoverIndex].no) + 8} width={70} height={18} rx={3} fill="#60a5fa" opacity={0.9} />
-                <text x={xS(hoverIndex)} y={yS(history[hoverIndex].no) + 20} textAnchor="middle" className="text-[9px] fill-white font-semibold">
+                <rect
+                  x={xS(hoverIndex) - 35}
+                  y={yS(history[hoverIndex].no) + 8}
+                  width={70}
+                  height={18}
+                  rx={3}
+                  fill="#60a5fa"
+                  opacity={0.9}
+                />
+                <text
+                  x={xS(hoverIndex)}
+                  y={yS(history[hoverIndex].no) + 20}
+                  textAnchor="middle"
+                  className="text-[9px] fill-white font-semibold"
+                >
                   No {Math.round(history[hoverIndex].no * 1000) / 10}%
                 </text>
               </>
@@ -248,9 +341,25 @@ export function FeaturedMarket({ market }: { market: Market }) {
             {/* Current dots (when not hovering) */}
             {hoverIndex === null && (
               <>
-                <circle cx={xS(history.length - 1)} cy={yS(history[history.length - 1].yes)} r={4} fill="#3b82f6" />
-                <circle cx={xS(history.length - 1)} cy={yS(history[history.length - 1].yes)} r={8} fill="#3b82f6" opacity={0.15} />
-                <circle cx={xS(history.length - 1)} cy={yS(history[history.length - 1].no)} r={3} fill="#93c5fd" />
+                <circle
+                  cx={xS(history.length - 1)}
+                  cy={yS(history[history.length - 1].yes)}
+                  r={4}
+                  fill="#3b82f6"
+                />
+                <circle
+                  cx={xS(history.length - 1)}
+                  cy={yS(history[history.length - 1].yes)}
+                  r={8}
+                  fill="#3b82f6"
+                  opacity={0.15}
+                />
+                <circle
+                  cx={xS(history.length - 1)}
+                  cy={yS(history[history.length - 1].no)}
+                  r={3}
+                  fill="#93c5fd"
+                />
               </>
             )}
           </svg>
@@ -260,7 +369,10 @@ export function FeaturedMarket({ market }: { market: Market }) {
       {/* Bottom: comments scrolling + vol/date footer */}
       <div className="border-t border-gray-100">
         {/* Comments — smooth scroll */}
-        <div ref={scrollRef} className="max-h-[120px] overflow-y-auto px-5 py-2 scrollbar-none">
+        <div
+          ref={scrollRef}
+          className="max-h-[120px] overflow-y-auto px-5 py-2 scrollbar-none"
+        >
           <AnimatePresence initial={false}>
             {comments.map((c) => (
               <motion.div
@@ -298,7 +410,12 @@ export function FeaturedMarket({ market }: { market: Market }) {
             <RollingVolume volume={ticker.volume} /> Vol
           </span>
           <span className="text-xs text-gray-400">
-            Ends {new Date(market.endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+            Ends{" "}
+            {new Date(market.endDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
           </span>
         </div>
       </div>

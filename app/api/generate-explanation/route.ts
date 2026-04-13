@@ -84,8 +84,8 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
     }
 
     const data = await res.json();
-    console.log(userPrompt)
-    console.log(data)
+    console.log(userPrompt);
+    console.log(data);
     const explanation =
       data.choices?.[0]?.message?.content ||
       generateFallbackExplanation(outcome, nasaEvent);

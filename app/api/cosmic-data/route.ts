@@ -22,7 +22,8 @@ export async function GET(request: Request) {
     const today = new Date();
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 86400000);
     const startDate =
-      searchParams.get("startDate") || thirtyDaysAgo.toISOString().split("T")[0];
+      searchParams.get("startDate") ||
+      thirtyDaysAgo.toISOString().split("T")[0];
     const endDate =
       searchParams.get("endDate") || today.toISOString().split("T")[0];
 
@@ -57,9 +58,7 @@ export async function GET(request: Request) {
         sourceLocation: c.sourceLocation,
         note: c.note,
       })),
-    ].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return NextResponse.json({ events, count: events.length });
   } catch (error) {

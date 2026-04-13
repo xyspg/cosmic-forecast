@@ -11,16 +11,10 @@ function hashToNumber(str: string, max: number): number {
     hash = (hash << 5) - hash + str.charCodeAt(i);
     hash |= 0;
   }
-  return (Math.abs(hash) % max);
+  return Math.abs(hash) % max;
 }
 
-function BreakingItem({
-  market,
-  rank,
-}: {
-  market: Market;
-  rank: number;
-}) {
+function BreakingItem({ market, rank }: { market: Market; rank: number }) {
   const { yesPrice } = useMarketTicker(market);
   const pct = Math.round(yesPrice * 100);
   const changeDir = yesPrice > market.yesPrice;
@@ -40,9 +34,7 @@ function BreakingItem({
         </p>
       </div>
       <div className="text-right shrink-0">
-        <p className="text-sm font-bold tabular-nums text-gray-900">
-          {pct}%
-        </p>
+        <p className="text-sm font-bold tabular-nums text-gray-900">{pct}%</p>
         <p
           className={`text-xs tabular-nums font-medium ${changeDir ? "text-green" : "text-red"}`}
         >
@@ -53,13 +45,7 @@ function BreakingItem({
   );
 }
 
-function HotTopicItem({
-  market,
-  rank,
-}: {
-  market: Market;
-  rank: number;
-}) {
+function HotTopicItem({ market, rank }: { market: Market; rank: number }) {
   const { volume } = useMarketTicker(market);
 
   return (

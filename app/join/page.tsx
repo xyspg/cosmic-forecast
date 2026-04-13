@@ -99,7 +99,8 @@ function JoinPageContent({
     } catch {
       setApiResult({
         outcome: Math.random() > 0.5 ? "YES" : "NO",
-        explanation: "The cosmic signal was received. The SHA-256 resonance pattern is unambiguous.",
+        explanation:
+          "The cosmic signal was received. The SHA-256 resonance pattern is unambiguous.",
         nasaEventId: "FLR-FALLBACK",
         nasaEventType: "Solar Flare",
         hash: "0".repeat(64),

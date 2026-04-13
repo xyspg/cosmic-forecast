@@ -103,7 +103,9 @@ export function Navbar() {
           )}
           {focused && query.length >= 2 && results.length === 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 rounded-xl border border-gray-200 bg-white shadow-lg p-4 z-50">
-              <p className="text-sm text-gray-400 text-center">No markets found</p>
+              <p className="text-sm text-gray-400 text-center">
+                No markets found
+              </p>
             </div>
           )}
         </div>

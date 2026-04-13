@@ -37,9 +37,7 @@ export async function POST(request: Request) {
     const cosmicData = await cosmicRes.json();
 
     const events = cosmicData.events || [];
-    const nasaEvent = events.length > 0
-      ? events[hash % events.length]
-      : null;
+    const nasaEvent = events.length > 0 ? events[hash % events.length] : null;
 
     if (!nasaEvent) {
       return NextResponse.json(
@@ -66,9 +64,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Resolve bet failed:", error);
-    return NextResponse.json(
-      { error: "Resolution failed" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Resolution failed" }, { status: 500 });
   }
 }

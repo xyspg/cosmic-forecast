@@ -1,7 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import type { Viewport } from 'next'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false
-}
+  userScalable: false,
+};
 
 export default function RootLayout({
   children,
@@ -38,10 +38,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
       </body>
-      <script
-        defer
+      <Script
         src="https://static.cloudflareinsights.com/beacon.min.js"
         data-cf-beacon='{"token": "33ab4aa6491347738175418ef70ab560"}'
+        strategy="afterInteractive"
       />
     </html>
   );

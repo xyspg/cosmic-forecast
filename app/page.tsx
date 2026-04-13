@@ -61,10 +61,7 @@ export default function Home() {
             {featuredMarket && <FeaturedMarket market={featuredMarket} />}
 
             {/* All markets grid */}
-            <MarketGrid
-              markets={filteredMarkets}
-              title="All markets"
-            />
+            <MarketGrid markets={filteredMarkets} title="All markets" />
           </div>
 
           {/* Right sidebar — Breaking news + Hot topics */}

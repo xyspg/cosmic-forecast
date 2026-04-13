@@ -20,17 +20,19 @@ export function CosmicReport({
       className="rounded-xl border border-gray-200 bg-white overflow-hidden"
     >
       {/* Header */}
-      <div
-        className={`px-6 py-4 ${isYes ? "bg-green/5" : "bg-red/5"}`}
-      >
-        <h3 className="text-base font-bold text-gray-900 mb-1">Cosmic Analysis Report</h3>
+      <div className={`px-6 py-4 ${isYes ? "bg-green/5" : "bg-red/5"}`}>
+        <h3 className="text-base font-bold text-gray-900 mb-1">
+          Cosmic Analysis Report
+        </h3>
         <p className="text-sm text-gray-500">{marketQuestion}</p>
       </div>
 
       {/* Verdict */}
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-gray-500">Cosmic Verdict</span>
+          <span className="text-sm font-medium text-gray-500">
+            Cosmic Verdict
+          </span>
           <span
             className={`text-2xl font-black ${isYes ? "text-green" : "text-red"}`}
           >

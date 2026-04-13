@@ -21,7 +21,9 @@ export function RollingNumber({
 
   return (
     <span className={`tabular-nums ${className}`}>
-      {prefix}{formatted}{suffix}
+      {prefix}
+      {formatted}
+      {suffix}
     </span>
   );
 }
@@ -36,7 +38,8 @@ export function RollingPrice({
   const pct = Math.round(price * 100);
   return (
     <span className={`tabular-nums ${className}`}>
-      {pct}<span className="text-[0.6em]">%</span>
+      {pct}
+      <span className="text-[0.6em]">%</span>
     </span>
   );
 }

@@ -92,22 +92,27 @@ export function CommentFeed({ slug }: { slug: string }) {
     // Add fake comments periodically with varying intervals
     let timeout: ReturnType<typeof setTimeout>;
     const scheduleNext = () => {
-      timeout = setTimeout(() => {
-        setComments((prev) => {
-          const next = [
-            ...prev,
-            {
-              id: `fake-${nextId++}`,
-              username: randomUsername(),
-              text: randomComment(),
-              color: randomAvatarColor(),
-              likes: 0,
-            },
-          ];
-          return next.length > MAX_COMMENTS ? next.slice(-MAX_COMMENTS) : next;
-        });
-        scheduleNext();
-      }, 5000 + Math.random() * 3000);
+      timeout = setTimeout(
+        () => {
+          setComments((prev) => {
+            const next = [
+              ...prev,
+              {
+                id: `fake-${nextId++}`,
+                username: randomUsername(),
+                text: randomComment(),
+                color: randomAvatarColor(),
+                likes: 0,
+              },
+            ];
+            return next.length > MAX_COMMENTS
+              ? next.slice(-MAX_COMMENTS)
+              : next;
+          });
+          scheduleNext();
+        },
+        5000 + Math.random() * 3000,
+      );
     };
     scheduleNext();
 

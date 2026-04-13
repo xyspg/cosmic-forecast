@@ -114,10 +114,16 @@ export default function WalletPage() {
   const netPnL = stats.totalWon - stats.totalLost;
 
   const handleDeposit = () => {
-    const ApplePay = (window as unknown as { ApplePaySession?: ApplePaySessionConstructor }).ApplePaySession;
+    const ApplePay = (
+      window as unknown as { ApplePaySession?: ApplePaySessionConstructor }
+    ).ApplePaySession;
 
     let canPay = false;
-    try { canPay = !!ApplePay?.canMakePayments?.(); } catch { /* requires HTTPS */ }
+    try {
+      canPay = !!ApplePay?.canMakePayments?.();
+    } catch {
+      /* requires HTTPS */
+    }
 
     if (canPay && ApplePay) {
       // Negotiate highest supported version
@@ -125,7 +131,9 @@ export default function WalletPage() {
       try {
         if ((ApplePay as any).supportsVersion?.(6)) version = 6;
         else if ((ApplePay as any).supportsVersion?.(4)) version = 4;
-      } catch { /* fallback to 3 */ }
+      } catch {
+        /* fallback to 3 */
+      }
 
       const paymentTotal = {
         label: "Cosmic Forecast",
@@ -136,7 +144,13 @@ export default function WalletPage() {
       const session = new ApplePay(version, {
         countryCode: "US",
         currencyCode: "USD",
-        supportedNetworks: ["visa", "masterCard", "amex", "discover", "chinaUnionPay"],
+        supportedNetworks: [
+          "visa",
+          "masterCard",
+          "amex",
+          "discover",
+          "chinaUnionPay",
+        ],
         merchantCapabilities: ["supports3DS"],
         total: paymentTotal,
       });
@@ -287,9 +301,7 @@ export default function WalletPage() {
                   (r) => r.marketId === pos.marketId,
                 );
                 const pnl = getPnL(pos.marketId);
-                const won = resolution
-                  ? pos.side === resolution.outcome
-                  : null;
+                const won = resolution ? pos.side === resolution.outcome : null;
 
                 return (
                   <Link
@@ -428,9 +440,7 @@ export default function WalletPage() {
                               : "Deposit"}
                       </p>
                       <p className="text-xs text-muted line-clamp-1">
-                        {tx.type === "deposit"
-                          ? "Added funds"
-                          : tx.label}
+                        {tx.type === "deposit" ? "Added funds" : tx.label}
                       </p>
                     </div>
                   </div>

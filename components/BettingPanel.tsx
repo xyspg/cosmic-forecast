@@ -14,16 +14,19 @@ export function BettingPanel({
   noPrice,
   initialSide,
   onBetPlaced,
+  onAllIn,
 }: {
   market: Market;
   yesPrice: number;
   noPrice: number;
   initialSide: "YES" | "NO";
   onBetPlaced: () => void;
+  onAllIn?: (active: boolean, side: "YES" | "NO") => void;
 }) {
   const [side, setSide] = useState<"YES" | "NO">(initialSide);
   const [amount, setAmount] = useState(10);
   const [justBet, setJustBet] = useState(false);
+  const [isAllIn, setIsAllIn] = useState(false);
 
   const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
@@ -164,23 +167,33 @@ export function BettingPanel({
                   <input
                     type="number"
                     value={amount}
-                    onChange={(e) =>
-                      setAmount(Number(e.target.value) || 0)
-                    }
+                    onChange={(e) => {
+                      setAmount(Number(e.target.value) || 0);
+                      if (isAllIn) {
+                        setIsAllIn(false);
+                        onAllIn?.(false, side);
+                      }
+                    }}
                     className="w-full rounded-lg border border-border bg-white py-2.5 pl-7 pr-3 text-sm font-medium tabular-nums focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
                   />
                 </div>
               </div>
 
               {/* Quick amount buttons */}
-              <div className="mb-4 flex gap-2">
+              <div className="mb-2 flex gap-2">
                 {QUICK_AMOUNTS.map((a) => (
                   <button
                     key={a}
                     type="button"
-                    onClick={() => setAmount(a)}
+                    onClick={() => {
+                      setAmount(a);
+                      if (isAllIn) {
+                        setIsAllIn(false);
+                        onAllIn?.(false, side);
+                      }
+                    }}
                     className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
-                      amount === a
+                      amount === a && !isAllIn
                         ? "bg-foreground text-background"
                         : "bg-gray-100 text-muted hover:bg-gray-200"
                     }`}
@@ -188,6 +201,29 @@ export function BettingPanel({
                     ${a}
                   </button>
                 ))}
+              </div>
+
+              {/* ALL IN button */}
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const allInAmount = Math.floor(balance);
+                    if (allInAmount <= 0) return;
+                    setAmount(allInAmount);
+                    setIsAllIn(true);
+                    onAllIn?.(true, side);
+                  }}
+                  className={`w-full rounded-md py-2 text-xs font-black tracking-widest uppercase transition-all ${
+                    isAllIn
+                      ? side === "YES"
+                        ? "bg-green text-white all-in-glow [--glow-color:rgba(34,197,94,0.4)]"
+                        : "bg-red text-white all-in-glow [--glow-color:rgba(239,68,68,0.4)]"
+                      : "border border-dashed border-gray-300 text-muted hover:border-foreground hover:text-foreground"
+                  }`}
+                >
+                  {isAllIn ? `ALL IN — $${Math.floor(balance)}` : "ALL IN"}
+                </button>
               </div>
 
               {/* Potential return */}
@@ -216,22 +252,40 @@ export function BettingPanel({
               </div>
 
               {/* Buy button */}
-              <button
+              <motion.button
                 type="button"
                 onClick={handleBuy}
                 disabled={!canBet}
-                className={`w-full rounded-lg py-3 text-sm font-bold text-white transition-colors ${
+                animate={
+                  isAllIn && canBet ? { scale: [1, 1.02, 1] } : { scale: 1 }
+                }
+                transition={
+                  isAllIn
+                    ? {
+                        duration: 1.5,
+                        repeat: Number.POSITIVE_INFINITY,
+                        ease: "easeInOut",
+                      }
+                    : { duration: 0.15 }
+                }
+                className={`w-full rounded-lg text-white font-bold transition-all ${
                   !canBet
-                    ? "bg-gray-300 cursor-not-allowed"
-                    : side === "YES"
-                      ? "bg-green hover:bg-green/90 active:scale-[0.98]"
-                      : "bg-red hover:bg-red/90 active:scale-[0.98]"
+                    ? "bg-gray-300 cursor-not-allowed py-3 text-sm"
+                    : isAllIn
+                      ? side === "YES"
+                        ? "bg-green py-4 text-base tracking-wide all-in-glow [--glow-color:rgba(34,197,94,0.35)]"
+                        : "bg-red py-4 text-base tracking-wide all-in-glow [--glow-color:rgba(239,68,68,0.35)]"
+                      : side === "YES"
+                        ? "bg-green hover:bg-green/90 active:scale-[0.98] py-3 text-sm"
+                        : "bg-red hover:bg-red/90 active:scale-[0.98] py-3 text-sm"
                 }`}
               >
                 {amount > balance
                   ? "Insufficient balance"
-                  : `Buy ${side}`}
-              </button>
+                  : isAllIn
+                    ? `GO ALL IN — ${side}`
+                    : `Buy ${side}`}
+              </motion.button>
             </>
           )}
         </div>

@@ -45,7 +45,8 @@ export function useCosmicResolution() {
         }),
       });
 
-      let explanation = "The cosmos has spoken. No further explanation is required.";
+      let explanation =
+        "The cosmos has spoken. No further explanation is required.";
       if (explanationRes.ok) {
         const explData = await explanationRes.json();
         explanation = explData.explanation || explanation;

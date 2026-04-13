@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useMemo, useCallback, useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import { useSearchParams, notFound } from "next/navigation";
 import marketsData from "@/data/markets.json";
@@ -78,8 +79,9 @@ function MarketPageContent({ market }: { market: Market }) {
     );
   };
 
-  // After user places a bet → wait 2s → show dark overlay
+  // After user places a bet → clear ALL IN mode + wait 2s → show dark overlay
   const handleBetPlaced = useCallback(() => {
+    setAllInMode(false);
     setTimeout(() => {
       setShowSpeedUp(true);
     }, 2000);
@@ -165,6 +167,15 @@ function MarketPageContent({ market }: { market: Market }) {
     }
   }, []);
 
+  // ALL IN mode — dramatic page-wide reaction
+  const [allInMode, setAllInMode] = useState(false);
+  const [allInSide, setAllInSide] = useState<"YES" | "NO">("YES");
+
+  const handleAllIn = useCallback((active: boolean, side: "YES" | "NO") => {
+    setAllInMode(active);
+    setAllInSide(side);
+  }, []);
+
   // Related markets
   const relatedMarkets = useMemo(
     () =>
@@ -189,6 +200,44 @@ function MarketPageContent({ market }: { market: Market }) {
     <>
       <SpeedUpOverlay visible={showSpeedUp} onSpeedUp={handleSpeedUp} />
       <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
+
+      {/* ALL IN vignette overlay */}
+      <AnimatePresence>
+        {allInMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="fixed inset-0 z-40 pointer-events-none all-in-vignette"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ALL IN ambient glow behind betting panel */}
+      <AnimatePresence>
+        {allInMode && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="fixed top-0 right-0 z-30 pointer-events-none hidden lg:block"
+            style={{
+              width: "500px",
+              height: "600px",
+              top: "120px",
+              right: "calc(50% - 560px + 380px)",
+              background: `radial-gradient(ellipse at center, ${
+                allInSide === "YES"
+                  ? "rgba(34, 197, 94, 0.12)"
+                  : "rgba(239, 68, 68, 0.12)"
+              } 0%, transparent 70%)`,
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       <Navbar />
 
       <main className="mx-auto max-w-5xl overflow-x-hidden px-4 py-6">
@@ -229,7 +278,12 @@ function MarketPageContent({ market }: { market: Market }) {
             </div>
 
             {/* Price chart */}
-            <PriceChart slug={market.id} currentPrice={ticker.yesPrice} />
+            <motion.div
+              animate={{ opacity: allInMode ? 0.5 : 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <PriceChart slug={market.id} currentPrice={ticker.yesPrice} />
+            </motion.div>
 
             {/* Betting panel — below chart on mobile, sidebar on desktop */}
             <div className="lg:hidden">
@@ -239,6 +293,7 @@ function MarketPageContent({ market }: { market: Market }) {
                 noPrice={ticker.noPrice}
                 initialSide={initialSide}
                 onBetPlaced={handleBetPlaced}
+                onAllIn={handleAllIn}
               />
             </div>
 
@@ -250,52 +305,56 @@ function MarketPageContent({ market }: { market: Market }) {
               />
             )}
 
-            {/* Comments */}
-            <CommentFeed slug={market.id} />
+            {/* Comments, order book, info — dim during ALL IN */}
+            <motion.div
+              className="space-y-6"
+              animate={{ opacity: allInMode ? 0.35 : 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <CommentFeed slug={market.id} />
+              <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />
 
-            {/* Order book */}
-            <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />
-
-            {/* Market info */}
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h3 className="mb-3 text-sm font-bold text-gray-900">
-                Resolution Criteria
-              </h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                This market resolves based on real-time astronomical data from
-                NASA&apos;s DONKI (Space Weather Database). The outcome is
-                deterministically computed using SHA-256 hashing of the latest
-                solar event ID, current date, and market identifier.
-              </p>
-            </div>
-
-            {/* Related markets */}
-            {relatedMarkets.length > 0 && (
-              <div>
-                <h3 className="mb-3 text-sm font-bold text-gray-900">Related Markets</h3>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {relatedMarkets.map((rm) => (
-                    <Link
-                      key={rm.id}
-                      href={`/market/${rm.id}`}
-                      className="rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300"
-                    >
-                      <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                        {rm.question}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="font-bold text-green tabular-nums">
-                          {Math.round(rm.yesPrice * 100)}¢ Yes
-                        </span>
-                        <span className="text-gray-400">
-                          {formatVolume(rm.volume)}
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <h3 className="mb-3 text-sm font-bold text-gray-900">
+                  Resolution Criteria
+                </h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  This market resolves based on real-time astronomical data from
+                  NASA&apos;s DONKI (Space Weather Database). The outcome is
+                  deterministically computed using SHA-256 hashing of the latest
+                  solar event ID, current date, and market identifier.
+                </p>
               </div>
-            )}
+
+              {relatedMarkets.length > 0 && (
+                <div>
+                  <h3 className="mb-3 text-sm font-bold text-gray-900">
+                    Related Markets
+                  </h3>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {relatedMarkets.map((rm) => (
+                      <Link
+                        key={rm.id}
+                        href={`/market/${rm.id}`}
+                        className="rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300"
+                      >
+                        <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
+                          {rm.question}
+                        </p>
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="font-bold text-green tabular-nums">
+                            {Math.round(rm.yesPrice * 100)}¢ Yes
+                          </span>
+                          <span className="text-gray-400">
+                            {formatVolume(rm.volume)}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
           </div>
 
           {/* Right column — hidden on mobile (betting panel is inline above) */}
@@ -306,8 +365,14 @@ function MarketPageContent({ market }: { market: Market }) {
               noPrice={ticker.noPrice}
               initialSide={initialSide}
               onBetPlaced={handleBetPlaced}
+              onAllIn={handleAllIn}
             />
-            <ActivityFeed markets={markets.slice(0, 10)} />
+            <motion.div
+              animate={{ opacity: allInMode ? 0.35 : 1 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <ActivityFeed markets={markets.slice(0, 10)} />
+            </motion.div>
           </div>
         </div>
       </main>
