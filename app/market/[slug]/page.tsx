@@ -15,6 +15,7 @@ import { CommentFeed } from "@/components/CommentFeed";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
 import { CosmicReport } from "@/components/CosmicReport";
+import { ResultModal } from "@/components/ResultModal";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { useCosmicStore } from "@/lib/store";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -50,6 +51,7 @@ function MarketPageContent({ market }: { market: Market }) {
   // Flow states
   const [showSpeedUp, setShowSpeedUp] = useState(false);
   const [showWarp, setShowWarp] = useState(false);
+  const [showResult, setShowResult] = useState(false);
 
   // Refs to coordinate two async events: animation done + API response
   type ApiResult = {
@@ -77,6 +79,8 @@ function MarketPageContent({ market }: { market: Market }) {
       result.hash,
       confidence,
     );
+    // Show result modal after a brief delay for the warp to fade
+    setTimeout(() => setShowResult(true), 400);
   };
 
   // After user places a bet → clear ALL IN mode + wait 2s → show dark overlay
@@ -191,15 +195,35 @@ function MarketPageContent({ market }: { market: Market }) {
     Math.ceil((endDate.getTime() - Date.now()) / 86400000),
   );
 
-  // Get resolution from store — guard with hydrated to avoid mismatch
+  // Get resolution + P&L from store — guard with hydrated to avoid mismatch
   const hydrated = useHydrated();
   const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
+  const storePnl = useCosmicStore((s) => s.getPnL(market.id));
   const resolution = hydrated ? storeResolution : undefined;
+  const pnl = hydrated ? storePnl : null;
 
   return (
     <>
       <SpeedUpOverlay visible={showSpeedUp} onSpeedUp={handleSpeedUp} />
       <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
+
+      {/* Result modal — shows win/loss after resolution */}
+      {existingPosition && pnl !== null && resolution && (
+        <ResultModal
+          open={showResult}
+          onClose={() => setShowResult(false)}
+          won={existingPosition.side === resolution.outcome}
+          amount={
+            existingPosition.side === resolution.outcome
+              ? existingPosition.shares
+              : 0
+          }
+          pnl={pnl}
+          marketQuestion={market.question}
+          betAmount={existingPosition.amount}
+          side={existingPosition.side}
+        />
+      )}
 
       {/* ALL IN vignette overlay */}
       <AnimatePresence>
