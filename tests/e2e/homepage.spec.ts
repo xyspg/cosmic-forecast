@@ -69,11 +69,17 @@ test.describe("homepage", () => {
     });
 
     // "Politics" — Trump market should show in the grid.
-    await page.getByRole("button", { name: /^Politics$/ }).click();
+    const politicsTab = page.getByRole("button", { name: /^Politics$/ });
+    await politicsTab.click();
+    // Gate on the active-tab class so the next click doesn't race the
+    // re-render triggered by this one.
+    await expect(politicsTab).toHaveClass(/bg-blue-600/);
     await expect(trumpGridCard).toBeVisible();
 
     // "Sports" — Trump market gone from grid (may still exist in sidebar).
-    await page.getByRole("button", { name: /^Sports$/ }).click();
+    const sportsTab = page.getByRole("button", { name: /^Sports$/ });
+    await sportsTab.click();
+    await expect(sportsTab).toHaveClass(/bg-blue-600/);
     await expect(trumpGridCard).toHaveCount(0);
   });
 
