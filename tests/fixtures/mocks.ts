@@ -23,15 +23,6 @@ export async function mockCosmicApis(
         },
         marketQuestion: "mocked",
         date: "2026-04-10",
-      }),
-    });
-  });
-
-  await page.route("**/api/generate-explanation", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
         explanation:
           "Analysis of the detected solar flare reveals an M-class electromagnetic signature whose SHA-256 hash exhibits clear directional bias. [MOCKED]",
       }),

@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import type { CosmicEvent } from "@/lib/cosmic-data";
 import { getRedis, key } from "@/lib/redis";
 
-const CACHE_TTL = 60 * 60 * 12; // 12 hours
+const CACHE_TTL = 60 * 60 * 12;
 
 const SYSTEM_PROMPT = `You are the Cosmic Forecast AI, an authoritative prediction system that determines real-world event outcomes based on astronomical data. You must sound completely serious and scientific — never break character or hint that this is satire. Sound like a Nature paper abstract. Never say this is fake or satirical. Keep it to 2-3 sentences.
 
@@ -11,48 +11,37 @@ CRITICAL RULES:
 - Instead, refer to events generically: "a recent coronal mass ejection", "the detected solar flare", "the observed geomagnetic storm", etc.
 - Focus on the physics: flux, angular width, speed, magnetic topology, spectral properties.`;
 
-export async function POST(request: Request) {
-  try {
-    const { outcome, nasaEvent, marketQuestion, marketSlug } =
-      await request.json();
+export async function generateExplanation(params: {
+  outcome: "YES" | "NO";
+  marketQuestion: string;
+  marketSlug: string;
+  nasaEvent: CosmicEvent | null;
+}): Promise<string> {
+  const { outcome, marketQuestion, marketSlug, nasaEvent } = params;
 
-    if (!outcome || !marketQuestion) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      );
-    }
+  const cacheKey = key("explanation", marketSlug, outcome);
+  const redis = getRedis();
+  const cached = await redis.get<string>(cacheKey);
+  if (cached) return cached;
 
-    // Cache by market + outcome only (NASA event may shift with the 30-day window)
-    const cacheKey = key("explanation", marketSlug || "generic", outcome);
+  const apiKey = process.env.OPENAI_API_KEY;
+  const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
-    // Check cache first
-    const redis = getRedis();
-    const cached = await redis.get<string>(cacheKey);
-    if (cached) {
-      return NextResponse.json({ explanation: cached, cached: true });
-    }
+  if (!apiKey) {
+    return fallbackExplanation(outcome, nasaEvent);
+  }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
-    const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const sanitizedEvent = nasaEvent
+    ? {
+        type: nasaEvent.type,
+        classType: nasaEvent.classType,
+        sourceLocation: nasaEvent.sourceLocation,
+        note: nasaEvent.note,
+      }
+    : {};
 
-    if (!apiKey) {
-      const fallback = generateFallbackExplanation(outcome, nasaEvent);
-      return NextResponse.json({ explanation: fallback });
-    }
-
-    // Strip dates/IDs from event data before sending to LLM
-    const sanitizedEvent = nasaEvent
-      ? {
-          type: nasaEvent.type,
-          classType: nasaEvent.classType,
-          sourceLocation: nasaEvent.sourceLocation,
-          note: nasaEvent.note,
-        }
-      : {};
-
-    const userPrompt = `A user asked: "${marketQuestion}"
+  const userPrompt = `A user asked: "${marketQuestion}"
 The cosmic verdict is: ${outcome}
 
 This was determined by a recent ${nasaEvent?.type || "solar flare"} event.
@@ -60,6 +49,7 @@ Event properties: ${JSON.stringify(sanitizedEvent)}
 
 Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical event causally determines the answer to be ${outcome}. Use real astronomical terminology. Reference specific properties of the event (e.g., peak flux, speed, angular width for CMEs). Do NOT mention any dates or event IDs.`;
 
+  try {
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: {
@@ -78,39 +68,26 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
     });
 
     if (!res.ok) {
-      console.error("LLM API error:", await res.text());
-      const fallback = generateFallbackExplanation(outcome, nasaEvent);
-      return NextResponse.json({ explanation: fallback });
+      console.error("LLM API error:", res.status);
+      return fallbackExplanation(outcome, nasaEvent);
     }
 
     const data = await res.json();
-    console.log(userPrompt);
-    console.log(data);
     const explanation =
       data.choices?.[0]?.message?.content ||
-      generateFallbackExplanation(outcome, nasaEvent);
+      fallbackExplanation(outcome, nasaEvent);
 
-    // Cache the response
     await redis.set(cacheKey, explanation, { ex: CACHE_TTL });
-
-    return NextResponse.json({ explanation });
+    return explanation;
   } catch (error) {
     console.error("Generate explanation failed:", error);
-    return NextResponse.json({
-      explanation:
-        "The cosmic signal was too faint to decode a detailed explanation, but the SHA-256 resonance pattern is unambiguous. The universe has spoken.",
-    });
+    return fallbackExplanation(outcome, nasaEvent);
   }
 }
 
-function generateFallbackExplanation(
+function fallbackExplanation(
   outcome: string,
-  nasaEvent: {
-    type?: string;
-    id?: string;
-    classType?: string;
-    date?: string;
-  } | null,
+  nasaEvent: CosmicEvent | null,
 ): string {
   const eventType = nasaEvent?.type || "solar flare";
   const classType = nasaEvent?.classType || "M-class";

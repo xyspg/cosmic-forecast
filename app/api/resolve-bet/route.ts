@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import { computeCosmicOutcome } from "@/lib/cosmic-hash";
 import marketsData from "@/data/markets.json";
+import { fetchCosmicEvents } from "@/lib/cosmic-data";
+import { computeCosmicOutcome } from "@/lib/cosmic-hash";
+import { generateExplanation } from "@/lib/explanation";
 import type { Market } from "@/lib/types";
 
 const markets = marketsData as Market[];
 
-// Simple deterministic hash from string → positive integer
 function slugHash(slug: string): number {
   let h = 0;
   for (let i = 0; i < slug.length; i++) {
@@ -25,41 +26,40 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find the market question for context
     const market = markets.find((m) => m.id === marketSlug);
     const marketQuestion = market?.question || marketSlug;
 
-    // Fetch last 30 days of NASA events, pick one deterministically per market
-    const hash = slugHash(marketSlug);
-    const cosmicRes = await fetch(
-      new URL("/api/cosmic-data", request.url).toString(),
-    );
-    const cosmicData = await cosmicRes.json();
-
-    const events = cosmicData.events || [];
-    const nasaEvent = events.length > 0 ? events[hash % events.length] : null;
-
-    if (!nasaEvent) {
+    const { events } = await fetchCosmicEvents();
+    if (events.length === 0) {
       return NextResponse.json(
         { error: "No cosmic data available" },
         { status: 503 },
       );
     }
 
-    // Compute outcome using SHA-256 hash
-    const { outcome, hash: cosmicHash } = await computeCosmicOutcome(
+    const nasaEvent = events[slugHash(marketSlug) % events.length];
+
+    const { outcome, hash } = await computeCosmicOutcome(
       nasaEvent.id,
       date,
       marketSlug,
     );
 
+    const explanation = await generateExplanation({
+      outcome,
+      marketQuestion,
+      marketSlug,
+      nasaEvent,
+    });
+
     return NextResponse.json({
       outcome,
-      hash: cosmicHash,
+      hash,
       nasaEventId: nasaEvent.id,
       nasaEventType: nasaEvent.type,
       nasaEvent,
       marketQuestion,
+      explanation,
       date,
     });
   } catch (error) {

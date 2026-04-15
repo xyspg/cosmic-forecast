@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import type { CosmicResolution } from "@/lib/types";
 
 type ResolutionState =
@@ -18,46 +18,24 @@ export function useCosmicResolution() {
     try {
       const date = new Date().toISOString().split("T")[0];
 
-      // Fire both API calls in parallel
-      const [resolveRes, cosmicRes] = await Promise.all([
-        fetch("/api/resolve-bet", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ marketSlug, date }),
-        }),
-        fetch("/api/cosmic-data"),
-      ]);
+      const resolveRes = await fetch("/api/resolve-bet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ marketSlug, date }),
+      });
 
       if (!resolveRes.ok) throw new Error("Resolution failed");
 
       const resolveData = await resolveRes.json();
-      const cosmicData = cosmicRes.ok ? await cosmicRes.json() : null;
-
-      // Now get the explanation
-      const explanationRes = await fetch("/api/generate-explanation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          marketSlug,
-          outcome: resolveData.outcome,
-          nasaEvent: resolveData.nasaEvent || cosmicData?.events?.[0],
-          marketQuestion: resolveData.marketQuestion,
-        }),
-      });
-
-      let explanation =
-        "The cosmos has spoken. No further explanation is required.";
-      if (explanationRes.ok) {
-        const explData = await explanationRes.json();
-        explanation = explData.explanation || explanation;
-      }
 
       const result: CosmicResolution = {
         outcome: resolveData.outcome,
         nasaEventId: resolveData.nasaEventId,
         nasaEventType: resolveData.nasaEventType || "Solar Flare",
         hash: resolveData.hash,
-        explanation,
+        explanation:
+          resolveData.explanation ||
+          "The cosmos has spoken. No further explanation is required.",
         confidence: Math.round((85 + Math.random() * 14.9) * 10) / 10,
       };
 

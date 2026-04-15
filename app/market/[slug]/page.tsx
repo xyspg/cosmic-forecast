@@ -1,25 +1,25 @@
 "use client";
 
-import { use, useMemo, useCallback, useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { useSearchParams, notFound } from "next/navigation";
-import marketsData from "@/data/markets.json";
-import type { Market } from "@/lib/types";
-import { Navbar } from "@/components/Navbar";
-import { PriceChart } from "@/components/PriceChart";
-import { BettingPanel } from "@/components/BettingPanel";
-import { OrderBook } from "@/components/OrderBook";
+import { notFound, useSearchParams } from "next/navigation";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityFeed } from "@/components/ActivityFeed";
+import { BettingPanel } from "@/components/BettingPanel";
 import { CommentFeed } from "@/components/CommentFeed";
+import { CosmicReport } from "@/components/CosmicReport";
+import { Navbar } from "@/components/Navbar";
+import { OrderBook } from "@/components/OrderBook";
+import { PriceChart } from "@/components/PriceChart";
+import { ResultModal } from "@/components/ResultModal";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
-import { CosmicReport } from "@/components/CosmicReport";
-import { ResultModal } from "@/components/ResultModal";
-import { useMarketTicker } from "@/hooks/useMarketTicker";
-import { useCosmicStore } from "@/lib/store";
+import marketsData from "@/data/markets.json";
 import { useHydrated } from "@/hooks/useHydrated";
-import { formatVolume, formatNumber } from "@/lib/fake-data";
+import { useMarketTicker } from "@/hooks/useMarketTicker";
+import { formatNumber, formatVolume } from "@/lib/fake-data";
+import { useCosmicStore } from "@/lib/store";
+import type { Market } from "@/lib/types";
 
 const markets = marketsData as Market[];
 
@@ -122,23 +122,10 @@ function MarketPageContent({ market }: { market: Market }) {
 
       const resolveData = await resolveRes.json();
 
-      const explanationRes = await fetch("/api/generate-explanation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          marketSlug: market.id,
-          outcome: resolveData.outcome,
-          nasaEvent: resolveData.nasaEvent,
-          marketQuestion: resolveData.marketQuestion,
-        }),
-      });
-
-      const explData = await explanationRes.json();
-
       result = {
         outcome: resolveData.outcome,
         explanation:
-          explData.explanation || "The universe has spoken decisively.",
+          resolveData.explanation || "The universe has spoken decisively.",
         nasaEventId: resolveData.nasaEventId,
         nasaEventType: resolveData.nasaEventType || "Solar Flare",
         hash: resolveData.hash,
