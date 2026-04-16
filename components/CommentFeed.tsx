@@ -294,9 +294,6 @@ export function CommentFeed({ slug }: { slug: string }) {
                         </svg>
                         {displayLikes > 0 && <span>{displayLikes}</span>}
                       </button>
-                      <button type="button" className="hover:text-gray-600">
-                        Reply
-                      </button>
                     </div>
                   </div>
                 </div>
