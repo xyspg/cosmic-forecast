@@ -37,7 +37,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const nasaEvent = events[slugHash(marketSlug) % events.length];
+    const byType = new Map<string, typeof events>();
+    for (const e of events) {
+      const arr = byType.get(e.type) ?? [];
+      arr.push(e);
+      byType.set(e.type, arr);
+    }
+    const types = Array.from(byType.keys()).sort();
+    const typeHash = slugHash(marketSlug);
+    const eventHash = slugHash(`${marketSlug}:event`);
+    const pool = byType.get(types[typeHash % types.length]) ?? events;
+    const nasaEvent = pool[eventHash % pool.length];
 
     const { outcome, hash } = await computeCosmicOutcome(
       nasaEvent.id,

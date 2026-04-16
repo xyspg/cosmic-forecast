@@ -46,7 +46,6 @@ function MarketPageContent({ market }: { market: Market }) {
 
   const ticker = useMarketTicker(market);
   const resolveMarket = useCosmicStore((s) => s.resolveMarket);
-  const existingResolution = useCosmicStore((s) => s.getResolution(market.id));
 
   // Flow states
   const [showSpeedUp, setShowSpeedUp] = useState(false);
@@ -91,16 +90,7 @@ function MarketPageContent({ market }: { market: Market }) {
     }, 2000);
   }, []);
 
-  // Returning user: has position but no resolution → auto-trigger overlay
   const existingPosition = useCosmicStore((s) => s.getPosition(market.id));
-  useEffect(() => {
-    if (existingPosition && !existingResolution && !showSpeedUp && !showWarp) {
-      const timer = setTimeout(() => {
-        setShowSpeedUp(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [existingPosition, existingResolution, showSpeedUp, showWarp]);
 
   // User clicks "Speed Up Time" → start warp + fire API calls
   const handleSpeedUp = useCallback(async () => {
@@ -188,6 +178,50 @@ function MarketPageContent({ market }: { market: Market }) {
   const storePnl = useCosmicStore((s) => s.getPnL(market.id));
   const resolution = hydrated ? storeResolution : undefined;
   const pnl = hydrated ? storePnl : null;
+
+  // Self-heal orphan state: position persisted but resolution never completed
+  // (tab closed / refresh mid-flow). Silently resolve on load — no overlay.
+  const didHealOrphanRef = useRef(false);
+  useEffect(() => {
+    if (!hydrated || didHealOrphanRef.current) return;
+    // Lock immediately so bets placed later in this session aren't auto-healed
+    // (they go through the normal overlay → warp flow instead)
+    didHealOrphanRef.current = true;
+    if (!existingPosition || storeResolution) return;
+
+    (async () => {
+      const date = new Date().toISOString().split("T")[0];
+      try {
+        const res = await fetch("/api/resolve-bet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ marketSlug: market.id, date }),
+        });
+        const data = await res.json();
+        if (!data?.outcome) return;
+        const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
+        ticker.setOutcome(data.outcome);
+        resolveMarket(
+          market.id,
+          data.outcome,
+          data.explanation || "The universe has spoken decisively.",
+          data.nasaEventId,
+          data.nasaEventType || "Solar Flare",
+          data.hash,
+          confidence,
+        );
+      } catch {
+        // Leave state as-is; user can retry by placing another action
+      }
+    })();
+  }, [
+    hydrated,
+    existingPosition,
+    storeResolution,
+    market.id,
+    resolveMarket,
+    ticker,
+  ]);
 
   return (
     <>

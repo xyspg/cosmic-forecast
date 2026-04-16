@@ -38,6 +38,8 @@ export async function generateExplanation(params: {
         classType: nasaEvent.classType,
         sourceLocation: nasaEvent.sourceLocation,
         note: nasaEvent.note,
+        kpIndex: nasaEvent.kpIndex,
+        instruments: nasaEvent.instruments,
       }
     : {};
 
@@ -90,12 +92,16 @@ function fallbackExplanation(
   nasaEvent: CosmicEvent | null,
 ): string {
   const eventType = nasaEvent?.type || "solar flare";
-  const classType = nasaEvent?.classType || "M-class";
+  const qualifier = nasaEvent?.classType
+    ? `${nasaEvent.classType}-class `
+    : nasaEvent?.kpIndex
+      ? `Kp ${nasaEvent.kpIndex.toFixed(1)} `
+      : "";
 
   const templates = [
-    `Analysis of the detected ${eventType} reveals a ${classType} electromagnetic signature whose SHA-256 hash exhibits clear directional bias toward ${outcome}. The peak flux density at 1 AU correlates with a ${outcome === "YES" ? "positive" : "negative"} probability gradient across all measured spectral bands.`,
-    `The ${classType} ${eventType} produced coronal loop oscillations with a periodicity that, when mapped through our SHA-256 resonance model, yields an unambiguous ${outcome} determination. This is consistent with helioseismological predictions for the current solar cycle.`,
-    `Cross-correlating the ${eventType} temporal profile with the SHA-256 hash space reveals a statistically significant (p < 0.001) alignment with the ${outcome} outcome vector. The ${classType} classification further constrains the probability manifold to a single solution.`,
+    `Analysis of the detected ${qualifier}${eventType} reveals an electromagnetic signature whose SHA-256 hash exhibits clear directional bias toward ${outcome}. The peak flux density at 1 AU correlates with a ${outcome === "YES" ? "positive" : "negative"} probability gradient across all measured spectral bands.`,
+    `The ${qualifier}${eventType} produced magnetospheric oscillations with a periodicity that, when mapped through our SHA-256 resonance model, yields an unambiguous ${outcome} determination. This is consistent with helioseismological predictions for the current solar cycle.`,
+    `Cross-correlating the ${eventType} temporal profile with the SHA-256 hash space reveals a statistically significant (p < 0.001) alignment with the ${outcome} outcome vector. The ${qualifier}classification further constrains the probability manifold to a single solution.`,
   ];
 
   return templates[Math.floor(Math.random() * templates.length)];
