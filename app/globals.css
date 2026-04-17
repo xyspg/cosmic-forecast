@@ -140,6 +140,13 @@ body {
   animation: vibrate 0.1s linear infinite;
 }
 
+/* Warp animation spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Warp animation starfield */
 @keyframes warp-star {
   0% {
