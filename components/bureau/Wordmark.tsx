@@ -2,8 +2,8 @@ import { BrandMark } from "./BrandMark";
 
 export function Wordmark() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <BrandMark size={26} />
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <BrandMark size={40} />
       <div style={{ display: "flex", flexDirection: "column", lineHeight: 1 }}>
         <div
           className="bureau-serif"
