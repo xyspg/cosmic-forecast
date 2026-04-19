@@ -22,10 +22,17 @@ export interface Resolution {
   timestamp: number;
 }
 
+export interface Deposit {
+  id: string;
+  amount: number;
+  timestamp: number;
+}
+
 interface CosmicStore {
   balance: number;
   positions: Position[];
   resolutions: Resolution[];
+  deposits: Deposit[];
 
   placeBet: (
     marketId: string,
@@ -49,6 +56,7 @@ interface CosmicStore {
   getResolution: (marketId: string) => Resolution | undefined;
   getPnL: (marketId: string) => number | null;
   addBalance: (amount: number) => void;
+  recordDeposit: (amount: number) => void;
   resetAll: () => void;
 }
 
@@ -58,6 +66,7 @@ export const useCosmicStore = create<CosmicStore>()(
       balance: 1000,
       positions: [],
       resolutions: [],
+      deposits: [],
 
       placeBet: (marketId, marketQuestion, side, amount, price) => {
         const { balance, positions } = get();
@@ -161,12 +170,66 @@ export const useCosmicStore = create<CosmicStore>()(
         set({ balance: Math.round((balance + amount) * 100) / 100 });
       },
 
+      recordDeposit: (amount) => {
+        const { balance, deposits } = get();
+        if (amount <= 0) return;
+        const deposit: Deposit = {
+          id: `dep-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          amount: Math.round(amount * 100) / 100,
+          timestamp: Date.now(),
+        };
+        set({
+          balance: Math.round((balance + amount) * 100) / 100,
+          deposits: [...(deposits ?? []), deposit],
+        });
+      },
+
       resetAll: () => {
-        set({ balance: 1000, positions: [], resolutions: [] });
+        set({ balance: 1000, positions: [], resolutions: [], deposits: [] });
       },
     }),
     {
       name: "cosmic-forecast-store",
+      // Strip malformed records at rehydrate time so orphan entries persisted
+      // by an older build can't crash render paths that read .hash/.outcome.
+      // See KNOWN_ISSUES.md → "Orphan resolution entry missing required fields".
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        const cleanResolutions = (state.resolutions ?? []).filter(
+          (r): r is Resolution =>
+            !!r &&
+            typeof r.marketId === "string" &&
+            (r.outcome === "YES" || r.outcome === "NO") &&
+            typeof r.nasaEventId === "string" &&
+            typeof r.hash === "string" &&
+            typeof r.timestamp === "number",
+        );
+        const cleanPositions = (state.positions ?? []).filter(
+          (p): p is Position =>
+            !!p &&
+            typeof p.marketId === "string" &&
+            (p.side === "YES" || p.side === "NO") &&
+            typeof p.amount === "number" &&
+            typeof p.price === "number" &&
+            typeof p.shares === "number",
+        );
+        const cleanDeposits = (state.deposits ?? []).filter(
+          (d): d is Deposit =>
+            !!d &&
+            typeof d.id === "string" &&
+            typeof d.amount === "number" &&
+            typeof d.timestamp === "number",
+        );
+        if (
+          cleanResolutions.length !== (state.resolutions ?? []).length ||
+          cleanPositions.length !== (state.positions ?? []).length ||
+          cleanDeposits.length !== (state.deposits ?? []).length
+        ) {
+          state.resolutions = cleanResolutions;
+          state.positions = cleanPositions;
+          state.deposits = cleanDeposits;
+        }
+      },
     },
   ),
 );
