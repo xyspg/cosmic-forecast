@@ -50,3 +50,5 @@ next-env.d.ts
 # Cloudflare
 .dev.vars
 .wrangler/
+DESIGN_DOC.md
+.claude/
