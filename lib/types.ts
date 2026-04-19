@@ -22,6 +22,15 @@ export interface CosmicResolution {
   confidence: number;
 }
 
+export interface ResolveBetResponse {
+  outcome: "YES" | "NO";
+  hash: string;
+  nasaEventId: string;
+  nasaEventType: string;
+  explanation: string;
+  date: string;
+}
+
 export interface NasaEvent {
   flrID?: string;
   activityID?: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { CosmicResolution } from "@/lib/types";
+import type { CosmicResolution, ResolveBetResponse } from "@/lib/types";
 
 type ResolutionState =
   | { status: "idle" }
@@ -26,7 +26,7 @@ export function useCosmicResolution() {
 
       if (!resolveRes.ok) throw new Error("Resolution failed");
 
-      const resolveData = await resolveRes.json();
+      const resolveData = (await resolveRes.json()) as ResolveBetResponse;
 
       const result: CosmicResolution = {
         outcome: resolveData.outcome,

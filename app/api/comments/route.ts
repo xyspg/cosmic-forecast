@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getRedis, key } from "@/lib/redis";
+import { getKV, key } from "@/lib/kv";
 
 const COMMENT_TTL = 60 * 60 * 24; // 1 day
 const MAX_COMMENTS = 100;
+const PAGE_SIZE = 50;
 
 export interface StoredComment {
   id: string;
@@ -20,18 +21,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "slug required" }, { status: 400 });
   }
 
-  const redis = getRedis();
-  const comments = await redis.lrange<StoredComment>(
-    key("comments", slug),
-    0,
-    49,
-  );
-  return NextResponse.json({ comments: comments || [] });
+  const kv = await getKV();
+  const list =
+    (await kv.get<StoredComment[]>(key("comments", slug), "json")) ?? [];
+  return NextResponse.json({ comments: list.slice(0, PAGE_SIZE) });
 }
 
 export async function POST(request: Request) {
   try {
-    const { slug, username, text, color } = await request.json();
+    const { slug, username, text, color } = (await request.json()) as {
+      slug?: string;
+      username?: string;
+      text?: string;
+      color?: string;
+    };
 
     if (!slug || !username || !text) {
       return NextResponse.json(
@@ -49,14 +52,10 @@ export async function POST(request: Request) {
     };
 
     const k = key("comments", slug);
-
-    // Pipeline: single HTTP round-trip for all three operations
-    const redis = getRedis();
-    const pipe = redis.pipeline();
-    pipe.lpush(k, comment);
-    pipe.ltrim(k, 0, MAX_COMMENTS - 1);
-    pipe.expire(k, COMMENT_TTL);
-    await pipe.exec();
+    const kv = await getKV();
+    const existing = (await kv.get<StoredComment[]>(k, "json")) ?? [];
+    const next = [comment, ...existing].slice(0, MAX_COMMENTS);
+    await kv.put(k, JSON.stringify(next), { expirationTtl: COMMENT_TTL });
 
     return NextResponse.json({ comment });
   } catch (error) {

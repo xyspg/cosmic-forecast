@@ -64,18 +64,19 @@ export function CommentFeed({ slug }: { slug: string }) {
 
     setComments(fakeComments);
 
-    // Fetch real comments from Redis
     fetch(`/api/comments?slug=${encodeURIComponent(slug)}`)
-      .then((res) => res.json())
+      .then((res) => res.json() as Promise<{
+        comments?: Array<{
+          id: string;
+          username: string;
+          text: string;
+          color: string;
+        }>;
+      }>)
       .then((data) => {
         if (data.comments?.length) {
           const real: Comment[] = data.comments.map(
-            (c: {
-              id: string;
-              username: string;
-              text: string;
-              color: string;
-            }) => ({
+            (c) => ({
               id: c.id,
               username: c.username,
               text: c.text,
@@ -169,12 +170,11 @@ export function CommentFeed({ slug }: { slug: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, username, text, color }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as { comment?: { id: string } };
       if (data.comment) {
+        const newId = data.comment.id;
         setComments((prev) =>
-          prev.map((c) =>
-            c.id === tempId ? { ...optimistic, id: data.comment.id } : c,
-          ),
+          prev.map((c) => (c.id === tempId ? { ...optimistic, id: newId } : c)),
         );
       }
     } catch {

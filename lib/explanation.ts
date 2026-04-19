@@ -1,5 +1,5 @@
 import type { CosmicEvent } from "@/lib/cosmic-data";
-import { getRedis, key } from "@/lib/redis";
+import { getKV, key } from "@/lib/kv";
 
 const CACHE_TTL = 60 * 60 * 12;
 
@@ -20,8 +20,8 @@ export async function generateExplanation(params: {
   const { outcome, marketQuestion, marketSlug, nasaEvent } = params;
 
   const cacheKey = key("explanation", marketSlug, outcome);
-  const redis = getRedis();
-  const cached = await redis.get<string>(cacheKey);
+  const kv = await getKV();
+  const cached = await kv.get(cacheKey);
   if (cached) return cached;
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -74,12 +74,14 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
       return fallbackExplanation(outcome, nasaEvent);
     }
 
-    const data = await res.json();
+    const data = (await res.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
     const explanation =
       data.choices?.[0]?.message?.content ||
       fallbackExplanation(outcome, nasaEvent);
 
-    await redis.set(cacheKey, explanation, { ex: CACHE_TTL });
+    await kv.put(cacheKey, explanation, { expirationTtl: CACHE_TTL });
     return explanation;
   } catch (error) {
     console.error("Generate explanation failed:", error);

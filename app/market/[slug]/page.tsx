@@ -19,7 +19,7 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { formatNumber, formatVolume } from "@/lib/fake-data";
 import { useCosmicStore } from "@/lib/store";
-import type { Market } from "@/lib/types";
+import type { Market, ResolveBetResponse } from "@/lib/types";
 
 const markets = marketsData as Market[];
 
@@ -110,7 +110,7 @@ function MarketPageContent({ market }: { market: Market }) {
         body: JSON.stringify({ marketSlug: market.id, date }),
       });
 
-      const resolveData = await resolveRes.json();
+      const resolveData = (await resolveRes.json()) as ResolveBetResponse;
 
       result = {
         outcome: resolveData.outcome,
@@ -197,7 +197,7 @@ function MarketPageContent({ market }: { market: Market }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ marketSlug: market.id, date }),
         });
-        const data = await res.json();
+        const data = (await res.json()) as ResolveBetResponse;
         if (!data?.outcome) return;
         const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
         ticker.setOutcome(data.outcome);

@@ -17,7 +17,10 @@ function slugHash(slug: string): number {
 
 export async function POST(request: Request) {
   try {
-    const { marketSlug, date } = await request.json();
+    const { marketSlug, date } = (await request.json()) as {
+      marketSlug?: string;
+      date?: string;
+    };
 
     if (!marketSlug || !date) {
       return NextResponse.json(
