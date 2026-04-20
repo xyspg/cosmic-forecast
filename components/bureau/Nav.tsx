@@ -15,22 +15,19 @@ function NavLink({
   href?: string;
   active?: boolean;
 }) {
-  const style: React.CSSProperties = {
-    color: active ? "var(--ink)" : "var(--ink-3)",
-    borderBottom: active ? "2px solid var(--ink)" : "2px solid transparent",
-    padding: "4px 0",
-    fontWeight: active ? 600 : 400,
-    textDecoration: "none",
-    cursor: href ? "pointer" : "default",
-  };
+  const cls = [
+    "py-[4px] no-underline border-b-2",
+    active ? "text-ink border-ink font-semibold" : "text-ink-3 border-transparent font-normal",
+    href ? "cursor-pointer" : "cursor-default",
+  ].join(" ");
   if (href) {
     return (
-      <Link href={href} style={style}>
+      <Link href={href} className={cls}>
         {label}
       </Link>
     );
   }
-  return <span style={style}>{label}</span>;
+  return <span className={cls}>{label}</span>;
 }
 
 export function Nav({ active = "markets" }: { active?: "markets" | "ledger" }) {
@@ -38,70 +35,25 @@ export function Nav({ active = "markets" }: { active?: "markets" | "ledger" }) {
   const balance = useCosmicStore((s) => s.balance);
 
   return (
-    <div
-      className="bureau-nav"
-      style={{
-        padding: "14px 32px",
-        borderBottom: "1px solid var(--rule)",
-        background: "var(--paper)",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <Link
-        href="/"
-        style={{ cursor: "pointer", textDecoration: "none", color: "inherit" }}
-      >
+    <div className="flex flex-wrap items-center justify-between gap-[10px] border-b border-rule bg-paper px-[32px] py-[14px] max-sm:px-[14px] max-sm:py-[10px]">
+      <Link href="/" className="cursor-pointer text-inherit no-underline">
         <Wordmark />
       </Link>
-      <div
-        className="bureau-nav__center"
-        style={{
-          display: "flex",
-          gap: 28,
-          fontFamily: "var(--ff-mono)",
-          fontSize: 11,
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-        }}
-      >
+      <div className="flex gap-7 font-mono text-[11px] uppercase tracking-eyebrow max-sm:order-3 max-sm:w-full max-sm:gap-5 max-sm:justify-start max-sm:border-t max-sm:border-dotted max-sm:border-rule max-sm:pt-[6px]">
         <NavLink label="Markets" href="/" active={active === "markets"} />
         <NavLink label="Ledger" href="/wallet" active={active === "ledger"} />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <div
-          className="bureau-cash-pill"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            padding: "6px 12px",
-            border: "1px solid var(--ink)",
-            background: "var(--paper-2)",
-            fontFamily: "var(--ff-mono)",
-          }}
-        >
-          <span
-            className="bureau-nav__balance-label"
-            style={{
-              fontSize: 9,
-              letterSpacing: "0.18em",
-              color: "var(--ink-3)",
-              textTransform: "uppercase",
-            }}
-          >
+      <div className="flex items-center gap-[14px]">
+        <div className="flex items-center gap-[10px] border border-ink bg-paper-2 px-3 py-[6px] font-mono max-sm:px-[10px] max-sm:py-1">
+          <span className="text-[9px] uppercase tracking-[0.18em] text-ink-3 max-sm:hidden">
             Cash
           </span>
           {hydrated ? (
-            <span
-              className="bureau-num"
-              style={{ fontSize: 14, fontWeight: 600 }}
-            >
+            <span className="bureau-num text-[14px] font-semibold">
               ${balance.toFixed(2)}
             </span>
           ) : (
-            <Skeleton style={{ width: 64, height: 14 }} />
+            <Skeleton className="h-[14px] w-16" />
           )}
         </div>
       </div>

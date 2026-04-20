@@ -9,102 +9,58 @@ import {
 
 export default function MarketLoading() {
   return (
-    <div
-      style={{
-        background: "var(--paper)",
-        color: "var(--ink)",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="min-h-screen bg-paper text-ink">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="markets" />
 
-      <div className="bureau-page" style={{ padding: "20px 32px" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            paddingBottom: 12,
-            borderBottom: "1px solid var(--rule)",
-          }}
-        >
-          <Skeleton style={{ height: 11, width: 260 }} />
-          <Skeleton style={{ height: 11, width: 320 }} />
+      <div className="bureau-page py-5">
+        <div className="flex items-baseline justify-between border-b border-rule pb-3">
+          <Skeleton className="h-[11px] w-[260px]" />
+          <Skeleton className="h-[11px] w-[320px]" />
         </div>
 
-        <div
-          style={{
-            padding: "24px 0 8px",
-            borderBottom: "1px solid var(--rule)",
-          }}
-        >
-          <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-            <Skeleton style={{ height: 20, width: 220 }} />
-            <Skeleton style={{ height: 20, width: 90 }} />
-            <Skeleton style={{ height: 20, width: 140 }} />
-            <Skeleton style={{ height: 20, width: 150, marginLeft: "auto" }} />
+        <div className="border-b border-rule pb-2 pt-6">
+          <div className="mb-[14px] flex gap-[10px]">
+            <Skeleton className="h-5 w-[220px]" />
+            <Skeleton className="h-5 w-[90px]" />
+            <Skeleton className="h-5 w-[140px]" />
+            <Skeleton className="ml-auto h-5 w-[150px]" />
           </div>
-          <Skeleton style={{ height: 50, width: "80%", marginBottom: 8 }} />
-          <Skeleton style={{ height: 50, width: "55%", marginBottom: 18 }} />
-          <Skeleton style={{ height: 16, width: "65%", marginBottom: 12 }} />
-          <Skeleton style={{ height: 11, width: "55%" }} />
+          <Skeleton className="mb-2 h-[50px] w-4/5" />
+          <Skeleton className="mb-[18px] h-[50px] w-[55%]" />
+          <Skeleton className="mb-3 h-4 w-[65%]" />
+          <Skeleton className="h-[11px] w-[55%]" />
         </div>
 
-        <div
-          className="bureau-market-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 360px",
-            gap: 36,
-            paddingTop: 24,
-          }}
-        >
+        <div className="grid grid-cols-[1fr_360px] gap-9 pt-6 max-[960px]:grid-cols-1 max-[960px]:gap-6">
           <div>
             <ChartSkeleton />
-            <div style={{ marginTop: 18 }}>
-              <Skeleton
-                style={{
-                  height: 36,
-                  width: 160,
-                  marginBottom: 14,
-                }}
-              />
+            <div className="mt-[18px]">
+              <Skeleton className="mb-[14px] h-9 w-[160px]" />
               {[1, 2, 3].map((i) => (
-                <div key={`p-${i}`} style={{ marginBottom: 12 }}>
-                  <Skeleton style={{ height: 14, marginBottom: 6 }} />
-                  <Skeleton style={{ height: 14, marginBottom: 6 }} />
-                  <Skeleton style={{ height: 14, width: "70%" }} />
+                <div key={`p-${i}`} className="mb-3">
+                  <Skeleton className="mb-[6px] h-[14px]" />
+                  <Skeleton className="mb-[6px] h-[14px]" />
+                  <Skeleton className="h-[14px] w-[70%]" />
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div className="flex flex-col gap-5">
             <BettingPanelSkeleton />
-            <div style={{ border: "1px solid var(--rule)" }}>
-              <div
-                style={{
-                  padding: "10px 14px",
-                  borderBottom: "1px solid var(--rule)",
-                  background: "var(--paper-2)",
-                }}
-              >
-                <Skeleton style={{ height: 10, width: 140 }} />
+            <div className="border border-rule">
+              <div className="border-b border-rule bg-paper-2 px-[14px] py-[10px]">
+                <Skeleton className="h-[10px] w-[140px]" />
               </div>
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={`cp-${i}`}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "10px 14px",
-                    borderBottom: i === 5 ? "none" : "1px dotted var(--rule)",
-                  }}
+                  className={`flex justify-between px-[14px] py-[10px] ${i === 5 ? "" : "border-b border-dotted border-rule"}`}
                 >
-                  <Skeleton style={{ height: 12, width: 130 }} />
-                  <Skeleton style={{ height: 12, width: 60 }} />
+                  <Skeleton className="h-3 w-[130px]" />
+                  <Skeleton className="h-3 w-[60px]" />
                 </div>
               ))}
             </div>

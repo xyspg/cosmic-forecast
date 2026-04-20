@@ -25,113 +25,31 @@ export default function ErrorBoundary({
   };
 
   return (
-    <div
-      style={{
-        background: "var(--paper)",
-        color: "var(--ink)",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 20px",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 680,
-          width: "100%",
-          border: "1px solid var(--ink)",
-          background: "var(--paper)",
-        }}
-      >
-        <div
-          style={{
-            background: "#000",
-            color: "var(--bone)",
-            padding: "12px 20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontFamily: "var(--ff-mono)",
-            gap: 10,
-            flexWrap: "wrap",
-          }}
-        >
-          <span
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.28em",
-              color: "var(--amber)",
-            }}
-          >
+    <div className="flex min-h-screen items-center justify-center bg-paper px-5 py-10 text-ink">
+      <div className="w-full max-w-[680px] border border-ink bg-paper">
+        <div className="flex flex-wrap items-center justify-between gap-[10px] bg-black px-5 py-3 font-mono text-bone">
+          <span className="text-[10px] tracking-mark text-amber">
             ◈ SYSTEM NOTICE · BUREAU OF PREDICTION MARKETS
           </span>
-          <span
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.14em",
-              color: "var(--bone-2)",
-            }}
-          >
+          <span className="text-[10px] tracking-eyebrow text-bone-2">
             FORM ERR-7
           </span>
         </div>
 
-        <div
-          className="bureau-error-card"
-          style={{ padding: "28px 32px 32px" }}
-        >
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.24em",
-              color: "var(--ink-3)",
-              textTransform: "uppercase",
-              marginBottom: 10,
-            }}
-          >
+        <div className="px-8 pb-8 pt-7 max-sm:px-[18px] max-sm:pb-6 max-sm:pt-[22px]">
+          <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-[0.24em] text-ink-3">
             — UNSCHEDULED INTERRUPTION —
           </div>
-          <h1
-            className="bureau-serif bureau-error-headline"
-            style={{
-              fontSize: 32,
-              letterSpacing: "-0.02em",
-              lineHeight: 1.15,
-              fontWeight: 500,
-              margin: "0 0 14px",
-              textWrap: "balance",
-            }}
-          >
+          <h1 className="bureau-serif m-0 mb-[14px] text-balance text-[32px] font-medium leading-[1.15] tracking-[-0.02em] max-sm:text-[24px]">
             The Bureau has encountered an irregularity.
           </h1>
-          <p
-            className="bureau-serif"
-            style={{
-              fontSize: 15,
-              fontStyle: "italic",
-              color: "var(--ink-2)",
-              lineHeight: 1.55,
-              margin: "0 0 20px",
-            }}
-          >
+          <p className="bureau-serif m-0 mb-5 text-[15px] italic leading-[1.55] text-ink-2">
             Operations have been suspended pending review. Your session will be
-            restored from the Bureau's archive upon retry.
+            restored from the Bureau&apos;s archive upon retry.
           </p>
 
           {error?.digest && (
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.08em",
-                color: "var(--ink-4)",
-                marginBottom: 18,
-                paddingBottom: 10,
-                borderBottom: "1px dotted var(--rule)",
-              }}
-            >
+            <div className="bureau-mono mb-[18px] border-b border-dotted border-rule pb-[10px] text-[10px] tracking-wire text-ink-4">
               FILING DIGEST · {error.digest}
             </div>
           )}
@@ -139,19 +57,7 @@ export default function ErrorBoundary({
           <button
             type="button"
             onClick={handleTryAgain}
-            style={{
-              width: "100%",
-              padding: "14px 22px",
-              background: "var(--ink)",
-              color: "var(--paper)",
-              border: 0,
-              cursor: "pointer",
-              fontFamily: "var(--ff-mono)",
-              fontSize: 11,
-              letterSpacing: "0.2em",
-              textTransform: "uppercase",
-              fontWeight: 600,
-            }}
+            className="w-full cursor-pointer border-0 bg-ink px-[22px] py-[14px] font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
           >
             Try again
           </button>

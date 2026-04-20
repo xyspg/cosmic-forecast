@@ -11,229 +11,114 @@ const SOLAR_ROWS = [0, 1, 2, 3, 4, 5];
 
 export default function HomeLoading() {
   return (
-    <div
-      style={{
-        background: "var(--paper)",
-        color: "var(--ink)",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="min-h-screen bg-paper text-ink">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="markets" />
 
-      <div className="bureau-page" style={{ padding: "28px 32px 0" }}>
-        <div
-          className="bureau-masthead"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            paddingBottom: 14,
-            borderBottom: "3px double var(--ink)",
-          }}
-        >
+      <div className="bureau-page pt-7">
+        <div className="flex items-end justify-between border-b-[3px] border-double border-ink pb-[14px] max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
           <div>
-            <Skeleton style={{ height: 10, width: 280, marginBottom: 10 }} />
-            <Skeleton style={{ height: 38, width: 360 }} />
+            <Skeleton className="mb-[10px] h-[10px] w-[280px]" />
+            <Skeleton className="h-[38px] w-[360px]" />
           </div>
-          <div
-            className="bureau-masthead__meta"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-end",
-              gap: 6,
-            }}
-          >
-            <Skeleton style={{ height: 10, width: 140 }} />
-            <Skeleton style={{ height: 10, width: 160 }} />
-            <Skeleton style={{ height: 10, width: 180 }} />
+          <div className="flex flex-col items-end gap-[6px]">
+            <Skeleton className="h-[10px] w-[140px]" />
+            <Skeleton className="h-[10px] w-[160px]" />
+            <Skeleton className="h-[10px] w-[180px]" />
           </div>
         </div>
       </div>
 
-      <div
-        className="bureau-page bureau-main-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          gap: 32,
-        }}
-      >
+      <div className="bureau-page grid grid-cols-[1fr_320px] gap-8 max-[960px]:grid-cols-1 max-[960px]:gap-6">
         <div>
           <FeaturedMarketSkeleton />
 
-          <div
-            className="bureau-category-bar"
-            style={{
-              marginTop: 28,
-              display: "flex",
-              gap: 22,
-              padding: "10px 0",
-              borderBottom: "1px solid var(--rule)",
-            }}
-          >
+          <div className="mt-7 flex gap-[22px] border-b border-rule py-[10px]">
             {CATEGORY_PILLS.map((w, i) => (
               <Skeleton
                 // biome-ignore lint/suspicious/noArrayIndexKey: placeholder row, order static
                 key={`cat-${i}`}
-                style={{ height: 12, width: w }}
+                className="h-3"
+                style={{ width: w }}
               />
             ))}
           </div>
 
-          <div
-            style={{
-              marginTop: 20,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              paddingBottom: 8,
-              borderBottom: "2px solid var(--ink)",
-            }}
-          >
-            <Skeleton style={{ height: 22, width: 160 }} />
-            <Skeleton style={{ height: 11, width: 220 }} />
+          <div className="mt-5 flex items-baseline justify-between border-b-2 border-ink pb-2">
+            <Skeleton className="h-[22px] w-[160px]" />
+            <Skeleton className="h-[11px] w-[220px]" />
           </div>
 
           <div className="bureau-table-scroll">
-            <div style={{ minWidth: 760 }}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "110px 1fr 60px 60px 140px 80px 80px 100px 50px",
-                  gap: 10,
-                  padding: "14px 10px",
-                  borderBottom: "2px solid var(--ink)",
-                }}
-              >
+            <div className="min-w-[760px]">
+              <div className="grid grid-cols-[110px_1fr_60px_60px_140px_80px_80px_100px_50px] gap-[10px] border-b-2 border-ink px-[10px] py-[14px]">
                 {TABLE_ROWS.concat([6, 7, 8]).map((i) => (
-                  <Skeleton key={`hdr-${i}`} style={{ height: 10 }} />
+                  <Skeleton key={`hdr-${i}`} className="h-[10px]" />
                 ))}
               </div>
               {TABLE_ROWS.map((i) => (
                 <div
                   key={`row-${i}`}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "110px 1fr 60px 60px 140px 80px 80px 100px 50px",
-                    gap: 10,
-                    padding: "18px 10px",
-                    borderTop: "1px solid var(--rule)",
-                    alignItems: "center",
-                    background:
-                      i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.015)",
-                  }}
+                  className={`grid grid-cols-[110px_1fr_60px_60px_140px_80px_80px_100px_50px] items-center gap-[10px] border-t border-rule px-[10px] py-[18px] ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
                 >
-                  <Skeleton style={{ height: 10 }} />
+                  <Skeleton className="h-[10px]" />
                   <div>
-                    <Skeleton style={{ height: 15, marginBottom: 4 }} />
-                    <Skeleton style={{ height: 10, width: "60%" }} />
+                    <Skeleton className="mb-1 h-[15px]" />
+                    <Skeleton className="h-[10px] w-[60%]" />
                   </div>
-                  <Skeleton style={{ height: 15 }} />
-                  <Skeleton style={{ height: 15 }} />
-                  <Skeleton style={{ height: 28 }} />
-                  <Skeleton style={{ height: 13 }} />
-                  <Skeleton style={{ height: 13 }} />
-                  <Skeleton style={{ height: 11 }} />
-                  <Skeleton style={{ height: 16 }} />
+                  <Skeleton className="h-[15px]" />
+                  <Skeleton className="h-[15px]" />
+                  <Skeleton className="h-[28px]" />
+                  <Skeleton className="h-[13px]" />
+                  <Skeleton className="h-[13px]" />
+                  <Skeleton className="h-[11px]" />
+                  <Skeleton className="h-[16px]" />
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <aside style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <section style={{ border: "1px solid var(--ink)", padding: 16 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-                paddingBottom: 8,
-                borderBottom: "1px solid var(--rule)",
-              }}
-            >
-              <Skeleton style={{ height: 18, width: 60 }} />
-              <Skeleton style={{ height: 10, width: 40 }} />
+        <aside className="flex flex-col gap-6">
+          <section className="border border-ink p-4">
+            <div className="flex items-baseline justify-between border-b border-rule pb-2">
+              <Skeleton className="h-[18px] w-[60px]" />
+              <Skeleton className="h-[10px] w-[40px]" />
             </div>
             {WIRE_ROWS.map((i) => (
               <div
                 key={`wire-${i}`}
-                style={{
-                  padding: "12px 0",
-                  borderBottom:
-                    i === WIRE_ROWS.length - 1
-                      ? "none"
-                      : "1px dotted var(--rule)",
-                }}
+                className={`py-3 ${i === WIRE_ROWS.length - 1 ? "" : "border-b border-dotted border-rule"}`}
               >
-                <Skeleton style={{ height: 9, width: 120, marginBottom: 5 }} />
-                <Skeleton style={{ height: 13, marginBottom: 4 }} />
-                <Skeleton
-                  style={{ height: 13, width: "80%", marginBottom: 5 }}
-                />
-                <Skeleton style={{ height: 10, width: 100 }} />
+                <Skeleton className="mb-[5px] h-[9px] w-[120px]" />
+                <Skeleton className="mb-1 h-[13px]" />
+                <Skeleton className="mb-[5px] h-[13px] w-4/5" />
+                <Skeleton className="h-[10px] w-[100px]" />
               </div>
             ))}
           </section>
 
-          <section
-            style={{
-              background: "#0a0a0a",
-              padding: 16,
-              border: "1px solid #000",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                paddingBottom: 8,
-                borderBottom: "1px solid #2b2a26",
-                marginBottom: 12,
-              }}
-            >
+          <section className="border border-black bg-[#0a0a0a] p-4">
+            <div className="mb-3 flex justify-between border-b border-[#2b2a26] pb-2">
               <Skeleton
-                style={{
-                  height: 11,
-                  width: 80,
-                  background: "rgba(184,132,42,0.35)",
-                }}
+                className="h-[11px] w-[80px]"
+                style={{ background: "rgba(184,132,42,0.35)" }}
               />
               <Skeleton
-                style={{
-                  height: 9,
-                  width: 70,
-                  background: "rgba(232,228,216,0.2)",
-                }}
+                className="h-[9px] w-[70px]"
+                style={{ background: "rgba(232,228,216,0.2)" }}
               />
             </div>
             {SOLAR_ROWS.map((i) => (
-              <div
-                key={`solar-${i}`}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "4px 0",
-                }}
-              >
+              <div key={`solar-${i}`} className="flex justify-between py-1">
                 <Skeleton
-                  style={{
-                    height: 11,
-                    width: 110,
-                    background: "rgba(232,228,216,0.1)",
-                  }}
+                  className="h-[11px] w-[110px]"
+                  style={{ background: "rgba(232,228,216,0.1)" }}
                 />
                 <Skeleton
-                  style={{
-                    height: 11,
-                    width: 32,
-                    background: "rgba(232,228,216,0.18)",
-                  }}
+                  className="h-[11px] w-[32px]"
+                  style={{ background: "rgba(232,228,216,0.18)" }}
                 />
               </div>
             ))}

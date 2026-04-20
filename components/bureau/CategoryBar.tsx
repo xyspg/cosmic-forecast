@@ -19,19 +19,7 @@ export function CategoryBar({
   onChange: (c: string) => void;
 }) {
   return (
-    <div
-      className="bureau-category-bar"
-      style={{
-        display: "flex",
-        gap: 0,
-        padding: "10px 0",
-        borderBottom: "1px solid var(--rule)",
-        fontFamily: "var(--ff-mono)",
-        fontSize: 11,
-        letterSpacing: "0.1em",
-        textTransform: "uppercase",
-      }}
-    >
+    <div className="scrollbar-none flex border-b border-rule py-[10px] font-mono text-[11px] uppercase tracking-[0.1em] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:whitespace-nowrap">
       {CATEGORIES.map((c) => {
         const isActive = c === active;
         return (
@@ -39,22 +27,11 @@ export function CategoryBar({
             key={c}
             type="button"
             onClick={() => onChange(c)}
-            style={{
-              background: "none",
-              border: 0,
-              padding: "4px 14px",
-              cursor: "pointer",
-              color: isActive ? "var(--ink)" : "var(--ink-3)",
-              borderBottom: isActive
-                ? "2px solid var(--ink)"
-                : "2px solid transparent",
-              marginBottom: -11,
-              fontFamily: "inherit",
-              fontSize: "inherit",
-              letterSpacing: "inherit",
-              textTransform: "inherit",
-              fontWeight: isActive ? 600 : 400,
-            }}
+            className={`-mb-[11px] cursor-pointer border-0 bg-transparent px-[14px] py-1 font-[inherit] text-[inherit] uppercase tracking-[inherit] border-b-2 ${
+              isActive
+                ? "border-ink font-semibold text-ink"
+                : "border-transparent font-normal text-ink-3"
+            }`}
           >
             {c}
           </button>

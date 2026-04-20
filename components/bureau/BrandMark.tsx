@@ -9,7 +9,8 @@ export function BrandMark({ size = 28 }: { size?: number }) {
       width={size}
       height={size}
       priority
-      style={{ display: "block", width: size, height: size }}
+      className="block"
+      style={{ width: size, height: size }}
     />
   );
 }

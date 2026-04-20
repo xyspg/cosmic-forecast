@@ -102,13 +102,7 @@ export function Sparkline({
       ref={svgRef}
       viewBox={`0 0 ${w} ${h}`}
       preserveAspectRatio="xMidYMid meet"
-      style={{
-        display: "block",
-        width: "100%",
-        height: "auto",
-        maxWidth: "100%",
-        cursor: hoverIndex !== null ? "crosshair" : "default",
-      }}
+      className={`block h-auto w-full max-w-full ${hoverIndex !== null ? "cursor-crosshair" : "cursor-default"}`}
       role="presentation"
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
@@ -284,7 +278,8 @@ export function MiniSpark({
     <svg
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="xMidYMid meet"
-      style={{ display: "block", width, height, maxWidth: "100%" }}
+      className="block max-w-full"
+      style={{ width, height }}
       role="presentation"
     >
       <title>Mini sparkline</title>

@@ -6,16 +6,9 @@ import type { BureauMarket } from "@/lib/market-metadata";
 import { fmtNum, fmtUSDShort } from "@/lib/market-metadata";
 import { MiniSpark } from "./Sparkline";
 
-const th: React.CSSProperties = {
-  padding: "10px 10px",
-  borderBottom: "2px solid var(--ink)",
-  fontWeight: 500,
-};
-
-const td: React.CSSProperties = {
-  padding: "12px 10px",
-  verticalAlign: "middle",
-};
+const TH_BASE =
+  "border-b-2 border-ink p-[10px] font-medium font-mono text-[10px] uppercase tracking-[0.1em] text-ink-3";
+const TD_BASE = "p-[10px] align-middle";
 
 export function MarketTable({
   markets,
@@ -28,36 +21,18 @@ export function MarketTable({
 
   return (
     <div className="bureau-table-scroll">
-      <table
-        style={{
-          width: "100%",
-          minWidth: 760,
-          borderCollapse: "collapse",
-          marginTop: 8,
-          fontFamily: "var(--ff-sans)",
-          fontSize: 13,
-        }}
-      >
+      <table className="mt-2 w-full min-w-[760px] border-collapse font-sans text-[13px]">
         <thead>
-          <tr
-            style={{
-              fontFamily: "var(--ff-mono)",
-              fontSize: 10,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "var(--ink-3)",
-              textAlign: "left",
-            }}
-          >
-            <th style={th}>Ref</th>
-            <th style={th}>Market</th>
-            <th style={{ ...th, textAlign: "right" }}>YES¢</th>
-            <th style={{ ...th, textAlign: "right" }}>NO¢</th>
-            <th style={{ ...th, textAlign: "right", width: 140 }}>30-day</th>
-            <th style={{ ...th, textAlign: "right" }}>O.I.</th>
-            <th style={{ ...th, textAlign: "right" }}>Bettors</th>
-            <th style={{ ...th, textAlign: "right" }}>Settles</th>
-            <th style={{ ...th, textAlign: "center" }}>Risk</th>
+          <tr className="text-left">
+            <th className={TH_BASE}>Ref</th>
+            <th className={TH_BASE}>Market</th>
+            <th className={`${TH_BASE} text-right`}>YES¢</th>
+            <th className={`${TH_BASE} text-right`}>NO¢</th>
+            <th className={`${TH_BASE} w-[140px] text-right`}>30-day</th>
+            <th className={`${TH_BASE} text-right`}>O.I.</th>
+            <th className={`${TH_BASE} text-right`}>Bettors</th>
+            <th className={`${TH_BASE} text-right`}>Settles</th>
+            <th className={`${TH_BASE} text-center`}>Risk</th>
           </tr>
         </thead>
         <tbody>
@@ -67,85 +42,44 @@ export function MarketTable({
             const up = len >= 30 ? series[len - 1] > series[len - 30] : true;
             const yesCent = Math.round(m.yesPrice * 100);
             const noCent = Math.round(m.noPrice * 100);
+            const zebra = i % 2 === 0 ? "" : "bg-black/[0.015]";
             return (
               <tr
                 key={m.id}
                 onClick={() => router.push(`/market/${m.id}`)}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--paper-2)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background =
-                    i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.015)";
-                }}
-                style={{
-                  borderTop: "1px solid var(--rule)",
-                  cursor: "pointer",
-                  background: i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.015)",
-                }}
+                className={`cursor-pointer border-t border-rule hover:bg-paper-2 ${zebra}`}
               >
                 <td
-                  style={{
-                    ...td,
-                    fontFamily: "var(--ff-mono)",
-                    fontSize: 10,
-                    color: "var(--ink-3)",
-                    letterSpacing: "0.05em",
-                    width: 110,
-                  }}
+                  className={`${TD_BASE} w-[110px] font-mono text-[10px] tracking-[0.05em] text-ink-3`}
                 >
                   {m.ref}
                 </td>
-                <td style={td}>
+                <td className={TD_BASE}>
                   <Link
                     href={`/market/${m.id}`}
-                    style={{ color: "inherit", textDecoration: "none" }}
+                    className="text-inherit no-underline"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div
-                      className="bureau-serif"
-                      style={{
-                        fontSize: 15,
-                        letterSpacing: "-0.01em",
-                        lineHeight: 1.25,
-                        maxWidth: 520,
-                      }}
-                    >
+                    <div className="bureau-serif max-w-[520px] text-[15px] leading-[1.25] tracking-[-0.01em]">
                       {m.question}
                     </div>
                   </Link>
-                  <div
-                    className="bureau-mono"
-                    style={{
-                      fontSize: 10,
-                      color: "var(--ink-4)",
-                      marginTop: 2,
-                      letterSpacing: "0.04em",
-                    }}
-                  >
+                  <div className="bureau-mono mt-[2px] text-[10px] tracking-[0.04em] text-ink-4">
                     α {m.ra} · δ {m.dec} · {m.category.toUpperCase()}
                   </div>
                 </td>
-                <td style={{ ...td, textAlign: "right" }}>
-                  <span
-                    className="bureau-num"
-                    style={{ fontSize: 15, fontWeight: 500 }}
-                  >
+                <td className={`${TD_BASE} text-right`}>
+                  <span className="bureau-num text-[15px] font-medium">
                     {yesCent}
                   </span>
                 </td>
-                <td style={{ ...td, textAlign: "right" }}>
-                  <span
-                    className="bureau-num"
-                    style={{ fontSize: 15, color: "var(--ink-3)" }}
-                  >
+                <td className={`${TD_BASE} text-right`}>
+                  <span className="bureau-num text-[15px] text-ink-3">
                     {noCent}
                   </span>
                 </td>
-                <td style={{ ...td, textAlign: "right" }}>
-                  <div
-                    style={{ display: "inline-block", verticalAlign: "middle" }}
-                  >
+                <td className={`${TD_BASE} text-right`}>
+                  <div className="inline-block align-middle">
                     <MiniSpark
                       series={series.slice(-30)}
                       width={110}
@@ -154,39 +88,21 @@ export function MarketTable({
                     />
                   </div>
                 </td>
-                <td style={{ ...td, textAlign: "right" }}>
+                <td className={`${TD_BASE} text-right`}>
                   <span className="bureau-num">{fmtUSDShort(m.volume)}</span>
                 </td>
-                <td style={{ ...td, textAlign: "right" }}>
-                  <span
-                    className="bureau-num"
-                    style={{ color: "var(--ink-3)" }}
-                  >
+                <td className={`${TD_BASE} text-right`}>
+                  <span className="bureau-num text-ink-3">
                     {fmtNum(m.totalBettors)}
                   </span>
                 </td>
                 <td
-                  style={{
-                    ...td,
-                    textAlign: "right",
-                    fontFamily: "var(--ff-mono)",
-                    fontSize: 11,
-                    color: "var(--ink-3)",
-                  }}
+                  className={`${TD_BASE} text-right font-mono text-[11px] text-ink-3`}
                 >
                   {m.endsLabel}
                 </td>
-                <td style={{ ...td, textAlign: "center" }}>
-                  <span
-                    style={{
-                      fontFamily: "var(--ff-mono)",
-                      fontSize: 10,
-                      letterSpacing: "0.1em",
-                      border: "1px solid var(--rule)",
-                      padding: "2px 6px",
-                      color: "var(--ink-3)",
-                    }}
-                  >
+                <td className={`${TD_BASE} text-center`}>
+                  <span className="border border-rule px-[6px] py-[2px] font-mono text-[10px] tracking-[0.1em] text-ink-3">
                     {m.risk}
                   </span>
                 </td>

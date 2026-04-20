@@ -240,7 +240,7 @@ function MarketPageContent({
   if (!hydrated) return <MarketLoading />;
 
   return (
-    <div style={{ background: "var(--paper)", color: "var(--ink)" }}>
+    <div className="bg-paper text-ink">
       <SpeedUpOverlay
         visible={showSpeedUp}
         onSpeedUp={handleSpeedUp}
@@ -263,7 +263,7 @@ function MarketPageContent({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="fixed inset-0 z-40 pointer-events-none all-in-vignette"
+            className="all-in-vignette pointer-events-none fixed inset-0 z-40"
           />
         )}
       </AnimatePresence>
@@ -275,10 +275,8 @@ function MarketPageContent({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="fixed top-0 right-0 z-30 pointer-events-none hidden lg:block"
+            className="pointer-events-none fixed right-0 top-0 z-30 hidden h-[600px] w-[500px] lg:block"
             style={{
-              width: "500px",
-              height: "600px",
               top: "120px",
               right: "calc(50% - 560px + 380px)",
               background: `radial-gradient(ellipse at center, ${
@@ -295,7 +293,7 @@ function MarketPageContent({
       <FlareTicker />
       <Nav active="markets" />
 
-      <div className="bureau-page" style={{ padding: "20px 32px" }}>
+      <div className="bureau-page py-5">
         <MarketHero m={bureau} yesCent={yesCent} noCent={noCent} />
 
         <div className="grid grid-cols-1 gap-6 pt-6 md:grid-cols-[minmax(0,1fr)_360px] md:gap-9">
@@ -314,53 +312,17 @@ function MarketPageContent({
             {resolution && (
               <Link
                 href={`/resolution/${market.id}`}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginTop: 24,
-                  padding: "16px 20px",
-                  border: "1px solid var(--ink)",
-                  background: "var(--paper-2)",
-                  color: "inherit",
-                  textDecoration: "none",
-                  gap: 10,
-                  flexWrap: "wrap",
-                }}
+                className="mt-6 flex flex-wrap items-center justify-between gap-[10px] border border-ink bg-paper-2 px-5 py-4 text-inherit no-underline"
               >
                 <div>
-                  <div
-                    className="bureau-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.22em",
-                      color: "var(--ink-3)",
-                      textTransform: "uppercase",
-                      marginBottom: 4,
-                    }}
-                  >
+                  <div className="bureau-mono mb-1 text-[10px] uppercase tracking-[0.22em] text-ink-3">
                     This market has been resolved
                   </div>
-                  <div
-                    className="bureau-serif"
-                    style={{
-                      fontSize: 18,
-                      letterSpacing: "-0.01em",
-                      fontWeight: 500,
-                    }}
-                  >
+                  <div className="bureau-serif text-[18px] font-medium tracking-[-0.01em]">
                     Read the official resolution notice →
                   </div>
                 </div>
-                <span
-                  className="bureau-mono"
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.2em",
-                    color: "var(--ink)",
-                    textTransform: "uppercase",
-                  }}
-                >
+                <span className="bureau-mono text-[11px] uppercase tracking-stamp text-ink">
                   {resolution.outcome} ·{" "}
                   {pnl !== null && (pnl >= 0 ? "+" : "−")}$
                   {pnl !== null ? Math.abs(pnl).toFixed(2) : "—"}
@@ -384,7 +346,7 @@ function MarketPageContent({
             <motion.div
               animate={{ opacity: allInMode ? 0.4 : 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              style={{ display: "flex", flexDirection: "column", gap: 20 }}
+              className="flex flex-col gap-5"
             >
               <TopCounterparties total={ticker.totalBettors} />
               <OracleStatus
@@ -393,21 +355,9 @@ function MarketPageContent({
                   .padEnd(8, "0")
                   .slice(0, 8)}…`}
               />
-              <div
-                className="bureau-mono"
-                style={{
-                  fontSize: 10,
-                  color: "var(--ink-3)",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  borderTop: "1px solid var(--rule)",
-                  paddingTop: 12,
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
+              <div className="bureau-mono flex justify-between border-t border-rule pt-3 text-[10px] uppercase tracking-[0.1em] text-ink-3">
                 <span>OPEN INTEREST</span>
-                <span className="bureau-num" style={{ color: "var(--ink)" }}>
+                <span className="bureau-num text-ink">
                   {fmtUSDShort(ticker.volume)}
                 </span>
               </div>
@@ -419,101 +369,38 @@ function MarketPageContent({
             <Methodology />
 
             {relatedMarkets.length > 0 && (
-              <div style={{ marginTop: 28 }}>
-                <div
-                  style={{
-                    borderBottom: "2px solid var(--ink)",
-                    paddingBottom: 8,
-                    marginBottom: 14,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                  }}
-                >
-                  <div
-                    className="bureau-serif"
-                    style={{
-                      fontSize: 20,
-                      letterSpacing: "-0.01em",
-                      fontWeight: 500,
-                    }}
-                  >
+              <div className="mt-7">
+                <div className="mb-[14px] flex items-baseline justify-between border-b-2 border-ink pb-2">
+                  <div className="bureau-serif text-[20px] font-medium tracking-[-0.01em]">
                     Related markets
                   </div>
-                  <div
-                    className="bureau-mono"
-                    style={{
-                      fontSize: 10,
-                      color: "var(--ink-3)",
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                    }}
-                  >
+                  <div className="bureau-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
                     Same desk · {market.category}
                   </div>
                 </div>
-                <div
-                  className="bureau-related-grid"
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: 14,
-                  }}
-                >
+                <div className="grid grid-cols-2 gap-[14px] max-sm:grid-cols-1">
                   {relatedMarkets.map((rm) => (
                     <Link
                       key={rm.id}
                       href={`/market/${rm.id}`}
-                      style={{
-                        border: "1px solid var(--rule)",
-                        padding: 14,
-                        background: "var(--paper)",
-                        textDecoration: "none",
-                        color: "inherit",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 10,
-                      }}
+                      className="flex flex-col gap-[10px] border border-rule bg-paper p-[14px] text-inherit no-underline"
                     >
                       <div
-                        className="bureau-serif"
+                        className="bureau-serif overflow-hidden text-[15px] font-medium leading-[1.3] text-ink"
                         style={{
-                          fontSize: 15,
-                          lineHeight: 1.3,
-                          fontWeight: 500,
-                          color: "var(--ink)",
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
                         }}
                       >
                         {rm.question}
                       </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "baseline",
-                        }}
-                      >
-                        <span
-                          className="bureau-num"
-                          style={{ fontSize: 14, fontWeight: 600 }}
-                        >
+                      <div className="flex items-baseline justify-between">
+                        <span className="bureau-num text-[14px] font-semibold">
                           {Math.round(rm.yesPrice * 100)}¢{" "}
-                          <span style={{ color: "var(--ink-3)", fontSize: 11 }}>
-                            YES
-                          </span>
+                          <span className="text-[11px] text-ink-3">YES</span>
                         </span>
-                        <span
-                          className="bureau-mono"
-                          style={{
-                            fontSize: 10,
-                            color: "var(--ink-3)",
-                            letterSpacing: "0.08em",
-                          }}
-                        >
+                        <span className="bureau-mono text-[10px] tracking-wire text-ink-3">
                           {formatVolume(rm.volume)}
                         </span>
                       </div>

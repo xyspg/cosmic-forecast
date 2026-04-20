@@ -31,11 +31,9 @@ interface ApplePaySessionInstance {
 
 const DEPOSIT_AMOUNTS = [100, 250, 500, 1000];
 
-const TH: React.CSSProperties = { padding: "10px 12px", fontWeight: 500 };
-const TD: React.CSSProperties = {
-  padding: "12px 12px",
-  verticalAlign: "middle",
-};
+const TH_CLS =
+  "p-3 font-medium font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3";
+const TD_CLS = "p-3 align-middle";
 
 function fmtUSD(n: number) {
   return `$${n.toLocaleString("en-US", {
@@ -57,33 +55,13 @@ function StatCell({
 }) {
   return (
     <div
-      style={{
-        padding: "22px 24px",
-        borderRight: last ? "none" : "1px solid var(--ink)",
-      }}
+      className={`px-6 py-[22px] ${last ? "" : "border-r border-ink max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink"}`}
     >
       <div className="bureau-eyebrow">{label}</div>
-      <div
-        className="bureau-num bureau-serif"
-        style={{
-          fontSize: 32,
-          lineHeight: 1.1,
-          fontWeight: 500,
-          letterSpacing: "-0.02em",
-        }}
-      >
+      <div className="bureau-num bureau-serif text-[32px] font-medium leading-[1.1] tracking-[-0.02em]">
         {value}
       </div>
-      <div
-        className="bureau-mono"
-        style={{
-          fontSize: 10,
-          color: "var(--ink-3)",
-          letterSpacing: "0.1em",
-          textTransform: "uppercase",
-          marginTop: 4,
-        }}
-      >
+      <div className="bureau-mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-3">
         {hint}
       </div>
     </div>
@@ -106,19 +84,11 @@ function StmtBtn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      style={{
-        padding: "10px 16px",
-        background: primary ? "var(--ink)" : "var(--paper)",
-        color: primary ? "var(--paper)" : "var(--ink)",
-        border: primary ? 0 : "1px solid var(--ink)",
-        fontFamily: "var(--ff-mono)",
-        fontSize: 10,
-        letterSpacing: "0.2em",
-        textTransform: "uppercase",
-        cursor: disabled ? "not-allowed" : "pointer",
-        fontWeight: 600,
-        opacity: disabled ? 0.5 : 1,
-      }}
+      className={`px-4 py-[10px] font-mono text-[10px] font-semibold uppercase tracking-stamp ${
+        primary
+          ? "border-0 bg-ink text-paper"
+          : "border border-ink bg-paper text-ink"
+      } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       {children}
     </button>
@@ -248,7 +218,7 @@ export default function WalletPage() {
 
   if (!hydrated) {
     return (
-      <div style={{ background: "var(--paper)", minHeight: "100vh" }}>
+      <div className="min-h-screen bg-paper">
         <GovHeaderStrip />
         <FlareTicker />
         <Nav active="ledger" />
@@ -258,110 +228,48 @@ export default function WalletPage() {
   }
 
   return (
-    <div
-      style={{
-        background: "var(--paper)",
-        color: "var(--ink)",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="min-h-screen bg-paper text-ink">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="ledger" />
 
       <div className="bureau-page">
-        <div
-          style={{
-            paddingBottom: 16,
-            borderBottom: "3px double var(--ink)",
-          }}
-        >
-          <div
-            className="bureau-wallet-header"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-            }}
-          >
+        <div className="border-b-[3px] border-double border-ink pb-4">
+          <div className="flex items-baseline justify-between max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
             <div>
-              <div className="bureau-eyebrow" style={{ marginBottom: 4 }}>
+              <div className="bureau-eyebrow mb-1">
                 Statement of account · period ending April 19, 2026
               </div>
-              <div
-                className="bureau-serif bureau-masthead__title"
-                style={{
-                  fontSize: "clamp(26px, 6vw, 38px)",
-                  letterSpacing: "-0.025em",
-                  lineHeight: 1,
-                  fontWeight: 500,
-                }}
-              >
+              <div className="bureau-serif text-[clamp(26px,6vw,38px)] font-medium leading-none tracking-[-0.025em] max-sm:text-[28px]">
                 Declarant ledger
               </div>
             </div>
-            <div
-              className="bureau-wallet-header__meta"
-              style={{
-                textAlign: "right",
-                fontFamily: "var(--ff-mono)",
-                fontSize: 10,
-                color: "var(--ink-3)",
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                lineHeight: 1.7,
-              }}
-            >
+            <div className="bureau-mono text-right font-mono text-[10px] uppercase leading-[1.7] tracking-[0.12em] text-ink-3 max-sm:text-left">
               <div>ACCT · 0042188-NYU</div>
               <div>OPENED · 12 SEP 2025</div>
               <div>
-                STATUS ·{" "}
-                <span style={{ color: "var(--ink)" }}>IN GOOD STANDING</span>
+                STATUS · <span className="text-ink">IN GOOD STANDING</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div
-          className="bureau-stat-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.4fr 1fr 1fr 1fr",
-            border: "1px solid var(--ink)",
-            borderTop: "none",
-          }}
-        >
-          <div
-            style={{
-              padding: "22px 24px",
-              borderRight: "1px solid var(--ink)",
-            }}
-          >
+        <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 border-ink max-[960px]:grid-cols-2 max-sm:grid-cols-1">
+          <div className="border-r border-ink px-6 py-[22px] max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink">
             <div className="bureau-eyebrow">Cash balance</div>
             <div
-              className="bureau-num bureau-serif"
-              style={{
-                fontSize: "clamp(28px, 7vw, 42px)",
-                lineHeight: 1.05,
-                fontWeight: 500,
-                letterSpacing: "-0.02em",
-              }}
+              className="bureau-num bureau-serif text-[clamp(28px,7vw,42px)] font-medium leading-[1.05] tracking-[-0.02em]"
               suppressHydrationWarning
             >
               {fmtUSD(balance)}
             </div>
             <div
-              className="bureau-mono"
-              style={{
-                fontSize: 11,
-                color: stats.settledPL >= 0 ? "var(--pl-pos)" : "var(--pl-neg)",
-                marginTop: 4,
-              }}
+              className={`bureau-mono mt-1 text-[11px] ${stats.settledPL >= 0 ? "text-pl-pos" : "text-pl-neg"}`}
             >
               {stats.settledPL >= 0 ? "+" : "−"}
               {fmtUSD(Math.abs(stats.settledPL))} lifetime
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+            <div className="mt-[14px] flex gap-2">
               <StmtBtn primary onClick={() => setShowDeposit((v) => !v)}>
                 ◆ Deposit
               </StmtBtn>
@@ -387,26 +295,11 @@ export default function WalletPage() {
         </div>
 
         {showDeposit && (
-          <div
-            style={{
-              marginTop: 20,
-              border: "1px solid var(--ink)",
-              padding: 18,
-              background: "var(--paper-2)",
-            }}
-          >
-            <div className="bureau-eyebrow" style={{ marginBottom: 10 }}>
+          <div className="mt-5 border border-ink bg-paper-2 p-[18px]">
+            <div className="bureau-eyebrow mb-[10px]">
               Deposit principal — test mode
             </div>
-            <div
-              className="bureau-deposit-grid"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: 6,
-                marginBottom: 10,
-              }}
-            >
+            <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
               {DEPOSIT_AMOUNTS.map((a) => {
                 const active = depositAmount === a;
                 return (
@@ -414,33 +307,15 @@ export default function WalletPage() {
                     key={a}
                     type="button"
                     onClick={() => setDepositAmount(a)}
-                    style={{
-                      padding: "10px 0",
-                      border: "1px solid var(--rule)",
-                      cursor: "pointer",
-                      background: active ? "var(--ink)" : "var(--paper)",
-                      color: active ? "var(--paper)" : "var(--ink-2)",
-                      fontFamily: "var(--ff-mono)",
-                      fontSize: 11,
-                      letterSpacing: "0.08em",
-                    }}
+                    className={`cursor-pointer border border-rule py-[10px] font-mono text-[11px] tracking-wire ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
                   >
                     ${a}
                   </button>
                 );
               })}
             </div>
-            <div style={{ position: "relative", marginBottom: 10 }}>
-              <span
-                className="bureau-mono"
-                style={{
-                  position: "absolute",
-                  left: 10,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "var(--ink-3)",
-                }}
-              >
+            <div className="relative mb-[10px]">
+              <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
                 $
               </span>
               <input
@@ -455,50 +330,20 @@ export default function WalletPage() {
                     ),
                   )
                 }
-                style={{
-                  width: "100%",
-                  padding: "12px 12px 12px 24px",
-                  border: "1px solid var(--rule)",
-                  background: "var(--paper)",
-                  fontFamily: "var(--ff-mono)",
-                  fontSize: 16,
-                  color: "var(--ink)",
-                  boxSizing: "border-box",
-                  outline: "none",
-                }}
+                className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[16px] text-ink outline-none"
               />
             </div>
             <button
               type="button"
               onClick={handleDeposit}
-              style={{
-                width: "100%",
-                padding: "12px 0",
-                background: "var(--ink)",
-                color: "var(--paper)",
-                border: 0,
-                cursor: "pointer",
-                fontFamily: "var(--ff-mono)",
-                fontSize: 11,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-              }}
+              className="w-full cursor-pointer border-0 bg-ink py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
             >
               Credit ${depositAmount.toLocaleString()} to account
             </button>
           </div>
         )}
 
-        <div
-          className="bureau-tabs"
-          style={{
-            display: "flex",
-            gap: 0,
-            borderBottom: "2px solid var(--ink)",
-            marginTop: 32,
-          }}
-        >
+        <div className="scrollbar-none mt-8 flex border-b-2 border-ink max-sm:overflow-x-auto max-sm:whitespace-nowrap">
           {[
             { k: "positions" as const, label: "Positions" },
             { k: "history" as const, label: "Transaction history" },
@@ -510,18 +355,7 @@ export default function WalletPage() {
                 key={k}
                 type="button"
                 onClick={() => setActiveTab(k)}
-                style={{
-                  padding: "12px 18px",
-                  fontFamily: "var(--ff-mono)",
-                  fontSize: 11,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  background: active ? "var(--ink)" : "transparent",
-                  color: active ? "var(--paper)" : "var(--ink-3)",
-                  cursor: "pointer",
-                  fontWeight: 500,
-                  border: 0,
-                }}
+                className={`cursor-pointer border-0 px-[18px] py-3 font-mono text-[11px] font-medium uppercase tracking-eyebrow ${active ? "bg-ink text-paper" : "bg-transparent text-ink-3"}`}
               >
                 {label}
               </button>
@@ -530,50 +364,14 @@ export default function WalletPage() {
         </div>
 
         {activeTab === "tax" ? (
-          <div
-            style={{
-              padding: "60px 20px",
-              textAlign: "center",
-              border: "1px solid var(--rule)",
-              borderTop: "none",
-              background: "var(--paper-2)",
-            }}
-          >
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.28em",
-                color: "var(--ink-3)",
-                textTransform: "uppercase",
-                marginBottom: 10,
-              }}
-            >
+          <div className="border border-t-0 border-rule bg-paper-2 px-5 py-[60px] text-center">
+            <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-mark text-ink-3">
               — FORM 1099-COS —
             </div>
-            <div
-              className="bureau-serif"
-              style={{
-                fontSize: 22,
-                letterSpacing: "-0.015em",
-                fontWeight: 500,
-                lineHeight: 1.3,
-                marginBottom: 10,
-              }}
-            >
+            <div className="bureau-serif mb-[10px] text-[22px] font-medium leading-[1.3] tracking-[-0.015em]">
               Tax document not available for 2025
             </div>
-            <div
-              className="bureau-serif"
-              style={{
-                fontSize: 14,
-                fontStyle: "italic",
-                color: "var(--ink-3)",
-                lineHeight: 1.5,
-                maxWidth: 520,
-                margin: "0 auto",
-              }}
-            >
+            <div className="bureau-serif mx-auto max-w-[520px] text-[14px] italic leading-[1.5] text-ink-3">
               Year-end statements are issued by the Bureau on or before 15
               February of the following calendar year. Documents for tax year
               2026 will be prepared upon conclusion of the reporting period.
@@ -581,122 +379,70 @@ export default function WalletPage() {
           </div>
         ) : activeTab === "positions" ? (
           rows.length === 0 ? (
-            <div
-              style={{
-                padding: "48px 20px",
-                textAlign: "center",
-                border: "1px solid var(--rule)",
-                borderTop: "none",
-                fontFamily: "var(--ff-serif)",
-                fontSize: 15,
-                fontStyle: "italic",
-                color: "var(--ink-3)",
-              }}
-            >
+            <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
               No positions on file.{" "}
-              <Link
-                href="/"
-                style={{ color: "var(--ink)", textDecoration: "underline" }}
-              >
+              <Link href="/" className="text-ink underline">
                 Browse the market index
               </Link>{" "}
               to open a position.
             </div>
           ) : (
             <div className="bureau-table-scroll">
-              <table
-                style={{
-                  width: "100%",
-                  minWidth: 920,
-                  borderCollapse: "collapse",
-                  fontFamily: "var(--ff-sans)",
-                  fontSize: 13,
-                }}
-              >
+              <table className="w-full min-w-[920px] border-collapse font-sans text-[13px]">
                 <thead>
-                  <tr
-                    style={{
-                      fontFamily: "var(--ff-mono)",
-                      fontSize: 10,
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      color: "var(--ink-3)",
-                      textAlign: "left",
-                    }}
-                  >
-                    <th style={TH}>Position ref</th>
-                    <th style={TH}>Market</th>
-                    <th style={{ ...TH, textAlign: "center" }}>Side</th>
-                    <th style={{ ...TH, textAlign: "right" }}>Shares</th>
-                    <th style={{ ...TH, textAlign: "right" }}>Entry</th>
-                    <th style={{ ...TH, textAlign: "right" }}>Principal</th>
-                    <th style={{ ...TH, textAlign: "right" }}>Net outcome</th>
-                    <th style={{ ...TH, textAlign: "center" }}>Status</th>
+                  <tr className="text-left">
+                    <th className={TH_CLS}>Position ref</th>
+                    <th className={TH_CLS}>Market</th>
+                    <th className={`${TH_CLS} text-center`}>Side</th>
+                    <th className={`${TH_CLS} text-right`}>Shares</th>
+                    <th className={`${TH_CLS} text-right`}>Entry</th>
+                    <th className={`${TH_CLS} text-right`}>Principal</th>
+                    <th className={`${TH_CLS} text-right`}>Net outcome</th>
+                    <th className={`${TH_CLS} text-center`}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((r, i) => {
-                    const color =
+                    const colorCls =
                       r.status === "WON"
-                        ? "var(--pl-pos)"
+                        ? "text-pl-pos"
                         : r.status === "LOST"
-                          ? "var(--pl-neg)"
-                          : "var(--ink-3)";
+                          ? "text-pl-neg"
+                          : "text-ink-3";
+                    const borderColorCls =
+                      r.status === "WON"
+                        ? "border-pl-pos"
+                        : r.status === "LOST"
+                          ? "border-pl-neg"
+                          : "border-ink-3";
                     return (
                       <tr
                         key={`${r.pos.marketId}-${r.pos.timestamp}`}
-                        style={{
-                          borderTop: "1px solid var(--rule)",
-                          background:
-                            i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.015)",
-                        }}
+                        className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
                       >
                         <td
-                          style={{
-                            ...TD,
-                            fontFamily: "var(--ff-mono)",
-                            fontSize: 10,
-                            color: "var(--ink-3)",
-                            letterSpacing: "0.06em",
-                          }}
+                          className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
                         >
                           {r.ref}
                         </td>
-                        <td style={TD}>
+                        <td className={TD_CLS}>
                           <Link
                             href={`/market/${r.pos.marketId}`}
-                            style={{ color: "inherit", textDecoration: "none" }}
+                            className="text-inherit no-underline"
                           >
-                            <div
-                              className="bureau-serif"
-                              style={{
-                                fontSize: 14,
-                                lineHeight: 1.3,
-                                maxWidth: 520,
-                              }}
-                            >
+                            <div className="bureau-serif max-w-[520px] text-[14px] leading-[1.3]">
                               {r.pos.marketQuestion}
                             </div>
                           </Link>
                         </td>
-                        <td style={{ ...TD, textAlign: "center" }}>
+                        <td className={`${TD_CLS} text-center`}>
                           <span
-                            className="bureau-mono"
-                            style={{
-                              fontSize: 10,
-                              letterSpacing: "0.14em",
-                              padding: "3px 8px",
-                              border: `1px solid ${r.pos.side === "YES" ? "var(--ink)" : "var(--ink-3)"}`,
-                              color:
-                                r.pos.side === "YES"
-                                  ? "var(--ink)"
-                                  : "var(--ink-3)",
-                            }}
+                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${r.pos.side === "YES" ? "border-ink text-ink" : "border-ink-3 text-ink-3"}`}
                           >
                             {r.pos.side}
                           </span>
                         </td>
-                        <td style={{ ...TD, textAlign: "right" }}>
+                        <td className={`${TD_CLS} text-right`}>
                           <span className="bureau-num">
                             {r.pos.shares.toLocaleString("en-US", {
                               minimumFractionDigits: 2,
@@ -704,55 +450,33 @@ export default function WalletPage() {
                             })}
                           </span>
                         </td>
-                        <td style={{ ...TD, textAlign: "right" }}>
-                          <span
-                            className="bureau-num"
-                            style={{ color: "var(--ink-3)" }}
-                          >
+                        <td className={`${TD_CLS} text-right`}>
+                          <span className="bureau-num text-ink-3">
                             {Math.round(r.pos.price * 100)}¢
                           </span>
                         </td>
-                        <td style={{ ...TD, textAlign: "right" }}>
+                        <td className={`${TD_CLS} text-right`}>
                           <span className="bureau-num">
                             {fmtUSD(r.pos.amount)}
                           </span>
                         </td>
-                        <td style={{ ...TD, textAlign: "right" }}>
+                        <td className={`${TD_CLS} text-right`}>
                           {r.pnl === null ? (
-                            <span
-                              className="bureau-mono"
-                              style={{
-                                color: "var(--ink-3)",
-                                fontSize: 11,
-                                letterSpacing: "0.08em",
-                              }}
-                            >
+                            <span className="bureau-mono text-[11px] tracking-wire text-ink-3">
                               — PENDING —
                             </span>
                           ) : (
                             <span
-                              className="bureau-num"
-                              style={{
-                                color,
-                                fontSize: 14,
-                                fontWeight: 500,
-                              }}
+                              className={`bureau-num text-[14px] font-medium ${colorCls}`}
                             >
                               {r.pnl > 0 ? "+" : "−"}
                               {fmtUSD(Math.abs(r.pnl))}
                             </span>
                           )}
                         </td>
-                        <td style={{ ...TD, textAlign: "center" }}>
+                        <td className={`${TD_CLS} text-center`}>
                           <span
-                            className="bureau-mono"
-                            style={{
-                              fontSize: 10,
-                              letterSpacing: "0.14em",
-                              padding: "3px 8px",
-                              border: `1px solid ${color}`,
-                              color,
-                            }}
+                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${colorCls} ${borderColorCls}`}
                           >
                             {r.status}
                           </span>
@@ -762,100 +486,48 @@ export default function WalletPage() {
                   })}
                 </tbody>
                 <tfoot>
-                  <tr
-                    style={{
-                      borderTop: "2px solid var(--ink)",
-                      background: "var(--paper-2)",
-                    }}
-                  >
-                    <td style={TD} colSpan={5}>
-                      <span
-                        className="bureau-mono"
-                        style={{
-                          fontSize: 11,
-                          letterSpacing: "0.12em",
-                          textTransform: "uppercase",
-                          color: "var(--ink-3)",
-                        }}
-                      >
+                  <tr className="border-t-2 border-ink bg-paper-2">
+                    <td className={TD_CLS} colSpan={5}>
+                      <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
                         Totals · {rows.length} positions
                       </span>
                     </td>
-                    <td style={{ ...TD, textAlign: "right" }}>
-                      <span
-                        className="bureau-num"
-                        style={{ fontSize: 15, fontWeight: 500 }}
-                      >
+                    <td className={`${TD_CLS} text-right`}>
+                      <span className="bureau-num text-[15px] font-medium">
                         {fmtUSD(totalCost)}
                       </span>
                     </td>
-                    <td style={{ ...TD, textAlign: "right" }}>
+                    <td className={`${TD_CLS} text-right`}>
                       <span
-                        className="bureau-num"
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 500,
-                          color:
-                            stats.settledPL < 0
-                              ? "var(--pl-neg)"
-                              : "var(--pl-pos)",
-                        }}
+                        className={`bureau-num text-[15px] font-medium ${stats.settledPL < 0 ? "text-pl-neg" : "text-pl-pos"}`}
                       >
                         {stats.settledPL >= 0 ? "+" : "−"}
                         {fmtUSD(Math.abs(stats.settledPL))}
                       </span>
                     </td>
-                    <td style={TD} />
+                    <td className={TD_CLS} />
                   </tr>
                 </tfoot>
               </table>
             </div>
           )
         ) : deposits.length === 0 ? (
-          <div
-            style={{
-              padding: "48px 20px",
-              textAlign: "center",
-              border: "1px solid var(--rule)",
-              borderTop: "none",
-              fontFamily: "var(--ff-serif)",
-              fontSize: 15,
-              fontStyle: "italic",
-              color: "var(--ink-3)",
-            }}
-          >
+          <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
             No deposits on file. Use{" "}
-            <span style={{ color: "var(--ink)" }}>◆ Deposit</span> above to add
-            principal to your account.
+            <span className="text-ink">◆ Deposit</span> above to add principal
+            to your account.
           </div>
         ) : (
           <div className="bureau-table-scroll">
-            <table
-              style={{
-                width: "100%",
-                minWidth: 820,
-                borderCollapse: "collapse",
-                fontFamily: "var(--ff-sans)",
-                fontSize: 13,
-              }}
-            >
+            <table className="w-full min-w-[820px] border-collapse font-sans text-[13px]">
               <thead>
-                <tr
-                  style={{
-                    fontFamily: "var(--ff-mono)",
-                    fontSize: 10,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    color: "var(--ink-3)",
-                    textAlign: "left",
-                  }}
-                >
-                  <th style={TH}>Deposit ref</th>
-                  <th style={TH}>Filed</th>
-                  <th style={TH}>Method</th>
-                  <th style={{ ...TH, textAlign: "center" }}>Type</th>
-                  <th style={{ ...TH, textAlign: "right" }}>Amount</th>
-                  <th style={{ ...TH, textAlign: "center" }}>Status</th>
+                <tr className="text-left">
+                  <th className={TH_CLS}>Deposit ref</th>
+                  <th className={TH_CLS}>Filed</th>
+                  <th className={TH_CLS}>Method</th>
+                  <th className={`${TH_CLS} text-center`}>Type</th>
+                  <th className={`${TH_CLS} text-right`}>Amount</th>
+                  <th className={`${TH_CLS} text-center`}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -864,78 +536,37 @@ export default function WalletPage() {
                   .map((d, i) => (
                     <tr
                       key={d.id}
-                      style={{
-                        borderTop: "1px solid var(--rule)",
-                        background:
-                          i % 2 === 0 ? "transparent" : "rgba(0,0,0,0.015)",
-                      }}
+                      className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
                     >
                       <td
-                        style={{
-                          ...TD,
-                          fontFamily: "var(--ff-mono)",
-                          fontSize: 10,
-                          color: "var(--ink-3)",
-                          letterSpacing: "0.06em",
-                        }}
+                        className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
                       >
                         {d.id.toUpperCase()}
                       </td>
-                      <td style={TD}>
-                        <span
-                          className="bureau-mono"
-                          style={{ fontSize: 11, color: "var(--ink-2)" }}
-                        >
+                      <td className={TD_CLS}>
+                        <span className="bureau-mono text-[11px] text-ink-2">
                           {new Date(d.timestamp)
                             .toUTCString()
                             .replace("GMT", "UTC")}
                         </span>
                       </td>
-                      <td style={TD}>
-                        <span
-                          className="bureau-mono"
-                          style={{ fontSize: 11, color: "var(--ink-2)" }}
-                        >
+                      <td className={TD_CLS}>
+                        <span className="bureau-mono text-[11px] text-ink-2">
                           Apple Pay · test mode
                         </span>
                       </td>
-                      <td style={{ ...TD, textAlign: "center" }}>
-                        <span
-                          className="bureau-mono"
-                          style={{
-                            fontSize: 10,
-                            letterSpacing: "0.14em",
-                            padding: "3px 8px",
-                            border: "1px solid var(--ink-3)",
-                            color: "var(--ink-3)",
-                          }}
-                        >
+                      <td className={`${TD_CLS} text-center`}>
+                        <span className="bureau-mono border border-ink-3 px-2 py-[3px] text-[10px] tracking-eyebrow text-ink-3">
                           CREDIT
                         </span>
                       </td>
-                      <td style={{ ...TD, textAlign: "right" }}>
-                        <span
-                          className="bureau-num"
-                          style={{
-                            color: "var(--pl-pos)",
-                            fontSize: 14,
-                            fontWeight: 500,
-                          }}
-                        >
+                      <td className={`${TD_CLS} text-right`}>
+                        <span className="bureau-num text-[14px] font-medium text-pl-pos">
                           +{fmtUSD(d.amount)}
                         </span>
                       </td>
-                      <td style={{ ...TD, textAlign: "center" }}>
-                        <span
-                          className="bureau-mono"
-                          style={{
-                            fontSize: 10,
-                            letterSpacing: "0.14em",
-                            padding: "3px 8px",
-                            border: "1px solid var(--pl-pos)",
-                            color: "var(--pl-pos)",
-                          }}
-                        >
+                      <td className={`${TD_CLS} text-center`}>
+                        <span className="bureau-mono border border-pl-pos px-2 py-[3px] text-[10px] tracking-eyebrow text-pl-pos">
                           POSTED
                         </span>
                       </td>
@@ -943,58 +574,26 @@ export default function WalletPage() {
                   ))}
               </tbody>
               <tfoot>
-                <tr
-                  style={{
-                    borderTop: "2px solid var(--ink)",
-                    background: "var(--paper-2)",
-                  }}
-                >
-                  <td style={TD} colSpan={4}>
-                    <span
-                      className="bureau-mono"
-                      style={{
-                        fontSize: 11,
-                        letterSpacing: "0.12em",
-                        textTransform: "uppercase",
-                        color: "var(--ink-3)",
-                      }}
-                    >
+                <tr className="border-t-2 border-ink bg-paper-2">
+                  <td className={TD_CLS} colSpan={4}>
+                    <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
                       Totals · {deposits.length} deposit
                       {deposits.length === 1 ? "" : "s"}
                     </span>
                   </td>
-                  <td style={{ ...TD, textAlign: "right" }}>
-                    <span
-                      className="bureau-num"
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 500,
-                        color: "var(--pl-pos)",
-                      }}
-                    >
+                  <td className={`${TD_CLS} text-right`}>
+                    <span className="bureau-num text-[15px] font-medium text-pl-pos">
                       +{fmtUSD(deposits.reduce((a, d) => a + d.amount, 0))}
                     </span>
                   </td>
-                  <td style={TD} />
+                  <td className={TD_CLS} />
                 </tr>
               </tfoot>
             </table>
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: 32,
-            padding: "16px 20px",
-            background: "var(--paper-2)",
-            border: "1px solid var(--rule)",
-            fontFamily: "var(--ff-serif)",
-            fontSize: 13,
-            fontStyle: "italic",
-            color: "var(--ink-2)",
-            lineHeight: 1.55,
-          }}
-        >
+        <div className="mt-8 border border-rule bg-paper-2 px-5 py-4 font-serif text-[13px] italic leading-[1.55] text-ink-2">
           This statement reflects activity recorded through 19 April 2026, 14:22
           UTC. Settled positions are final and non-appealable. Open positions
           reflect mark-to-market fair value based on last observed trade and may

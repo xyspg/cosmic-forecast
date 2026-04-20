@@ -76,12 +76,12 @@ export default function HomePage() {
   if (!hydrated) return <HomeLoading />;
 
   return (
-    <div style={{ background: "var(--paper)", color: "var(--ink)" }}>
+    <div className="bg-paper text-ink">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="markets" />
 
-      <div className="bureau-page" style={{ padding: "28px 32px 0" }}>
+      <div className="bureau-page pt-7">
         <Masthead
           activeCount={enriched.filter((m) => !resolvedIds.has(m.id)).length}
           openInterest={fmtUSDShort(totalOpenInterest)}
@@ -89,14 +89,7 @@ export default function HomePage() {
         />
       </div>
 
-      <div
-        className="bureau-page bureau-main-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 320px",
-          gap: 32,
-        }}
-      >
+      <div className="bureau-page grid grid-cols-[1fr_320px] gap-8 max-[960px]:grid-cols-1 max-[960px]:gap-6">
         <div>
           {lead && (
             <LeadMarket
@@ -106,39 +99,15 @@ export default function HomePage() {
             />
           )}
 
-          <div style={{ marginTop: 28 }}>
+          <div className="mt-7">
             <CategoryBar active={category} onChange={setCategory} />
           </div>
 
-          <div
-            style={{
-              marginTop: 20,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              paddingBottom: 8,
-              borderBottom: "2px solid var(--ink)",
-            }}
-          >
-            <div
-              className="bureau-serif"
-              style={{
-                fontSize: 22,
-                letterSpacing: "-0.01em",
-                fontWeight: 500,
-              }}
-            >
+          <div className="mt-5 flex items-baseline justify-between border-b-2 border-ink pb-2">
+            <div className="bureau-serif text-[22px] font-medium tracking-[-0.01em]">
               Active markets
             </div>
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                color: "var(--ink-3)",
-                letterSpacing: "0.1em",
-                textTransform: "uppercase",
-              }}
-            >
+            <div className="bureau-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
               {tableMarkets.length} of {enriched.length} · updated 14:22:41 UTC
             </div>
           </div>
@@ -146,7 +115,7 @@ export default function HomePage() {
           <MarketTable markets={tableMarkets} seriesById={seriesById} />
         </div>
 
-        <aside style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        <aside className="flex flex-col gap-6">
           <ResolutionPanel />
           <WirePanel />
           <SolarPanel />

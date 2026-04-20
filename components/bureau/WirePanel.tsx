@@ -23,55 +23,22 @@ const WIRE_ITEMS = [
 
 export function WirePanel() {
   return (
-    <section style={{ border: "1px solid var(--ink)", padding: 16 }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          paddingBottom: 8,
-          borderBottom: "1px solid var(--rule)",
-        }}
-      >
-        <div className="bureau-serif" style={{ fontSize: 18, fontWeight: 500 }}>
-          Wire
-        </div>
+    <section className="border border-ink p-4">
+      <div className="flex items-baseline justify-between border-b border-rule pb-2">
+        <div className="bureau-serif text-[18px] font-medium">Wire</div>
         <span className="bureau-eyebrow">◉ LIVE</span>
       </div>
       {WIRE_ITEMS.map((it, i) => (
         <div
           key={it.t}
-          style={{
-            padding: "10px 0",
-            borderBottom:
-              i === WIRE_ITEMS.length - 1 ? "none" : "1px dotted var(--rule)",
-          }}
+          className={`py-[10px] ${i === WIRE_ITEMS.length - 1 ? "" : "border-b border-dotted border-rule"}`}
         >
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: "0.1em",
-              color: "var(--ink-4)",
-              textTransform: "uppercase",
-              marginBottom: 2,
-            }}
-          >
+          <div className="bureau-mono mb-[2px] text-[9px] uppercase tracking-[0.1em] text-ink-4">
             {it.t}
           </div>
+          <div className="bureau-serif text-[13px] leading-[1.3]">{it.h}</div>
           <div
-            className="bureau-serif"
-            style={{ fontSize: 13, lineHeight: 1.3 }}
-          >
-            {it.h}
-          </div>
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 10,
-              color: it.pct.startsWith("+") ? "var(--pl-pos)" : "var(--pl-neg)",
-              marginTop: 3,
-            }}
+            className={`bureau-mono mt-[3px] text-[10px] ${it.pct.startsWith("+") ? "text-pl-pos" : "text-pl-neg"}`}
           >
             market impact {it.pct}
           </div>

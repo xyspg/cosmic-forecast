@@ -1,98 +1,39 @@
 export function SolarPanel() {
   return (
-    <section
-      style={{
-        background: "#0a0a0a",
-        color: "var(--bone)",
-        padding: 16,
-        border: "1px solid #000",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          paddingBottom: 8,
-          borderBottom: "1px solid #2b2a26",
-        }}
-      >
-        <div
-          className="bureau-mono"
-          style={{
-            fontSize: 11,
-            letterSpacing: "0.18em",
-            color: "var(--amber)",
-          }}
-        >
+    <section className="border border-black bg-[#0a0a0a] p-[16px] text-bone">
+      <div className="flex items-baseline justify-between border-b border-[#2b2a26] pb-2">
+        <div className="bureau-mono text-[11px] tracking-[0.18em] text-amber">
           ◈ SOLAR OBS
         </div>
-        <div
-          className="bureau-mono"
-          style={{
-            fontSize: 9,
-            letterSpacing: "0.14em",
-            color: "var(--bone-2)",
-          }}
-        >
+        <div className="bureau-mono text-[9px] tracking-eyebrow text-bone-2">
           24H WINDOW
         </div>
       </div>
-      <div
-        style={{
-          padding: "12px 0",
-          fontFamily: "var(--ff-mono)",
-          fontSize: 11,
-          lineHeight: 1.8,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--bone-2)" }}>X-class events</span>
-          <span>01</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--bone-2)" }}>M-class events</span>
-          <span>03</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--bone-2)" }}>C-class events</span>
-          <span>12</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--bone-2)" }}>Active regions</span>
-          <span>07</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--bone-2)" }}>Kp index</span>
-          <span>4.33</span>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginTop: 8,
-            color: "var(--amber)",
-          }}
-        >
+      <div className="py-3 font-mono text-[11px] leading-[1.8]">
+        <StatRow k="X-class events" v="01" />
+        <StatRow k="M-class events" v="03" />
+        <StatRow k="C-class events" v="12" />
+        <StatRow k="Active regions" v="07" />
+        <StatRow k="Kp index" v="4.33" />
+        <div className="mt-2 flex justify-between text-amber">
           <span>NEXT SETTLEMENT</span>
           <span>14:38:22</span>
         </div>
       </div>
-      <div
-        style={{
-          borderTop: "1px solid #2b2a26",
-          paddingTop: 10,
-          fontFamily: "var(--ff-mono)",
-          fontSize: 9,
-          lineHeight: 1.5,
-          color: "var(--bone-2)",
-          letterSpacing: "0.04em",
-        }}
-      >
+      <div className="border-t border-[#2b2a26] pt-[10px] font-mono text-[9px] leading-[1.5] tracking-[0.04em] text-bone-2">
         Data sourced from NASA Space Weather Database Of Notifications,
         Knowledge, Information (DONKI). Settlement proceeds upon cryptographic
         attestation of the event digest.
       </div>
     </section>
+  );
+}
+
+function StatRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-bone-2">{k}</span>
+      <span>{v}</span>
+    </div>
   );
 }

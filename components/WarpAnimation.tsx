@@ -30,24 +30,15 @@ function phaseLabel(p: Phase): string {
 }
 
 function Corner({
-  pos,
+  positionClass,
   children,
 }: {
-  pos: React.CSSProperties;
+  positionClass: string;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className="hidden md:block"
-      style={{
-        position: "absolute",
-        ...pos,
-        fontSize: 9,
-        letterSpacing: "0.22em",
-        color: "var(--bone-2)",
-        textTransform: "uppercase",
-        fontFamily: "var(--ff-mono)",
-      }}
+      className={`absolute hidden font-mono text-[9px] uppercase tracking-stamp text-bone-2 md:block ${positionClass}`}
     >
       {children}
     </div>
@@ -56,14 +47,7 @@ function Corner({
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        fontSize: 9,
-        letterSpacing: "0.28em",
-        color: "var(--bone-2)",
-        textTransform: "uppercase",
-      }}
-    >
+    <div className="text-[9px] uppercase tracking-mark text-bone-2">
       {children}
     </div>
   );
@@ -71,22 +55,11 @@ function Label({ children }: { children: React.ReactNode }) {
 
 function ProgressBar({ p }: { p: number }) {
   return (
-    <div
-      style={{
-        width: "min(220px, 38vw)",
-        height: 3,
-        background: "rgba(232,228,216,0.15)",
-        margin: "10px auto 0",
-        position: "relative",
-      }}
-    >
+    <div className="relative mx-auto mt-[10px] h-[3px] w-[min(220px,38vw)] bg-[rgba(232,228,216,0.15)]">
       <div
+        className="absolute inset-0 origin-left bg-amber"
         style={{
-          position: "absolute",
-          inset: 0,
-          background: "var(--amber)",
           transform: `scaleX(${p})`,
-          transformOrigin: "left",
           transition: "transform 60ms linear",
         }}
       />
@@ -94,45 +67,16 @@ function ProgressBar({ p }: { p: number }) {
   );
 }
 
-const panelStyle: React.CSSProperties = {
-  border: "1px solid rgba(232,228,216,0.18)",
-  padding: "10px 12px",
-  background: "rgba(232,228,216,0.015)",
-  minHeight: 0,
-  overflow: "hidden",
-  display: "flex",
-  flexDirection: "column",
-};
+const PANEL_CLS =
+  "flex min-h-0 flex-col overflow-hidden border border-[rgba(232,228,216,0.18)] bg-[rgba(232,228,216,0.015)] px-3 py-[10px]";
 
 function PanelHead({ title, right }: { title: string; right: string }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "baseline",
-        paddingBottom: 8,
-        borderBottom: "1px solid rgba(232,228,216,0.12)",
-      }}
-    >
-      <span
-        style={{
-          fontSize: 10,
-          letterSpacing: "0.2em",
-          color: "var(--bone)",
-          textTransform: "uppercase",
-        }}
-      >
+    <div className="flex items-baseline justify-between border-b border-[rgba(232,228,216,0.12)] pb-2">
+      <span className="text-[10px] uppercase tracking-stamp text-bone">
         {title}
       </span>
-      <span
-        style={{
-          fontSize: 9,
-          letterSpacing: "0.2em",
-          color: "var(--amber)",
-          textTransform: "uppercase",
-        }}
-      >
+      <span className="text-[9px] uppercase tracking-stamp text-amber">
         {right}
       </span>
     </div>
@@ -185,14 +129,14 @@ function FluxPanel({ t, className }: { t: number; className?: string }) {
   const peak = Math.max(...full.slice(0, filled || 1));
 
   return (
-    <div className={className} style={panelStyle}>
+    <div className={`${PANEL_CLS} ${className ?? ""}`}>
       <PanelHead title="GOES-19 · XRS-B · 1–8 Å" right="W/m² · LIVE" />
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
         height="100%"
         preserveAspectRatio="xMidYMid meet"
-        style={{ display: "block", padding: "6px 0", flex: 1, minHeight: 0 }}
+        className="block min-h-0 flex-1 py-[6px]"
         role="presentation"
       >
         <title>Soft X-ray flux</title>
@@ -296,16 +240,7 @@ function FluxPanel({ t, className }: { t: number; className?: string }) {
           );
         })}
       </svg>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "0 4px",
-          fontSize: 10,
-          color: "var(--bone-2)",
-          letterSpacing: "0.12em",
-        }}
-      >
+      <div className="flex justify-between px-1 text-[10px] tracking-[0.12em] text-bone-2">
         <span>PEAK {(peak * 2.9).toFixed(2)}×10⁻⁵</span>
         <span>WINDOW 60 SEC</span>
       </div>
@@ -327,14 +262,14 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
   const flared = t > 2800;
 
   return (
-    <div className={className} style={panelStyle}>
+    <div className={`${PANEL_CLS} ${className ?? ""}`}>
       <PanelHead title="SOLAR DISK · 193 Å" right="AR3947" />
       <svg
         viewBox={`0 0 ${W} ${H}`}
         width="100%"
         height="100%"
         preserveAspectRatio="xMidYMid meet"
-        style={{ display: "block", flex: 1, minHeight: 0 }}
+        className="block min-h-0 flex-1"
         role="presentation"
       >
         <title>Solar disk acquisition</title>
@@ -522,16 +457,7 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
           strokeDasharray="2 3"
         />
       </svg>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          padding: "0 4px",
-          fontSize: 10,
-          color: "var(--bone-2)",
-          letterSpacing: "0.12em",
-        }}
-      >
+      <div className="flex justify-between px-1 text-[10px] tracking-[0.12em] text-bone-2">
         <span>HELIO N08 W41</span>
         <span>
           {acquired
@@ -567,25 +493,9 @@ function EventLog({ t, className }: { t: number; className?: string }) {
   const visible = entries.filter(([time]) => t >= time);
 
   return (
-    <div
-      className={className}
-      style={{
-        ...panelStyle,
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-      }}
-    >
+    <div className={`${PANEL_CLS} ${className ?? ""}`}>
       <PanelHead title="Settlement log · tty0" right="◉ STREAMING" />
-      <div
-        style={{
-          flex: 1,
-          overflow: "hidden",
-          fontSize: 11,
-          lineHeight: 1.75,
-          padding: "6px 0",
-        }}
-      >
+      <div className="flex-1 overflow-hidden py-[6px] text-[11px] leading-[1.75]">
         {visible.map(([time, tag, msg], i) => {
           const mmss = formatTC(time);
           const isLatest = i === visible.length - 1;
@@ -593,24 +503,15 @@ function EventLog({ t, className }: { t: number; className?: string }) {
           return (
             <div
               key={`log-${time}`}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "72px 44px 1fr",
-                gap: 8,
-                color: isLatest ? "var(--bone)" : "rgba(232,228,216,0.55)",
-                transition: "color 300ms ease",
-              }}
+              className={`grid grid-cols-[72px_44px_1fr] gap-2 transition-colors duration-300 ${isLatest ? "text-bone" : "text-[rgba(232,228,216,0.55)]"}`}
             >
-              <span style={{ color: "var(--bone-2)" }}>
-                T+{mmss.slice(0, 8)}
-              </span>
+              <span className="text-bone-2">T+{mmss.slice(0, 8)}</span>
               <span
-                style={{
-                  color:
-                    tagTrim === "FLR" || tagTrim === "PEAK" || tagTrim === "MAP"
-                      ? "var(--amber)"
-                      : "var(--bone-2)",
-                }}
+                className={
+                  tagTrim === "FLR" || tagTrim === "PEAK" || tagTrim === "MAP"
+                    ? "text-amber"
+                    : "text-bone-2"
+                }
               >
                 {tag}
               </span>
@@ -618,22 +519,10 @@ function EventLog({ t, className }: { t: number; className?: string }) {
             </div>
           );
         })}
-        <div
-          style={{
-            height: 14,
-            display: "flex",
-            alignItems: "center",
-            marginTop: 2,
-          }}
-        >
+        <div className="mt-[2px] flex h-[14px] items-center">
           <span
-            style={{
-              display: "inline-block",
-              width: 8,
-              height: 12,
-              background: "var(--amber)",
-              animation: "bureau-cursor-blink 0.7s steps(1) infinite",
-            }}
+            className="inline-block h-3 w-2 bg-amber"
+            style={{ animation: "bureau-cursor-blink 0.7s steps(1) infinite" }}
           />
         </div>
       </div>
@@ -659,38 +548,18 @@ function DigestPanel({ t, fullHash }: { t: number; fullHash: string }) {
 
   return (
     <div
-      style={{ ...panelStyle, padding: "12px 14px 14px" }}
-      className="md:px-[18px] md:py-[14px]"
+      className={`${PANEL_CLS} px-[14px] pb-[14px] pt-3 md:px-[18px] md:py-[14px]`}
     >
       <div className="flex flex-col gap-1 border-b border-[rgba(232,228,216,0.15)] pb-2 md:flex-row md:items-baseline md:justify-between md:gap-4 md:pb-[10px]">
         <div className="flex flex-wrap items-baseline gap-2 md:gap-4">
-          <span
-            style={{
-              color: "var(--amber)",
-              fontSize: 10,
-              letterSpacing: "0.28em",
-            }}
-          >
+          <span className="text-[10px] tracking-mark text-amber">
             ◈ SHA-256 DIGEST
           </span>
-          <span
-            style={{
-              color: "var(--bone-2)",
-              fontSize: 10,
-              letterSpacing: "0.14em",
-            }}
-          >
+          <span className="text-[10px] tracking-eyebrow text-bone-2">
             PROTOCOL v2.1 · ROUND {Math.min(64, filled)} / 64
           </span>
         </div>
-        <span
-          className="hidden md:inline"
-          style={{
-            color: "var(--bone-2)",
-            fontSize: 10,
-            letterSpacing: "0.14em",
-          }}
-        >
+        <span className="hidden text-[10px] tracking-eyebrow text-bone-2 md:inline">
           INPUT · DONKI FLR 2026-04-19T14:38Z · AR3947 · M2.1
         </span>
       </div>
@@ -699,86 +568,58 @@ function DigestPanel({ t, fullHash }: { t: number; fullHash: string }) {
         {chars.slice(0, 62).map((c, i) => (
           <span
             key={`digest-${i}-${c}`}
-            style={{
-              fontSize: "clamp(10px, 2.6vw, 18px)",
-              letterSpacing: "0.04em",
-              textAlign: "center",
-              color: c === "·" ? "rgba(232,228,216,0.28)" : "var(--bone)",
-              fontFeatureSettings: '"tnum" 1',
-              minWidth: "0.7em",
-            }}
+            className={`text-center text-[clamp(10px,2.6vw,18px)] tracking-[0.04em] tabular-nums ${c === "·" ? "text-[rgba(232,228,216,0.28)]" : "text-bone"}`}
+            style={{ minWidth: "0.7em" }}
           >
             {c}
           </span>
         ))}
         <div
-          style={{
-            display: "inline-flex",
-            gap: 2,
-            padding: "4px 8px",
-            marginLeft: 6,
-            border: `1px solid ${nibbleReady ? "var(--amber)" : "rgba(232,228,216,0.18)"}`,
-            transition: "border-color 300ms ease, background 300ms ease",
-            background: nibbleReady ? "rgba(184,132,42,0.08)" : "transparent",
-          }}
+          className={`ml-[6px] inline-flex gap-[2px] border px-2 py-1 transition-colors duration-300 ${
+            nibbleReady
+              ? "border-amber bg-[rgba(184,132,42,0.08)]"
+              : "border-[rgba(232,228,216,0.18)] bg-transparent"
+          }`}
         >
           <span
-            style={{
-              fontSize: "clamp(12px, 2.6vw, 18px)",
-              color:
-                chars[62] === "·" ? "rgba(232,228,216,0.28)" : "var(--bone)",
-            }}
+            className={`text-[clamp(12px,2.6vw,18px)] ${chars[62] === "·" ? "text-[rgba(232,228,216,0.28)]" : "text-bone"}`}
           >
             {chars[62]}
           </span>
           <span
-            style={{
-              fontSize: "clamp(12px, 2.6vw, 18px)",
-              color: nibbleReady
-                ? "var(--amber)"
+            className={`text-[clamp(12px,2.6vw,18px)] font-semibold ${
+              nibbleReady
+                ? "text-amber"
                 : chars[63] === "·"
-                  ? "rgba(232,228,216,0.28)"
-                  : "var(--bone)",
-              fontWeight: 600,
-            }}
+                  ? "text-[rgba(232,228,216,0.28)]"
+                  : "text-bone"
+            }`}
           >
             {chars[63]}
           </span>
         </div>
       </div>
 
-      <div
-        className="flex flex-col gap-2 border-t border-dashed border-[rgba(232,228,216,0.15)] pt-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-5 md:pt-3"
-        style={{
-          fontSize: 11,
-          letterSpacing: "0.14em",
-          color: "var(--bone-2)",
-        }}
-      >
+      <div className="flex flex-col gap-2 border-t border-dashed border-[rgba(232,228,216,0.15)] pt-2 text-[11px] tracking-eyebrow text-bone-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-5 md:pt-3">
         <div className="text-left">
           TERMINAL NIBBLE{" "}
           <span
-            style={{
-              color: nibbleReady ? "var(--amber)" : "rgba(232,228,216,0.35)",
-            }}
+            className={
+              nibbleReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"
+            }
           >
             → {nibbleReady ? `0x${fullHash[63]}` : "0x·"}
           </span>
         </div>
         <div
-          className="text-left md:text-center"
-          style={{ color: mapReady ? "var(--amber)" : "var(--bone-2)" }}
+          className={`text-left md:text-center ${mapReady ? "text-amber" : "text-bone-2"}`}
         >
           {mapReady ? "ORACLE TABLE §4.2 ·" : "AWAITING DIGEST ·"}
         </div>
         <div className="text-left md:text-right">
           OUTCOME{" "}
           <span
-            style={{
-              color: mapReady ? "var(--amber)" : "rgba(232,228,216,0.35)",
-              fontWeight: 600,
-              letterSpacing: "0.2em",
-            }}
+            className={`font-semibold tracking-stamp ${mapReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"}`}
           >
             {mapReady ? "→ FILED" : "→ ——"}
           </span>
@@ -871,45 +712,34 @@ export function WarpAnimation({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.42, ease: "easeInOut" }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 1100,
-            background: "#000",
-            color: "var(--bone)",
-            fontFamily: "var(--ff-mono)",
-          }}
+          className="fixed inset-0 z-[1100] bg-black font-mono text-bone"
         >
           <div
+            className="pointer-events-none absolute inset-0"
             style={{
-              position: "absolute",
-              inset: 0,
               backgroundImage: `linear-gradient(rgba(232,228,216,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(232,228,216,0.035) 1px, transparent 1px)`,
               backgroundSize: "40px 40px",
-              pointerEvents: "none",
             }}
           />
           <div
+            className="pointer-events-none absolute inset-0"
             style={{
-              position: "absolute",
-              inset: 0,
               background:
                 "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)",
-              pointerEvents: "none",
             }}
           />
 
-          <Corner pos={{ top: 18, left: 24 }}>
+          <Corner positionClass="top-[18px] left-6">
             BUREAU OF PREDICTION MARKETS · SETTLEMENT DIVISION
           </Corner>
-          <Corner pos={{ top: 18, right: 24 }}>
+          <Corner positionClass="top-[18px] right-6">
             {market ? `REF ${market.ref} · ` : ""}OBSERVATION SHEET N°
             RES-2026-04-19-0042
           </Corner>
-          <Corner pos={{ bottom: 18, left: 24 }}>
+          <Corner positionClass="bottom-[18px] left-6">
             INSTRUMENT: GOES-19 XRS-B · SOHO LASCO C2 · DSN-14
           </Corner>
-          <Corner pos={{ bottom: 18, right: 24 }}>
+          <Corner positionClass="bottom-[18px] right-6">
             SIGNAL OK · 1.412 MHz DOWNLINK · CHECKSUM GOOD
           </Corner>
 
@@ -917,32 +747,22 @@ export function WarpAnimation({
             <div className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 border-b border-[rgba(232,228,216,0.22)] pb-3 md:grid-cols-[1fr_auto_1fr] md:gap-8 md:pb-[18px]">
               <div className="min-w-0">
                 <Label>Mission elapsed</Label>
-                <div
-                  style={{
-                    fontSize: "clamp(20px, 6.4vw, 48px)",
-                    letterSpacing: "0.04em",
-                    color: "var(--bone)",
-                    fontWeight: 500,
-                    lineHeight: 1,
-                    marginTop: 6,
-                    fontVariantNumeric: "tabular-nums",
-                  }}
-                >
+                <div className="mt-[6px] text-[clamp(20px,6.4vw,48px)] font-medium leading-none tracking-[0.04em] tabular-nums text-bone">
                   T+{tc}
                 </div>
               </div>
               <div className="min-w-0 text-right md:text-center">
                 <Label>Phase</Label>
                 <div
-                  style={{
-                    color: "var(--amber)",
-                    fontSize: 12,
-                    letterSpacing: "0.3em",
-                    marginTop: 8,
-                    animation: waiting
-                      ? "bureau-cursor-blink 1.1s steps(1) infinite"
-                      : undefined,
-                  }}
+                  className="mt-2 text-[12px] tracking-[0.3em] text-amber"
+                  style={
+                    waiting
+                      ? {
+                          animation:
+                            "bureau-cursor-blink 1.1s steps(1) infinite",
+                        }
+                      : undefined
+                  }
                 >
                   {waiting ? "AWAITING DOWNLINK" : phaseLabel(phase)}
                 </div>
@@ -952,24 +772,10 @@ export function WarpAnimation({
               </div>
               <div className="hidden text-right md:block">
                 <Label>Scheduled window</Label>
-                <div
-                  style={{
-                    fontSize: 15,
-                    letterSpacing: "0.1em",
-                    color: "var(--bone)",
-                    marginTop: 8,
-                  }}
-                >
+                <div className="mt-2 text-[15px] tracking-[0.1em] text-bone">
                   COLLAPSED BY OPERATOR REQUEST
                 </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.18em",
-                    color: "var(--bone-2)",
-                    marginTop: 4,
-                  }}
-                >
+                <div className="mt-1 text-[10px] tracking-[0.18em] text-bone-2">
                   AUTH · ACCT-0042188-NYU
                 </div>
               </div>

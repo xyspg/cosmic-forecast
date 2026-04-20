@@ -15,26 +15,12 @@ function CiteRow({
 }) {
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "7px 12px",
-        borderBottom: last ? "none" : "1px dotted var(--rule)",
-        fontFamily: "var(--ff-mono)",
-        fontSize: 11,
-      }}
+      className={`flex justify-between px-3 py-[7px] font-mono text-[11px] ${last ? "" : "border-b border-dotted border-rule"}`}
     >
-      <span
-        style={{
-          color: "var(--ink-3)",
-          fontSize: 10,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-        }}
-      >
+      <span className="text-[10px] uppercase tracking-wire text-ink-3">
         {k}
       </span>
-      <span style={{ color: "var(--ink)" }}>{v}</span>
+      <span className="text-ink">{v}</span>
     </div>
   );
 }
@@ -50,21 +36,8 @@ function AttestCol({
 }) {
   return (
     <div>
-      <div
-        style={{
-          color: "var(--bone-2)",
-          fontSize: 9,
-          letterSpacing: "0.2em",
-        }}
-      >
-        {k}
-      </div>
-      <div
-        style={{
-          color: accent ? "var(--amber)" : "var(--bone)",
-          marginTop: 2,
-        }}
-      >
+      <div className="text-[9px] tracking-stamp text-bone-2">{k}</div>
+      <div className={`mt-[2px] ${accent ? "text-amber" : "text-bone"}`}>
         {v}
       </div>
     </div>
@@ -108,188 +81,64 @@ export function CosmicReport({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.7 }}
-      style={{
-        background: "var(--paper)",
-        border: "1px solid var(--ink)",
-        overflow: "hidden",
-      }}
+      className="overflow-hidden border border-ink bg-paper"
     >
-      <div
-        className="bureau-resolution-header"
-        style={{
-          background: "#000",
-          color: "var(--bone)",
-          padding: "14px 24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontFamily: "var(--ff-mono)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ color: "var(--amber)" }}>◈</span>
-          <span style={{ fontSize: 10, letterSpacing: "0.28em" }}>
+      <div className="flex flex-wrap items-center justify-between gap-2 bg-black px-6 py-[14px] font-mono text-bone max-sm:px-4 max-sm:py-3">
+        <div className="flex items-center gap-[14px]">
+          <span className="text-amber">◈</span>
+          <span className="text-[10px] tracking-mark">
             COSMIC FORECAST · SETTLEMENT DIVISION
           </span>
         </div>
-        <div
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.14em",
-            color: "var(--bone-2)",
-          }}
-        >
+        <div className="text-[10px] tracking-eyebrow text-bone-2">
           OFFICIAL RECORD OF RESOLUTION · N° {refNum}
         </div>
       </div>
 
-      <div
-        className="bureau-resolution-body-wrap"
-        style={{ padding: "32px 32px 40px" }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "baseline",
-            paddingBottom: 14,
-            borderBottom: "3px double var(--ink)",
-            gap: 12,
-            flexWrap: "wrap",
-          }}
-        >
+      <div className="px-8 pb-10 pt-8 max-sm:px-[18px] max-sm:pb-7 max-sm:pt-[22px]">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 border-b-[3px] border-double border-ink pb-[14px]">
           <div>
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.22em",
-                color: "var(--ink-3)",
-                textTransform: "uppercase",
-              }}
-            >
+            <div className="bureau-mono text-[10px] uppercase tracking-[0.22em] text-ink-3">
               For immediate release
             </div>
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.14em",
-                color: "var(--ink-3)",
-                textTransform: "uppercase",
-                marginTop: 2,
-              }}
-            >
+            <div className="bureau-mono mt-[2px] text-[10px] uppercase tracking-eyebrow text-ink-3">
               {new Date(resolution.timestamp)
                 .toUTCString()
                 .replace("GMT", "UTC")}
             </div>
           </div>
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: "0.14em",
-              color: "var(--ink-3)",
-              textAlign: "right",
-              textTransform: "uppercase",
-            }}
-          >
+          <div className="bureau-mono text-right text-[10px] uppercase tracking-eyebrow text-ink-3">
             <div>Filing reference</div>
-            <div style={{ color: "var(--ink)" }}>
+            <div className="text-ink">
               RES-{new Date(resolution.timestamp).toISOString().slice(0, 10)}-
               {refNum.slice(-4)}
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: 24 }}>
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 11,
-              letterSpacing: "0.22em",
-              color: "var(--ink-3)",
-              textTransform: "uppercase",
-              marginBottom: 12,
-            }}
-          >
+        <div className="mt-6">
+          <div className="bureau-mono mb-3 text-[11px] uppercase tracking-[0.22em] text-ink-3">
             ARECIBO, P.R. — 19 APR.
           </div>
-          <h1
-            className="bureau-serif bureau-resolution-headline"
-            style={{
-              fontSize: "clamp(24px, 5.5vw, 40px)",
-              letterSpacing: "-0.028em",
-              lineHeight: 1.12,
-              margin: 0,
-              fontWeight: 500,
-              textWrap: "balance",
-            }}
-          >
-            Market resolves{" "}
-            <span style={{ fontStyle: "italic" }}>{outcome.toLowerCase()}</span>{" "}
+          <h1 className="bureau-serif m-0 text-balance text-[clamp(24px,5.5vw,40px)] font-medium leading-[1.12] tracking-[-0.028em] max-sm:break-words max-sm:text-[28px]">
+            Market resolves <span className="italic">{outcome.toLowerCase()}</span>{" "}
             following {classRef}-class solar event over active region {region}.
           </h1>
-          <div
-            className="bureau-serif bureau-resolution-summary"
-            style={{
-              fontSize: 18,
-              fontStyle: "italic",
-              color: "var(--ink-2)",
-              marginTop: 18,
-              lineHeight: 1.45,
-            }}
-          >
+          <div className="bureau-serif mt-[18px] text-[18px] italic leading-[1.45] text-ink-2 max-sm:text-[15px]">
             Observational window collapsed by operator request; oracle
             attestation rendered at{" "}
             {new Date(resolution.timestamp).toISOString().slice(11, 19)} UTC.
           </div>
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 11,
-              color: "var(--ink-3)",
-              letterSpacing: "0.1em",
-              marginTop: 14,
-            }}
-          >
-            By{" "}
-            <span style={{ color: "var(--ink)" }}>SETTLEMENT BUREAU STAFF</span>{" "}
-            · with DONKI observational support
+          <div className="bureau-mono mt-[14px] text-[11px] tracking-[0.1em] text-ink-3">
+            By <span className="text-ink">SETTLEMENT BUREAU STAFF</span> · with
+            DONKI observational support
           </div>
         </div>
 
-        <div
-          className="bureau-resolution-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1.7fr 1fr",
-            gap: 32,
-            marginTop: 28,
-          }}
-        >
-          <div
-            className="bureau-serif bureau-resolution-body"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: "var(--ink)",
-            }}
-          >
-            <p style={{ margin: "0 0 14px" }}>
-              <span
-                className="bureau-resolution-dropcap"
-                style={{
-                  float: "left",
-                  fontFamily: "var(--ff-serif)",
-                  fontSize: 52,
-                  lineHeight: 0.9,
-                  paddingRight: 10,
-                  paddingTop: 5,
-                  fontWeight: 500,
-                }}
-              >
+        <div className="mt-7 grid grid-cols-[1.7fr_1fr] gap-8 max-[960px]:grid-cols-1 max-[960px]:gap-[22px]">
+          <div className="bureau-serif text-[15px] leading-[1.7] text-ink max-sm:text-[14px]">
+            <p className="mb-[14px]">
+              <span className="float-left pr-[10px] pt-[5px] font-serif text-[52px] font-medium leading-[0.9] max-sm:text-[36px]">
                 T
               </span>
               he market referenced by instrument {refNum} —{" "}
@@ -298,8 +147,8 @@ export function CosmicReport({
               observation of a {classRef}-class solar flare event over active
               region {region}.
             </p>
-            <p style={{ margin: "0 0 14px" }}>{resolution.explanation}</p>
-            <p style={{ margin: "0 0 14px" }}>
+            <p className="mb-[14px]">{resolution.explanation}</p>
+            <p className="mb-[14px]">
               The event, recorded in the NASA Space Weather Database Of
               Notifications, Knowledge, Information as {eventShort}, exhibited a
               peak flux of 2.1 × 10⁻⁵ W/m² over the 1–8 Å soft X-ray band. Per
@@ -307,118 +156,40 @@ export function CosmicReport({
               parameters were mapped to outcome against the published resolution
               table, and the determination attested to the Bureau ledger.
             </p>
-            <p style={{ margin: "0 0 14px" }}>
+            <p className="mb-[14px]">
               The resolution proceeded without incident. No discretionary
               adjustment was applied. All open positions have been marked to
               terminal value; settlement proceeds will be available in
               participant accounts upon the next scheduled ledger flush.
             </p>
-            <p
-              style={{
-                margin: 0,
-                color: "var(--ink-3)",
-                fontFamily: "var(--ff-serif)",
-                fontStyle: "italic",
-                fontSize: 13,
-              }}
-            >
+            <p className="m-0 font-serif text-[13px] italic text-ink-3">
               — END OF NOTICE —
             </p>
           </div>
 
           <div>
-            <div
-              style={{
-                border: "2px solid var(--ink)",
-                padding: "18px 16px",
-                background: "var(--paper-2)",
-                marginBottom: 18,
-              }}
-            >
-              <div
-                className="bureau-mono"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.28em",
-                  color: "var(--ink-3)",
-                  textAlign: "center",
-                  marginBottom: 10,
-                }}
-              >
+            <div className="mb-[18px] border-2 border-ink bg-paper-2 px-4 py-[18px]">
+              <div className="bureau-mono mb-[10px] text-center text-[9px] tracking-mark text-ink-3">
                 ——— MARKET RESOLVED ———
               </div>
-              <div
-                className="bureau-serif"
-                style={{
-                  fontSize: 13,
-                  textAlign: "center",
-                  fontStyle: "italic",
-                  lineHeight: 1.35,
-                  marginBottom: 14,
-                  textWrap: "balance",
-                }}
-              >
+              <div className="bureau-serif mb-[14px] text-balance text-center text-[13px] italic leading-[1.35]">
                 {marketQuestion}
               </div>
-              <div
-                className="bureau-mono"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.2em",
-                  color: "var(--ink-3)",
-                  textAlign: "center",
-                  marginBottom: 6,
-                }}
-              >
+              <div className="bureau-mono mb-[6px] text-center text-[9px] tracking-stamp text-ink-3">
                 FINAL DETERMINATION
               </div>
-              <div
-                className="bureau-serif bureau-resolution-outcome"
-                style={{
-                  fontSize: "clamp(40px, 9vw, 52px)",
-                  letterSpacing: "-0.02em",
-                  textAlign: "center",
-                  lineHeight: 1,
-                  color: "var(--ink)",
-                  fontWeight: 500,
-                }}
-              >
+              <div className="bureau-serif text-center text-[clamp(40px,9vw,52px)] font-medium leading-none tracking-[-0.02em] text-ink max-sm:text-[40px]">
                 {outcome}
               </div>
-              <div
-                className="bureau-mono"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: "0.2em",
-                  color: "var(--ink-3)",
-                  textAlign: "center",
-                  marginTop: 14,
-                  paddingTop: 12,
-                  borderTop: "1px solid var(--rule)",
-                }}
-              >
+              <div className="bureau-mono mt-[14px] border-t border-rule pt-3 text-center text-[9px] tracking-stamp text-ink-3">
                 RESOLVED{" "}
                 {new Date(resolution.timestamp).toUTCString().slice(5, 22)} UTC
               </div>
             </div>
 
-            <div style={{ border: "1px solid var(--ink)" }}>
-              <div
-                style={{
-                  padding: "8px 12px",
-                  borderBottom: "1px solid var(--ink)",
-                  background: "var(--paper-2)",
-                }}
-              >
-                <div
-                  className="bureau-mono"
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.18em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                  }}
-                >
+            <div className="border border-ink">
+              <div className="border-b border-ink bg-paper-2 px-3 py-2">
+                <div className="bureau-mono text-[10px] font-semibold uppercase tracking-[0.18em]">
                   Cited observational data
                 </div>
               </div>
@@ -437,23 +208,9 @@ export function CosmicReport({
             </div>
 
             {position && (
-              <div style={{ marginTop: 18, border: "1px solid var(--ink)" }}>
-                <div
-                  style={{
-                    padding: "8px 12px",
-                    borderBottom: "1px solid var(--ink)",
-                    background: "var(--paper-2)",
-                  }}
-                >
-                  <div
-                    className="bureau-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.18em",
-                      textTransform: "uppercase",
-                      fontWeight: 600,
-                    }}
-                  >
+              <div className="mt-[18px] border border-ink">
+                <div className="border-b border-ink bg-paper-2 px-3 py-2">
+                  <div className="bureau-mono text-[10px] font-semibold uppercase tracking-[0.18em]">
                     Position settlement
                   </div>
                 </div>
@@ -469,32 +226,12 @@ export function CosmicReport({
                   k="Return of principal"
                   v={won ? fmtUSD(shares) : "$0.00"}
                 />
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "10px 12px",
-                    borderTop: "2px solid var(--ink)",
-                    fontFamily: "var(--ff-mono)",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: "0.18em",
-                      color: "var(--ink-3)",
-                      textTransform: "uppercase",
-                    }}
-                  >
+                <div className="flex justify-between border-t-2 border-ink px-3 py-[10px] font-mono">
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-ink-3">
                     Net outcome
                   </span>
                   <span
-                    className="bureau-num"
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: won ? "var(--pl-pos)" : "var(--pl-neg)",
-                    }}
+                    className={`bureau-num text-[16px] font-semibold ${won ? "text-pl-pos" : "text-pl-neg"}`}
                   >
                     {won ? "+" : "−"}
                     {fmtUSD(Math.abs(finalPL))}
@@ -505,83 +242,25 @@ export function CosmicReport({
           </div>
         </div>
 
-        <div
-          style={{
-            marginTop: 32,
-            padding: "20px 24px",
-            background: "#000",
-            color: "var(--bone)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              paddingBottom: 12,
-              borderBottom: "1px solid #2b2a26",
-            }}
-          >
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.22em",
-                color: "var(--amber)",
-              }}
-            >
+        <div className="mt-8 bg-black px-6 py-5 text-bone">
+          <div className="flex items-baseline justify-between border-b border-[#2b2a26] pb-3">
+            <div className="bureau-mono text-[10px] tracking-[0.22em] text-amber">
               ◈ CRYPTOGRAPHIC ATTESTATION
             </div>
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.14em",
-                color: "var(--bone-2)",
-              }}
-            >
+            <div className="bureau-mono text-[10px] tracking-eyebrow text-bone-2">
               SHA-256 · PROTOCOL v2.1 · CONFIDENCE {resolution.confidence}%
             </div>
           </div>
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 11,
-              wordBreak: "break-all",
-              marginTop: 12,
-              color: "var(--bone)",
-              letterSpacing: "0.04em",
-              lineHeight: 1.7,
-            }}
-          >
+          <div className="bureau-mono mt-3 break-all text-[11px] leading-[1.7] tracking-[0.04em] text-bone">
             {hashShort}
           </div>
-          <div
-            className="bureau-attest-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 14,
-              marginTop: 14,
-              fontFamily: "var(--ff-mono)",
-              fontSize: 10,
-            }}
-          >
+          <div className="mt-[14px] grid grid-cols-4 gap-[14px] font-mono text-[10px] max-sm:grid-cols-1">
             <AttestCol k="EVENT ID" v={eventShort} />
             <AttestCol k="NIBBLE" v={`0x${nibble}`} />
             <AttestCol k="OUTCOME MAP" v={`→ ${outcome}`} accent />
             <AttestCol k="OBSERVER" v="BPM · SETTLE" />
           </div>
-          <div
-            style={{
-              marginTop: 14,
-              fontFamily: "var(--ff-mono)",
-              fontSize: 9,
-              lineHeight: 1.7,
-              color: "var(--bone-2)",
-              letterSpacing: "0.04em",
-            }}
-          >
+          <div className="mt-[14px] font-mono text-[9px] leading-[1.7] tracking-[0.04em] text-bone-2">
             This attestation is published to the public archive in perpetuity.
             Verification instructions are provided in the Oracle Specification,
             § 4.2. Any discrepancy between the published digest and

@@ -36,38 +36,11 @@ export default function ResolutionPage({
 
   if (!hydrated) {
     return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#000",
-          color: "var(--bone)",
-          fontFamily: "var(--ff-mono)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: 14,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.28em",
-            color: "var(--amber)",
-            textTransform: "uppercase",
-          }}
-        >
+      <div className="fixed inset-0 flex flex-col items-center justify-center gap-[14px] bg-black font-mono text-bone">
+        <div className="text-[10px] uppercase tracking-mark text-amber">
           ◈ ATTESTATION FILED
         </div>
-        <div
-          style={{
-            fontSize: 12,
-            letterSpacing: "0.2em",
-            color: "var(--bone-2)",
-            textTransform: "uppercase",
-          }}
-        >
+        <div className="text-[12px] uppercase tracking-stamp text-bone-2">
           Retrieving record from public archive…
         </div>
       </div>
@@ -75,80 +48,27 @@ export default function ResolutionPage({
   }
 
   return (
-    <div
-      style={{
-        background: "var(--paper)",
-        color: "var(--ink)",
-        minHeight: "100vh",
-      }}
-    >
+    <div className="min-h-screen bg-paper text-ink">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="markets" />
 
       <div className="bureau-page bureau-page--tight">
         {!resolution ? (
-          <div
-            style={{
-              padding: "80px 40px",
-              border: "1px solid var(--rule)",
-              background: "var(--paper-2)",
-              textAlign: "center",
-            }}
-          >
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.24em",
-                color: "var(--ink-3)",
-                textTransform: "uppercase",
-                marginBottom: 10,
-              }}
-            >
+          <div className="border border-rule bg-paper-2 px-10 py-20 text-center max-sm:px-5 max-sm:py-12">
+            <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-[0.24em] text-ink-3">
               — NO RECORD ON FILE —
             </div>
-            <div
-              className="bureau-serif"
-              style={{
-                fontSize: 26,
-                letterSpacing: "-0.015em",
-                fontWeight: 500,
-                lineHeight: 1.3,
-                textWrap: "balance",
-                marginBottom: 12,
-              }}
-            >
+            <div className="bureau-serif mb-3 text-balance text-[26px] font-medium leading-[1.3] tracking-[-0.015em]">
               {market.question}
             </div>
-            <div
-              className="bureau-serif"
-              style={{
-                fontSize: 15,
-                fontStyle: "italic",
-                color: "var(--ink-3)",
-                lineHeight: 1.5,
-                maxWidth: 560,
-                margin: "0 auto 22px",
-              }}
-            >
+            <div className="bureau-serif mx-auto mb-[22px] max-w-[560px] text-[15px] italic leading-[1.5] text-ink-3">
               This market has not yet been resolved by the Settlement Bureau.
               The observational window remains open.
             </div>
             <Link
               href={`/market/${slug}`}
-              style={{
-                display: "inline-block",
-                padding: "12px 22px",
-                background: "var(--ink)",
-                color: "var(--paper)",
-                fontFamily: "var(--ff-mono)",
-                fontSize: 11,
-                letterSpacing: "0.2em",
-                textTransform: "uppercase",
-                fontWeight: 600,
-                textDecoration: "none",
-              }}
+              className="inline-block bg-ink px-[22px] py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper no-underline"
             >
               Return to market ⟶
             </Link>
@@ -161,63 +81,22 @@ export default function ResolutionPage({
               market={bureau}
               position={position}
             />
-            <div
-              className="bureau-resolution-footer"
-              style={{
-                marginTop: 28,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                paddingTop: 16,
-                borderTop: "1px solid var(--rule)",
-                gap: 14,
-                flexWrap: "wrap",
-              }}
-            >
-              <div
-                className="bureau-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: "0.14em",
-                  color: "var(--ink-3)",
-                  textTransform: "uppercase",
-                }}
-              >
+            <div className="mt-7 flex flex-wrap items-center justify-between gap-[14px] border-t border-rule pt-4 max-sm:flex-col max-sm:items-start">
+              <div className="bureau-mono text-[10px] uppercase tracking-eyebrow text-ink-3">
                 Archived under RES-
                 {new Date(resolution.timestamp).toISOString().slice(0, 10)}-
                 {bureau.ref.slice(-4)} · permanent record
               </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div className="flex flex-wrap gap-[10px]">
                 <Link
                   href={`/market/${slug}`}
-                  style={{
-                    padding: "12px 20px",
-                    background: "var(--paper)",
-                    color: "var(--ink)",
-                    border: "1px solid var(--ink)",
-                    fontFamily: "var(--ff-mono)",
-                    fontSize: 11,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                  }}
+                  className="border border-ink bg-paper px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-ink no-underline"
                 >
                   Market page
                 </Link>
                 <Link
                   href="/"
-                  style={{
-                    padding: "12px 20px",
-                    background: "var(--ink)",
-                    color: "var(--paper)",
-                    fontFamily: "var(--ff-mono)",
-                    fontSize: 11,
-                    letterSpacing: "0.2em",
-                    textTransform: "uppercase",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                  }}
+                  className="bg-ink px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper no-underline"
                 >
                   Return to market index ⟶
                 </Link>

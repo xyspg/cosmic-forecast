@@ -71,30 +71,9 @@ export function ResolutionPanel() {
   if (!hydrated || items.length === 0) return null;
 
   return (
-    <section
-      style={{
-        border: "1px solid var(--ink)",
-        padding: 16,
-        background: "var(--paper)",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-          paddingBottom: 8,
-          borderBottom: "1px solid var(--rule)",
-        }}
-      >
-        <div
-          className="bureau-serif"
-          style={{
-            fontSize: 18,
-            fontWeight: 500,
-            letterSpacing: "-0.01em",
-          }}
-        >
+    <section className="border border-ink bg-paper p-4">
+      <div className="flex items-baseline justify-between border-b border-rule pb-2">
+        <div className="bureau-serif text-[18px] font-medium tracking-[-0.01em]">
           Resolution archive
         </div>
         <span className="bureau-eyebrow">RECENT · {items.length}</span>
@@ -103,55 +82,19 @@ export function ResolutionPanel() {
         <Link
           key={r.id}
           href={`/resolution/${r.id}`}
-          style={{
-            display: "block",
-            padding: "12px 0",
-            borderBottom:
-              i === items.length - 1 ? "none" : "1px dashed var(--rule)",
-            color: "inherit",
-            textDecoration: "none",
-          }}
+          className={`block py-3 text-inherit no-underline ${i === items.length - 1 ? "" : "border-b border-dashed border-rule"}`}
         >
-          <div
-            className="bureau-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: "0.1em",
-              color: "var(--ink-4)",
-              textTransform: "uppercase",
-            }}
-          >
+          <div className="bureau-mono text-[9px] uppercase tracking-[0.1em] text-ink-4">
             {r.resolvedOn}
           </div>
-          <div
-            className="bureau-serif"
-            style={{ fontSize: 14, lineHeight: 1.3, margin: "3px 0" }}
-          >
+          <div className="bureau-serif my-[3px] text-[14px] leading-[1.3]">
             {r.question}
           </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              marginTop: 6,
-            }}
-          >
-            <div
-              className="bureau-mono"
-              style={{
-                fontSize: 10,
-                color: "var(--ink-3)",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Resolved <b style={{ color: "var(--ink)" }}>{r.outcome}</b> ·{" "}
-              {r.ref}
+          <div className="mt-[6px] flex items-baseline justify-between">
+            <div className="bureau-mono text-[10px] tracking-[0.05em] text-ink-3">
+              Resolved <b className="text-ink">{r.outcome}</b> · {r.ref}
             </div>
-            <span
-              className="bureau-mono"
-              style={{ fontSize: 10, color: "var(--amber)" }}
-            >
+            <span className="bureau-mono text-[10px] text-amber">
               ◈ {r.eventTag}
             </span>
           </div>

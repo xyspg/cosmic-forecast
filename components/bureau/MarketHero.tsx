@@ -12,120 +12,51 @@ export function MarketHero({
 }) {
   return (
     <>
-      <div
-        className="bureau-hero-meta-top"
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          justifyContent: "space-between",
-          paddingBottom: 12,
-          borderBottom: "1px solid var(--rule)",
-          gap: 8,
-          flexWrap: "wrap",
-        }}
-      >
-        <div
-          className="bureau-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "var(--ink-3)",
-          }}
-        >
-          <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-rule pb-3 max-sm:flex-col max-sm:items-start max-sm:gap-[6px]">
+        <div className="bureau-mono text-[10px] uppercase tracking-eyebrow text-ink-3">
+          <Link href="/" className="text-inherit no-underline">
             ◀ Markets
           </Link>
-          <span style={{ margin: "0 8px", color: "var(--ink-4)" }}>/</span>
+          <span className="mx-2 text-ink-4">/</span>
           <span>{m.category}</span>
-          <span style={{ margin: "0 8px", color: "var(--ink-4)" }}>/</span>
+          <span className="mx-2 text-ink-4">/</span>
           <span>{m.ref}</span>
         </div>
-        <div
-          className="bureau-mono"
-          style={{
-            fontSize: 10,
-            color: "var(--ink-4)",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-          }}
-        >
+        <div className="bureau-mono text-[10px] uppercase tracking-[0.1em] text-ink-4">
           Last trade 14:22:09 UTC · Bid/ask spread 0.8¢ · Mid {yesCent}¢ /{" "}
           {noCent}¢
         </div>
       </div>
 
-      <div
-        style={{ padding: "24px 0 8px", borderBottom: "1px solid var(--rule)" }}
-      >
-        <div
-          className="bureau-hero-stamps"
-          style={{
-            display: "flex",
-            gap: 10,
-            marginBottom: 10,
-            flexWrap: "wrap",
-          }}
-        >
-          <span className="bureau-stamp">
+      <div className="border-b border-rule pb-2 pt-6">
+        <div className="mb-[10px] flex flex-wrap gap-[10px] max-sm:gap-[6px]">
+          <span className="bureau-stamp shrink-0">
             <span className="bureau-dot bureau-dot--amber" />
             PUBLIC REFERENCE MARKET · {m.ref}
           </span>
-          <span className="bureau-stamp">
+          <span className="bureau-stamp shrink-0">
             <span className="bureau-dot bureau-dot--ink" />
             RISK {m.risk}
           </span>
-          <span className="bureau-stamp">
+          <span className="bureau-stamp shrink-0">
             <span className="bureau-dot bureau-dot--amber" />
             ORACLE · DONKI v2.1
           </span>
-          <span className="bureau-stamp md:ml-auto">
+          <span className="bureau-stamp shrink-0 md:ml-auto">
             <span className="bureau-dot bureau-dot--pos" />
             ACCEPTING ORDERS
           </span>
         </div>
 
-        <h1
-          className="bureau-serif bureau-hero-headline"
-          style={{
-            fontSize: "clamp(28px, 6.5vw, 52px)",
-            letterSpacing: "-0.028em",
-            lineHeight: 1.04,
-            margin: "8px 0",
-            fontWeight: 500,
-            textWrap: "balance",
-            maxWidth: "100%",
-          }}
-        >
+        <h1 className="bureau-serif my-2 max-w-full text-balance text-[clamp(28px,6.5vw,52px)] font-medium leading-[1.04] tracking-[-0.028em] max-sm:break-words max-sm:text-[clamp(24px,7vw,30px)]">
           {m.question}
         </h1>
 
-        <div
-          className="bureau-serif bureau-hero-summary"
-          style={{
-            fontSize: 18,
-            fontStyle: "italic",
-            color: "var(--ink-2)",
-            marginTop: 12,
-            maxWidth: 780,
-            lineHeight: 1.4,
-          }}
-        >
+        <div className="bureau-serif mt-3 max-w-[780px] text-[18px] italic leading-[1.4] text-ink-2 max-sm:max-w-full max-sm:text-[15px]">
           {m.summary}
         </div>
 
-        <div
-          className="bureau-mono bureau-hero-meta"
-          style={{
-            fontSize: 11,
-            color: "var(--ink-3)",
-            letterSpacing: "0.06em",
-            marginTop: 14,
-            display: "flex",
-            gap: 22,
-            flexWrap: "wrap",
-          }}
-        >
+        <div className="bureau-mono mt-[14px] flex flex-wrap gap-[22px] text-[11px] tracking-[0.06em] text-ink-3 max-sm:gap-[10px] max-sm:text-[10px]">
           <span>α {m.ra}</span>
           <span>δ {m.dec}</span>
           <span>· OPENED {m.openedLabel.toUpperCase()}</span>

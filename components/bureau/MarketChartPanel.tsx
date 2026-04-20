@@ -65,43 +65,19 @@ export function MarketChartPanel({
 
   return (
     <div>
-      <div
-        className="bureau-chart-header"
-        style={{
-          display: "flex",
-          alignItems: "baseline",
-          gap: 28,
-          borderBottom: "1px solid var(--rule)",
-          paddingBottom: 10,
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="flex flex-wrap items-baseline gap-7 border-b border-rule pb-[10px] max-sm:gap-3">
         <div>
           <div className="bureau-eyebrow">Implied probability — YES</div>
-          <div
-            className="bureau-num bureau-serif bureau-chart-header__price"
-            style={{
-              fontSize: "clamp(28px, 7vw, 44px)",
-              lineHeight: 1,
-              fontWeight: 500,
-            }}
-          >
+          <div className="bureau-num bureau-serif text-[clamp(28px,7vw,44px)] font-medium leading-none max-sm:text-[30px]">
             {yesCent}
-            <span style={{ fontSize: 22, color: "var(--ink-3)" }}>¢</span>
+            <span className="text-[22px] text-ink-3">¢</span>
           </div>
         </div>
         <div>
           <div className="bureau-eyebrow">NO</div>
-          <div
-            className="bureau-num bureau-serif"
-            style={{
-              fontSize: 24,
-              color: "var(--ink-3)",
-              fontWeight: 500,
-            }}
-          >
+          <div className="bureau-num bureau-serif text-[24px] font-medium text-ink-3">
             {noCent}
-            <span style={{ fontSize: 14 }}>¢</span>
+            <span className="text-[14px]">¢</span>
           </div>
         </div>
         <div>
@@ -109,11 +85,7 @@ export function MarketChartPanel({
             {hoverIndex !== null ? "Δ 24H" : "24H change"}
           </div>
           <div
-            className="bureau-num"
-            style={{
-              fontSize: 18,
-              color: deltaCents >= 0 ? "var(--pl-pos)" : "var(--pl-neg)",
-            }}
+            className={`bureau-num text-[18px] ${deltaCents >= 0 ? "text-pl-pos" : "text-pl-neg"}`}
           >
             {deltaCents >= 0 ? "+" : "−"}
             {Math.abs(deltaCents).toFixed(1)}¢
@@ -121,21 +93,11 @@ export function MarketChartPanel({
         </div>
         <div>
           <div className="bureau-eyebrow">Volume 24h</div>
-          <div className="bureau-num" style={{ fontSize: 18 }}>
+          <div className="bureau-num text-[18px]">
             {fmtUSDShort(volume * 0.02)}
           </div>
         </div>
-        <div
-          className="bureau-chart-ranges"
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            gap: 2,
-            fontFamily: "var(--ff-mono)",
-            fontSize: 10,
-            letterSpacing: "0.1em",
-          }}
-        >
+        <div className="ml-auto flex gap-[2px] font-mono text-[10px] tracking-[0.1em] max-sm:ml-0 max-sm:w-full">
           {RANGES.map((r) => {
             const active = r === range;
             return (
@@ -143,16 +105,11 @@ export function MarketChartPanel({
                 key={r}
                 type="button"
                 onClick={() => setRange(r)}
-                style={{
-                  padding: "4px 10px",
-                  border: "1px solid var(--rule)",
-                  background: active ? "var(--ink)" : "var(--paper)",
-                  color: active ? "var(--paper)" : "var(--ink-3)",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  fontSize: "inherit",
-                  letterSpacing: "inherit",
-                }}
+                className={`cursor-pointer border border-rule px-[10px] py-1 font-[inherit] text-[inherit] tracking-[inherit] ${
+                  active
+                    ? "bg-ink text-paper"
+                    : "bg-paper text-ink-3"
+                }`}
               >
                 {r}
               </button>
@@ -161,7 +118,7 @@ export function MarketChartPanel({
         </div>
       </div>
 
-      <div style={{ padding: "10px 0" }}>
+      <div className="py-[10px]">
         <Sparkline
           series={series}
           width={800}
@@ -169,16 +126,7 @@ export function MarketChartPanel({
           onHoverChange={setHoverIndex}
           labelForIndex={labelForIndex}
         />
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontFamily: "var(--ff-mono)",
-            fontSize: 10,
-            color: "var(--ink-4)",
-            paddingTop: 4,
-          }}
-        >
+        <div className="flex justify-between pt-1 font-mono text-[10px] text-ink-4">
           <span>MAR 20</span>
           <span>MAR 28</span>
           <span>APR 04</span>
