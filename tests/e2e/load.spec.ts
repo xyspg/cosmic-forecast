@@ -38,7 +38,10 @@ test("30 concurrent clients complete the bet flow", async ({ browser }) => {
         .first()
         .click();
 
-      await page.locator('input[inputmode="decimal"]').first().fill(String(amount));
+      await page
+        .locator('input[inputmode="decimal"]')
+        .first()
+        .fill(String(amount));
 
       await page
         .getByRole("button", {
@@ -50,10 +53,9 @@ test("30 concurrent clients complete the bet flow", async ({ browser }) => {
       await expect(speedUp).toBeVisible({ timeout: 12_000 });
       await speedUp.click();
 
-      await expect(page).toHaveURL(
-        new RegExp(`/resolution/${featured.id}`),
-        { timeout: 30_000 },
-      );
+      await expect(page).toHaveURL(new RegExp(`/resolution/${featured.id}`), {
+        timeout: 30_000,
+      });
       await expect(page.getByText("FINAL DETERMINATION")).toBeVisible();
     } finally {
       await ctx.close();

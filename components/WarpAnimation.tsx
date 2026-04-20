@@ -73,7 +73,7 @@ function ProgressBar({ p }: { p: number }) {
   return (
     <div
       style={{
-        width: 220,
+        width: "min(220px, 38vw)",
         height: 3,
         background: "rgba(232,228,216,0.15)",
         margin: "10px auto 0",
@@ -913,13 +913,13 @@ export function WarpAnimation({
             SIGNAL OK · 1.412 MHz DOWNLINK · CHECKSUM GOOD
           </Corner>
 
-          <div className="absolute inset-x-3 inset-y-4 flex flex-col gap-3 overflow-y-auto md:inset-[60px_40px_50px_40px] md:gap-[14px] md:overflow-hidden">
-            <div className="grid grid-cols-[auto_1fr] items-center gap-4 border-b border-[rgba(232,228,216,0.22)] pb-3 md:grid-cols-[1fr_auto_1fr] md:gap-8 md:pb-[18px]">
-              <div>
+          <div className="absolute inset-x-3 inset-y-4 flex min-w-0 flex-col gap-3 overflow-y-auto overflow-x-hidden md:inset-[60px_40px_50px_40px] md:gap-[14px] md:overflow-hidden">
+            <div className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 border-b border-[rgba(232,228,216,0.22)] pb-3 md:grid-cols-[1fr_auto_1fr] md:gap-8 md:pb-[18px]">
+              <div className="min-w-0">
                 <Label>Mission elapsed</Label>
                 <div
                   style={{
-                    fontSize: "clamp(28px, 8vw, 48px)",
+                    fontSize: "clamp(20px, 6.4vw, 48px)",
                     letterSpacing: "0.04em",
                     color: "var(--bone)",
                     fontWeight: 500,
@@ -931,7 +931,7 @@ export function WarpAnimation({
                   T+{tc}
                 </div>
               </div>
-              <div className="text-right md:text-center">
+              <div className="min-w-0 text-right md:text-center">
                 <Label>Phase</Label>
                 <div
                   style={{
@@ -975,10 +975,10 @@ export function WarpAnimation({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.3fr_1fr_1.2fr] md:min-h-[220px] md:flex-1 md:gap-4 md:overflow-hidden">
-              <FluxPanel t={t} className="min-h-[240px] md:min-h-0" />
-              <SolarDisk t={t} className="min-h-[240px] md:min-h-0" />
-              <EventLog t={t} className="min-h-[240px] md:min-h-0" />
+            <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[1.3fr_1fr_1.2fr] md:min-h-[220px] md:flex-1 md:gap-4 md:overflow-hidden">
+              <FluxPanel t={t} className="min-h-[240px] min-w-0 md:min-h-0" />
+              <SolarDisk t={t} className="min-h-[240px] min-w-0 md:min-h-0" />
+              <EventLog t={t} className="min-h-[240px] min-w-0 md:min-h-0" />
             </div>
 
             <DigestPanel t={t} fullHash={fullHash} />

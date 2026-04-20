@@ -47,9 +47,7 @@ test.describe("homepage", () => {
     // Trump market lives in the grid as a table row — not as an h1 (that's
     // reserved for the lead market). It appears in the market cell as a div
     // with the bureau-serif class.
-    const trumpRow = page.getByText(
-      /Trump win the 2028 presidential election/,
-    );
+    const trumpRow = page.getByText(/Trump win the 2028 presidential election/);
     await expect(trumpRow.first()).toBeVisible();
 
     await page.getByRole("button", { name: /^Sports$/ }).click();
