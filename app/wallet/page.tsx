@@ -216,6 +216,52 @@ export default function WalletPage() {
     }
   };
 
+  const depositForm = (
+    <div className="border border-ink bg-paper-2 p-[18px]">
+      <div className="bureau-eyebrow mb-[10px]">
+        Deposit principal — test mode
+      </div>
+      <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
+        {DEPOSIT_AMOUNTS.map((a) => {
+          const active = depositAmount === a;
+          return (
+            <button
+              key={a}
+              type="button"
+              onClick={() => setDepositAmount(a)}
+              className={`cursor-pointer border border-rule py-[10px] font-mono text-[11px] tracking-wire ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
+            >
+              ${a}
+            </button>
+          );
+        })}
+      </div>
+      <div className="relative mb-[10px]">
+        <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
+          $
+        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={depositAmount}
+          onChange={(e) =>
+            setDepositAmount(
+              Math.max(0, Number(e.target.value.replace(/[^\d.]/g, "")) || 0),
+            )
+          }
+          className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[16px] text-ink outline-none"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={handleDeposit}
+        className="w-full cursor-pointer border-0 bg-ink py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
+      >
+        Credit ${depositAmount.toLocaleString()} to account
+      </button>
+    </div>
+  );
+
   if (!hydrated) {
     return (
       <div className="min-h-screen bg-paper">
@@ -275,6 +321,7 @@ export default function WalletPage() {
               </StmtBtn>
               <StmtBtn disabled>Withdraw</StmtBtn>
             </div>
+            {showDeposit && <div className="mt-4 sm:hidden">{depositForm}</div>}
           </div>
           <StatCell
             label="Total principal wagered"
@@ -294,54 +341,7 @@ export default function WalletPage() {
           />
         </div>
 
-        {showDeposit && (
-          <div className="mt-5 border border-ink bg-paper-2 p-[18px]">
-            <div className="bureau-eyebrow mb-[10px]">
-              Deposit principal — test mode
-            </div>
-            <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
-              {DEPOSIT_AMOUNTS.map((a) => {
-                const active = depositAmount === a;
-                return (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => setDepositAmount(a)}
-                    className={`cursor-pointer border border-rule py-[10px] font-mono text-[11px] tracking-wire ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
-                  >
-                    ${a}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="relative mb-[10px]">
-              <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
-                $
-              </span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={depositAmount}
-                onChange={(e) =>
-                  setDepositAmount(
-                    Math.max(
-                      0,
-                      Number(e.target.value.replace(/[^\d.]/g, "")) || 0,
-                    ),
-                  )
-                }
-                className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[16px] text-ink outline-none"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleDeposit}
-              className="w-full cursor-pointer border-0 bg-ink py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
-            >
-              Credit ${depositAmount.toLocaleString()} to account
-            </button>
-          </div>
-        )}
+        {showDeposit && <div className="mt-5 max-sm:hidden">{depositForm}</div>}
 
         <div className="scrollbar-none mt-8 flex border-b-2 border-ink max-sm:overflow-x-auto max-sm:whitespace-nowrap">
           {[

@@ -1,6 +1,13 @@
+"use client";
+
 import { BrandMark } from "./BrandMark";
 
 export function Disclaimer() {
+  const handleClearStorage = () => {
+    if (typeof window === "undefined") return;
+    window.localStorage.clear();
+    window.location.reload();
+  };
   return (
     <footer className="mt-16 border-t border-rule bg-paper-2 px-[32px] pb-[60px] pt-[40px] font-sans text-[11px] leading-[1.55] text-ink-3 max-sm:px-3">
       <div className="mx-auto grid max-w-[1280px] grid-cols-[1.2fr_1fr_1fr_1fr] gap-8 max-[960px]:grid-cols-2 max-[960px]:gap-6 max-sm:grid-cols-1">
@@ -38,6 +45,13 @@ export function Disclaimer() {
           <div>Risk disclosure (Form PM-4)</div>
           <div>Anti-manipulation policy</div>
           <div>Responsible participation</div>
+          <button
+            type="button"
+            onClick={handleClearStorage}
+            className="mt-1 cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[11px] leading-[1.55] text-ink-3 underline underline-offset-2"
+          >
+            Purge local ledger data
+          </button>
         </div>
       </div>
       <div className="mx-auto mt-10 flex max-w-[1280px] justify-between gap-8 border-t border-rule pt-5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-4 max-sm:flex-col max-sm:gap-[10px] max-sm:text-left">
