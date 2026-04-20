@@ -1,100 +1,95 @@
 import { expect, test } from "@playwright/test";
 import markets from "../../data/markets.json";
 
+// The app picks `lead` as the first featured+unresolved market at render time.
+// Mirror that selection so selectors stay correct when the JSON shifts.
 const featured = markets.find(
   (m) => m.featured && !m.resolved,
 ) as (typeof markets)[number];
 
-// Escape a string for use inside a RegExp.
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const featuredQuestionRegex = new RegExp(esc(featured.question));
 
 test.describe("homepage", () => {
-  test("renders navbar with logo and default balance", async ({ page }) => {
+  test("masthead shows active-market count and open interest", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.getByText(/\d+ ACTIVE MARKETS/)).toBeVisible();
+    await expect(page.getByText(/OPEN INTEREST$/)).toBeVisible();
+    await expect(page.getByText(/NEXT SETTLEMENT ·/)).toBeVisible();
+  });
+
+  test("lead market eyebrow + headline render", async ({ page }) => {
     await page.goto("/");
 
-    // Logo text
+    await expect(page.getByText("◈ FEATURED MARKET")).toBeVisible();
+
+    // LeadMarket renders the featured question as a clickable h1.
     await expect(
-      page.getByRole("link", { name: /Cosmic Forecast/ }),
+      page.getByRole("heading", { level: 1, name: featuredQuestionRegex }),
     ).toBeVisible();
 
-    // Balance pill in navbar — RollingNumber renders integer 1000 as "$1000" (no comma).
-    // The pill is a link to /wallet.
-    const balancePill = page.getByRole("link", { name: /\$1000/ });
-    await expect(balancePill).toBeVisible();
+    // "Market specification" side panel
+    await expect(page.getByText("Market specification")).toBeVisible();
+    await expect(page.getByText(/Open interest/i).first()).toBeVisible();
   });
 
-  test("renders featured hero with the expected question", async ({ page }) => {
+  test("category filter narrows active markets table", async ({ page }) => {
     await page.goto("/");
 
-    const hero = page.getByRole("heading", {
-      level: 2,
-      name: featuredQuestionRegex,
-    });
-    await expect(hero).toBeVisible();
-  });
+    // Wait for hydration — CategoryBar is a client component rendered after
+    // HomeLoading is replaced.
+    await expect(
+      page.getByText("Active markets", { exact: true }),
+    ).toBeVisible();
 
-  test("hero chart renders svg and yes/no legend", async ({ page }) => {
-    await page.goto("/");
-
-    // Scope to the card that contains the featured h2, then find the svg inside.
-    const heroHeading = page.getByRole("heading", {
-      level: 2,
-      name: featuredQuestionRegex,
-    });
-    const heroCard = heroHeading.locator(
-      "xpath=ancestor::div[contains(@class, 'rounded-2xl')][1]",
+    // Trump market lives in the grid as a table row — not as an h1 (that's
+    // reserved for the lead market). It appears in the market cell as a div
+    // with the bureau-serif class.
+    const trumpRow = page.getByText(
+      /Trump win the 2028 presidential election/,
     );
-    await expect(heroCard.locator("svg").first()).toBeVisible();
+    await expect(trumpRow.first()).toBeVisible();
 
-    // Legend is within the same card.
-    await expect(heroCard.getByText(/Yes \d+%/).first()).toBeVisible();
-    await expect(heroCard.getByText(/No \d+%/).first()).toBeVisible();
+    await page.getByRole("button", { name: /^Sports$/ }).click();
+    // Row should disappear from the filtered table.
+    await expect(trumpRow).toHaveCount(0);
+
+    // Restore filter so test teardown isn't misleading.
+    await page.getByRole("button", { name: /^All$/ }).click();
+    await expect(trumpRow.first()).toBeVisible();
   });
 
-  test("category filter narrows the market grid", async ({ page }) => {
-    await page.goto("/");
-
-    // Wait for initial hydration + grid render.
-    await expect(
-      page.getByRole("heading", { level: 2, name: featuredQuestionRegex }),
-    ).toBeVisible();
-
-    // Grid cards use <h3> for the market question; sidebar uses <p>,
-    // so scoping by heading level isolates the grid.
-    const trumpRegex = /Trump win the 2028 presidential election/;
-    const trumpGridCard = page.getByRole("heading", {
-      level: 3,
-      name: trumpRegex,
-    });
-
-    // "Politics" — Trump market should show in the grid.
-    const politicsTab = page.getByRole("button", { name: /^Politics$/ });
-    await politicsTab.click();
-    // Gate on the active-tab class so the next click doesn't race the
-    // re-render triggered by this one.
-    await expect(politicsTab).toHaveClass(/bg-blue-600/);
-    await expect(trumpGridCard).toBeVisible();
-
-    // "Sports" — Trump market gone from grid (may still exist in sidebar).
-    const sportsTab = page.getByRole("button", { name: /^Sports$/ });
-    await sportsTab.click();
-    await expect(sportsTab).toHaveClass(/bg-blue-600/);
-    await expect(trumpGridCard).toHaveCount(0);
-  });
-
-  test("clicking the featured hero navigates to the market page", async ({
+  test("clicking the lead market navigates to its detail page", async ({
     page,
   }) => {
     await page.goto("/");
 
     await page
-      .getByRole("heading", { level: 2, name: featuredQuestionRegex })
+      .getByRole("heading", { level: 1, name: featuredQuestionRegex })
       .click();
 
     await expect(page).toHaveURL(new RegExp(`/market/${featured.id}`));
+    // Same question now renders as the market-page hero headline.
     await expect(
       page.getByRole("heading", { level: 1, name: featuredQuestionRegex }),
     ).toBeVisible();
+  });
+
+  test("market table row click navigates to that market", async ({ page }) => {
+    await page.goto("/");
+    await expect(
+      page.getByText("Active markets", { exact: true }),
+    ).toBeVisible();
+
+    // Trump row exists in the table (the lead slot shows Mars).
+    await page
+      .getByText(/Trump win the 2028 presidential election/)
+      .first()
+      .click();
+    await expect(page).toHaveURL(
+      /\/market\/will-trump-win-2028-presidential-election/,
+    );
   });
 });
