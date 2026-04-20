@@ -303,10 +303,9 @@ export function CosmicReport({
               The event, recorded in the NASA Space Weather Database Of
               Notifications, Knowledge, Information as {eventShort}, exhibited a
               peak flux of 2.1 × 10⁻⁵ W/m² over the 1–8 Å soft X-ray band. Per
-              methodology revision 2.1, the SHA-256 digest of the event
-              parameter string was computed, the terminal nibble of the
-              resulting hash extracted, and the outcome mapped to the market
-              according to the published resolution table.
+              methodology revision 2.1, the event&apos;s observational
+              parameters were mapped to outcome against the published resolution
+              table, and the determination attested to the Bureau ledger.
             </p>
             <p style={{ margin: "0 0 14px" }}>
               The resolution proceeded without incident. No discretionary

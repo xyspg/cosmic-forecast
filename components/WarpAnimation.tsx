@@ -557,7 +557,7 @@ function EventLog({ t, className }: { t: number; className?: string }) {
     [2590, "PEAK", "Peak flux 2.1×10⁻⁵ W/m² · event classified M2.1"],
     [2980, "DECAY", "Soft decay · tail consistent with impulsive class"],
     [3330, "LOG ", "Event parameter string committed to buffer"],
-    [3750, "HASH", "SHA-256 initialized · 64-round compression begun"],
+    [3750, "HASH", "Digest pipeline initialized · compression rounds begun"],
     [4520, "NIBB", "Terminal nibble extracted"],
     [4830, "MAP ", "Oracle table lookup · outcome filed to archive"],
     [5180, "FILE", "Attestation filed to public archive · RES-2026-04-19-0042"],

@@ -24,7 +24,7 @@ export async function mockCosmicApis(
         marketQuestion: "mocked",
         date: "2026-04-10",
         explanation:
-          "Analysis of the detected solar flare reveals an M-class electromagnetic signature whose SHA-256 hash exhibits clear directional bias. [MOCKED]",
+          "Analysis of the detected solar flare reveals an M-class electromagnetic signature whose spectral decomposition exhibits clear directional bias. [MOCKED]",
       }),
     });
   });

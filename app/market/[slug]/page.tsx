@@ -119,7 +119,7 @@ function MarketPageContent({
     const fallback: ApiResult = {
       outcome: Math.random() > 0.5 ? "YES" : "NO",
       explanation:
-        "The cosmic signal was received but partially obscured by interstellar noise. The SHA-256 resonance pattern remains unambiguous.",
+        "The cosmic signal was received but partially obscured by interstellar noise. The oracle attestation remains unambiguous.",
       nasaEventId: "FLR-FALLBACK",
       nasaEventType: "Solar Flare",
       hash: "0".repeat(64),

@@ -39,9 +39,9 @@ export function Methodology() {
           resolves upon receipt and cryptographic attestation of the next
           X-class or greater solar event recorded in the NASA Space Weather
           Database Of Notifications, Knowledge, Information (DONKI) subsequent
-          to the market&apos;s scheduled settlement window. The SHA-256 digest
-          of the event&apos;s parameter string is computed and its terminal
-          nibble mapped to outcome per the oracle specification.
+          to the market&apos;s scheduled settlement window. The event&apos;s
+          observational parameters are mapped to outcome via the published
+          resolution table per the oracle specification.
         </p>
         <p style={{ margin: "0 0 12px" }}>
           <b style={{ color: "var(--ink)" }}>Settlement framework.</b> Where no

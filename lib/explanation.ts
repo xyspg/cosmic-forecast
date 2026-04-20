@@ -101,9 +101,9 @@ function fallbackExplanation(
       : "";
 
   const templates = [
-    `Analysis of the detected ${qualifier}${eventType} reveals an electromagnetic signature whose SHA-256 hash exhibits clear directional bias toward ${outcome}. The peak flux density at 1 AU correlates with a ${outcome === "YES" ? "positive" : "negative"} probability gradient across all measured spectral bands.`,
-    `The ${qualifier}${eventType} produced magnetospheric oscillations with a periodicity that, when mapped through our SHA-256 resonance model, yields an unambiguous ${outcome} determination. This is consistent with helioseismological predictions for the current solar cycle.`,
-    `Cross-correlating the ${eventType} temporal profile with the SHA-256 hash space reveals a statistically significant (p < 0.001) alignment with the ${outcome} outcome vector. The ${qualifier}classification further constrains the probability manifold to a single solution.`,
+    `Analysis of the detected ${qualifier}${eventType} reveals an electromagnetic signature whose spectral decomposition exhibits clear directional bias toward ${outcome}. The peak flux density at 1 AU correlates with a ${outcome === "YES" ? "positive" : "negative"} probability gradient across all measured spectral bands.`,
+    `The ${qualifier}${eventType} produced magnetospheric oscillations with a periodicity that, when mapped through our heliospheric resonance model, yields an unambiguous ${outcome} determination. This is consistent with helioseismological predictions for the current solar cycle.`,
+    `Cross-correlating the ${eventType} temporal profile with the Bureau's resolution manifold reveals a statistically significant (p < 0.001) alignment with the ${outcome} outcome vector. The ${qualifier}classification further constrains the probability manifold to a single solution.`,
   ];
 
   return templates[Math.floor(Math.random() * templates.length)];
