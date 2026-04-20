@@ -2,26 +2,31 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
-import { notFound, useSearchParams } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ActivityFeed } from "@/components/ActivityFeed";
-import { BettingPanel } from "@/components/BettingPanel";
-import { CommentFeed } from "@/components/CommentFeed";
-import { CosmicReport } from "@/components/CosmicReport";
-import { Navbar } from "@/components/Navbar";
-import { OrderBook } from "@/components/OrderBook";
-import { PriceChart } from "@/components/PriceChart";
-import { ResultModal } from "@/components/ResultModal";
+import { Disclaimer } from "@/components/bureau/Disclaimer";
+import { FlareTicker } from "@/components/bureau/FlareTicker";
+import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
+import { MarketChartPanel } from "@/components/bureau/MarketChartPanel";
+import { MarketHero } from "@/components/bureau/MarketHero";
+import { Methodology } from "@/components/bureau/Methodology";
+import { Nav } from "@/components/bureau/Nav";
+import { OracleStatus } from "@/components/bureau/OracleStatus";
+import { OrderTicket } from "@/components/bureau/OrderTicket";
+import { TopCounterparties } from "@/components/bureau/TopCounterparties";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
 import marketsData from "@/data/markets.json";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
-import { formatNumber, formatVolume } from "@/lib/fake-data";
+import { formatVolume } from "@/lib/fake-data";
+import { generatePriceHistory } from "@/lib/generate-price-history";
+import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market, ResolveBetResponse } from "@/lib/types";
+import MarketLoading from "./loading";
 
-const markets = marketsData as Market[];
+const rawMarkets = marketsData as Market[];
 
 export default function MarketPage({
   params,
@@ -29,30 +34,43 @@ export default function MarketPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
-  const market = markets.find((m) => m.id === slug);
+  const marketIndex = rawMarkets.findIndex((m) => m.id === slug);
+  const rawMarket = marketIndex >= 0 ? rawMarkets[marketIndex] : undefined;
 
-  if (!market) {
+  if (!rawMarket) {
     notFound();
   }
 
-  return <MarketPageContent market={market} />;
+  return <MarketPageContent market={rawMarket} index={marketIndex} />;
 }
 
-function MarketPageContent({ market }: { market: Market }) {
+function MarketPageContent({
+  market,
+  index,
+}: {
+  market: Market;
+  index: number;
+}) {
   const searchParams = useSearchParams();
   const sideParam = searchParams.get("side");
   const initialSide: "YES" | "NO" =
     sideParam?.toLowerCase() === "no" ? "NO" : "YES";
 
+  const router = useRouter();
   const ticker = useMarketTicker(market);
   const resolveMarket = useCosmicStore((s) => s.resolveMarket);
 
-  // Flow states
+  const bureau = useMemo(() => enrich(market, index), [market, index]);
+  const series = useMemo(
+    () =>
+      generatePriceHistory(market.id, ticker.yesPrice, 180).map((p) => p.yes),
+    [market.id, ticker.yesPrice],
+  );
+
   const [showSpeedUp, setShowSpeedUp] = useState(false);
   const [showWarp, setShowWarp] = useState(false);
-  const [showResult, setShowResult] = useState(false);
+  const [apiReady, setApiReady] = useState(false);
 
-  // Refs to coordinate two async events: animation done + API response
   type ApiResult = {
     outcome: "YES" | "NO";
     explanation: string;
@@ -63,10 +81,8 @@ function MarketPageContent({ market }: { market: Market }) {
   const apiResultRef = useRef<ApiResult | null>(null);
   const warpDoneRef = useRef(false);
 
-  // Always-fresh resolve function via ref (avoids stale closures in callbacks)
   const resolveRef = useRef<(result: ApiResult) => void>(() => {});
   resolveRef.current = (result) => {
-    setShowWarp(false);
     const confidence = Math.round((85 + Math.random() * 14.9) * 10) / 10;
     ticker.setOutcome(result.outcome);
     resolveMarket(
@@ -78,30 +94,36 @@ function MarketPageContent({ market }: { market: Market }) {
       result.hash,
       confidence,
     );
-    // Show result modal after a brief delay for the warp to fade
-    setTimeout(() => setShowResult(true), 400);
+    router.push(`/resolution/${market.id}`);
+    // leave showWarp=true; navigation unmounts the market page and the warp with it
   };
 
-  // After user places a bet → clear ALL IN mode + wait 2s → show dark overlay
   const handleBetPlaced = useCallback(() => {
     setAllInMode(false);
-    setTimeout(() => {
-      setShowSpeedUp(true);
-    }, 2000);
+    setShowSpeedUp(true);
   }, []);
 
   const existingPosition = useCosmicStore((s) => s.getPosition(market.id));
 
-  // User clicks "Speed Up Time" → start warp + fire API calls
   const handleSpeedUp = useCallback(async () => {
     setShowSpeedUp(false);
     setShowWarp(true);
+    setApiReady(false);
     apiResultRef.current = null;
     warpDoneRef.current = false;
     ticker.freeze();
 
     const date = new Date().toISOString().split("T")[0];
     let result: ApiResult;
+
+    const fallback: ApiResult = {
+      outcome: Math.random() > 0.5 ? "YES" : "NO",
+      explanation:
+        "The cosmic signal was received but partially obscured by interstellar noise. The SHA-256 resonance pattern remains unambiguous.",
+      nasaEventId: "FLR-FALLBACK",
+      nasaEventType: "Solar Flare",
+      hash: "0".repeat(64),
+    };
 
     try {
       const resolveRes = await fetch("/api/resolve-bet", {
@@ -112,34 +134,36 @@ function MarketPageContent({ market }: { market: Market }) {
 
       const resolveData = (await resolveRes.json()) as ResolveBetResponse;
 
-      result = {
-        outcome: resolveData.outcome,
-        explanation:
-          resolveData.explanation || "The universe has spoken decisively.",
-        nasaEventId: resolveData.nasaEventId,
-        nasaEventType: resolveData.nasaEventType || "Solar Flare",
-        hash: resolveData.hash,
-      };
+      // Required fields must all be present before we persist the resolution.
+      // A partial response (e.g. LLM timeout) used to write an orphan object
+      // that broke P&L and CosmicReport rendering. See KNOWN_ISSUES.md.
+      if (
+        resolveData?.outcome &&
+        resolveData?.nasaEventId &&
+        resolveData?.hash
+      ) {
+        result = {
+          outcome: resolveData.outcome,
+          explanation:
+            resolveData.explanation || "The universe has spoken decisively.",
+          nasaEventId: resolveData.nasaEventId,
+          nasaEventType: resolveData.nasaEventType || "Solar Flare",
+          hash: resolveData.hash,
+        };
+      } else {
+        result = fallback;
+      }
     } catch {
-      result = {
-        outcome: Math.random() > 0.5 ? "YES" : "NO",
-        explanation:
-          "The cosmic signal was received but partially obscured by interstellar noise. The SHA-256 resonance pattern remains unambiguous.",
-        nasaEventId: "FLR-FALLBACK",
-        nasaEventType: "Solar Flare",
-        hash: "0".repeat(64),
-      };
+      result = fallback;
     }
 
-    // API done — if animation already finished, resolve immediately
     apiResultRef.current = result;
+    setApiReady(true);
     if (warpDoneRef.current) {
       resolveRef.current(result);
     }
   }, [market.id, ticker]);
 
-  // Warp animation finishes — if API already returned, resolve immediately
-  // Otherwise animation stays visible until handleSpeedUp resolves
   const handleWarpComplete = useCallback(() => {
     warpDoneRef.current = true;
     const result = apiResultRef.current;
@@ -148,7 +172,6 @@ function MarketPageContent({ market }: { market: Market }) {
     }
   }, []);
 
-  // ALL IN mode — dramatic page-wide reaction
   const [allInMode, setAllInMode] = useState(false);
   const [allInSide, setAllInSide] = useState<"YES" | "NO">("YES");
 
@@ -157,35 +180,23 @@ function MarketPageContent({ market }: { market: Market }) {
     setAllInSide(side);
   }, []);
 
-  // Related markets
   const relatedMarkets = useMemo(
     () =>
-      markets
+      rawMarkets
         .filter((m) => m.category === market.category && m.id !== market.id)
         .slice(0, 4),
     [market.category, market.id],
   );
 
-  const endDate = new Date(market.endDate);
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((endDate.getTime() - Date.now()) / 86400000),
-  );
-
-  // Get resolution + P&L from store — guard with hydrated to avoid mismatch
   const hydrated = useHydrated();
   const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
   const storePnl = useCosmicStore((s) => s.getPnL(market.id));
   const resolution = hydrated ? storeResolution : undefined;
   const pnl = hydrated ? storePnl : null;
 
-  // Self-heal orphan state: position persisted but resolution never completed
-  // (tab closed / refresh mid-flow). Silently resolve on load — no overlay.
   const didHealOrphanRef = useRef(false);
   useEffect(() => {
     if (!hydrated || didHealOrphanRef.current) return;
-    // Lock immediately so bets placed later in this session aren't auto-healed
-    // (they go through the normal overlay → warp flow instead)
     didHealOrphanRef.current = true;
     if (!existingPosition || storeResolution) return;
 
@@ -211,7 +222,7 @@ function MarketPageContent({ market }: { market: Market }) {
           confidence,
         );
       } catch {
-        // Leave state as-is; user can retry by placing another action
+        // Leave state as-is
       }
     })();
   }, [
@@ -223,30 +234,28 @@ function MarketPageContent({ market }: { market: Market }) {
     ticker,
   ]);
 
+  const yesCent = Math.round(ticker.yesPrice * 100);
+  const noCent = Math.round(ticker.noPrice * 100);
+
+  if (!hydrated) return <MarketLoading />;
+
   return (
-    <>
-      <SpeedUpOverlay visible={showSpeedUp} onSpeedUp={handleSpeedUp} />
-      <WarpAnimation active={showWarp} onComplete={handleWarpComplete} />
+    <div style={{ background: "var(--paper)", color: "var(--ink)" }}>
+      <SpeedUpOverlay
+        visible={showSpeedUp}
+        onSpeedUp={handleSpeedUp}
+        onDismiss={() => setShowSpeedUp(false)}
+        market={bureau}
+        side={existingPosition?.side}
+        amount={existingPosition?.amount}
+      />
+      <WarpAnimation
+        active={showWarp}
+        onComplete={handleWarpComplete}
+        market={bureau}
+        apiReady={apiReady}
+      />
 
-      {/* Result modal — shows win/loss after resolution */}
-      {existingPosition && pnl !== null && resolution && (
-        <ResultModal
-          open={showResult}
-          onClose={() => setShowResult(false)}
-          won={existingPosition.side === resolution.outcome}
-          amount={
-            existingPosition.side === resolution.outcome
-              ? existingPosition.shares
-              : 0
-          }
-          pnl={pnl}
-          marketQuestion={market.question}
-          betAmount={existingPosition.amount}
-          side={existingPosition.side}
-        />
-      )}
-
-      {/* ALL IN vignette overlay */}
       <AnimatePresence>
         {allInMode && (
           <motion.div
@@ -259,7 +268,6 @@ function MarketPageContent({ market }: { market: Market }) {
         )}
       </AnimatePresence>
 
-      {/* ALL IN ambient glow behind betting panel */}
       <AnimatePresence>
         {allInMode && (
           <motion.div
@@ -275,152 +283,250 @@ function MarketPageContent({ market }: { market: Market }) {
               right: "calc(50% - 560px + 380px)",
               background: `radial-gradient(ellipse at center, ${
                 allInSide === "YES"
-                  ? "rgba(34, 197, 94, 0.12)"
-                  : "rgba(239, 68, 68, 0.12)"
+                  ? "rgba(14, 14, 12, 0.14)"
+                  : "rgba(184, 132, 42, 0.18)"
               } 0%, transparent 70%)`,
             }}
           />
         )}
       </AnimatePresence>
 
-      <Navbar />
+      <GovHeaderStrip />
+      <FlareTicker />
+      <Nav active="markets" />
 
-      <main className="mx-auto max-w-5xl overflow-x-hidden px-4 py-6">
-        {/* Breadcrumb */}
-        <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/" className="hover:text-gray-900 transition-colors">
-            Markets
-          </Link>
-          <span>/</span>
-          <span className="text-gray-900">{market.category}</span>
-        </div>
+      <div className="bureau-page" style={{ padding: "20px 32px" }}>
+        <MarketHero m={bureau} yesCent={yesCent} noCent={noCent} />
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
-          {/* Left column */}
-          <div className="min-w-0 space-y-6">
-            {/* Question */}
-            <div>
-              <h1 className="text-2xl font-bold leading-tight text-gray-900 mb-3">
-                {market.question}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                  {daysLeft > 0 ? `${daysLeft} days left` : "Ending soon"}
-                </span>
-                <span>{formatVolume(ticker.volume)} Volume</span>
-                <span>{formatNumber(ticker.totalBettors)} Bettors</span>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 gap-6 pt-6 md:grid-cols-[minmax(0,1fr)_360px] md:gap-9">
+          {/* Chart — row 1 col 1 on desktop, first on mobile */}
+          <motion.div
+            animate={{ opacity: allInMode ? 0.55 : 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="min-w-0 md:col-start-1 md:row-start-1"
+          >
+            <MarketChartPanel
+              series={series}
+              yesPrice={ticker.yesPrice}
+              volume={ticker.volume}
+            />
 
-            {/* Price chart */}
-            <motion.div
-              animate={{ opacity: allInMode ? 0.5 : 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
-              <PriceChart slug={market.id} currentPrice={ticker.yesPrice} />
-            </motion.div>
-
-            {/* Betting panel — below chart on mobile, sidebar on desktop */}
-            <div className="lg:hidden">
-              <BettingPanel
-                market={market}
-                yesPrice={ticker.yesPrice}
-                noPrice={ticker.noPrice}
-                initialSide={initialSide}
-                onBetPlaced={handleBetPlaced}
-                onAllIn={handleAllIn}
-              />
-            </div>
-
-            {/* Cosmic report — show after resolution */}
             {resolution && (
-              <CosmicReport
-                resolution={resolution}
-                marketQuestion={market.question}
-              />
-            )}
-
-            {/* Comments, order book, info — dim during ALL IN */}
-            <motion.div
-              className="space-y-6"
-              animate={{ opacity: allInMode ? 0.35 : 1 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
-              <CommentFeed slug={market.id} />
-              <OrderBook yesPrice={ticker.yesPrice} slug={market.id} />
-
-              <div className="rounded-xl border border-gray-200 bg-white p-4">
-                <h3 className="mb-3 text-sm font-bold text-gray-900">
-                  Resolution Criteria
-                </h3>
-                <p className="text-sm text-gray-500 leading-relaxed">
-                  This market resolves based on real-time astronomical data from
-                  NASA&apos;s DONKI (Space Weather Database). The outcome is
-                  deterministically computed using SHA-256 hashing of the latest
-                  solar event ID, current date, and market identifier.
-                </p>
-              </div>
-
-              {relatedMarkets.length > 0 && (
+              <Link
+                href={`/resolution/${market.id}`}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: 24,
+                  padding: "16px 20px",
+                  border: "1px solid var(--ink)",
+                  background: "var(--paper-2)",
+                  color: "inherit",
+                  textDecoration: "none",
+                  gap: 10,
+                  flexWrap: "wrap",
+                }}
+              >
                 <div>
-                  <h3 className="mb-3 text-sm font-bold text-gray-900">
-                    Related Markets
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {relatedMarkets.map((rm) => (
-                      <Link
-                        key={rm.id}
-                        href={`/market/${rm.id}`}
-                        className="rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-gray-300"
-                      >
-                        <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-2">
-                          {rm.question}
-                        </p>
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="font-bold text-green tabular-nums">
-                            {Math.round(rm.yesPrice * 100)}¢ Yes
-                          </span>
-                          <span className="text-gray-400">
-                            {formatVolume(rm.volume)}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
+                  <div
+                    className="bureau-mono"
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: "0.22em",
+                      color: "var(--ink-3)",
+                      textTransform: "uppercase",
+                      marginBottom: 4,
+                    }}
+                  >
+                    This market has been resolved
+                  </div>
+                  <div
+                    className="bureau-serif"
+                    style={{
+                      fontSize: 18,
+                      letterSpacing: "-0.01em",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Read the official resolution notice →
                   </div>
                 </div>
-              )}
-            </motion.div>
-          </div>
+                <span
+                  className="bureau-mono"
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: "0.2em",
+                    color: "var(--ink)",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {resolution.outcome} ·{" "}
+                  {pnl !== null && (pnl >= 0 ? "+" : "−")}$
+                  {pnl !== null ? Math.abs(pnl).toFixed(2) : "—"}
+                </span>
+              </Link>
+            )}
+          </motion.div>
 
-          {/* Right column — hidden on mobile (betting panel is inline above) */}
-          <div className="hidden lg:block space-y-6">
-            <BettingPanel
+          {/* Sidebar — spans both rows on desktop; on mobile appears right after the chart */}
+          <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-start-1 md:row-span-2">
+            <OrderTicket
               market={market}
               yesPrice={ticker.yesPrice}
               noPrice={ticker.noPrice}
+              endsLabel={bureau.endsLabel}
               initialSide={initialSide}
               onBetPlaced={handleBetPlaced}
               onAllIn={handleAllIn}
+              onRequestSpeedUp={() => setShowSpeedUp(true)}
             />
             <motion.div
-              animate={{ opacity: allInMode ? 0.35 : 1 }}
+              animate={{ opacity: allInMode ? 0.4 : 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
+              style={{ display: "flex", flexDirection: "column", gap: 20 }}
             >
-              <ActivityFeed markets={markets.slice(0, 10)} />
+              <TopCounterparties total={ticker.totalBettors} />
+              <OracleStatus
+                sessionHash={`0x${market.id
+                  .replace(/[^a-f0-9]/gi, "")
+                  .padEnd(8, "0")
+                  .slice(0, 8)}…`}
+              />
+              <div
+                className="bureau-mono"
+                style={{
+                  fontSize: 10,
+                  color: "var(--ink-3)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  borderTop: "1px solid var(--rule)",
+                  paddingTop: 12,
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span>OPEN INTEREST</span>
+                <span className="bureau-num" style={{ color: "var(--ink)" }}>
+                  {fmtUSDShort(ticker.volume)}
+                </span>
+              </div>
             </motion.div>
           </div>
+
+          {/* Secondary info — row 2 col 1 on desktop, last on mobile */}
+          <div className="min-w-0 md:col-start-1 md:row-start-2">
+            <Methodology />
+
+            {relatedMarkets.length > 0 && (
+              <div style={{ marginTop: 28 }}>
+                <div
+                  style={{
+                    borderBottom: "2px solid var(--ink)",
+                    paddingBottom: 8,
+                    marginBottom: 14,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                  }}
+                >
+                  <div
+                    className="bureau-serif"
+                    style={{
+                      fontSize: 20,
+                      letterSpacing: "-0.01em",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Related markets
+                  </div>
+                  <div
+                    className="bureau-mono"
+                    style={{
+                      fontSize: 10,
+                      color: "var(--ink-3)",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Same desk · {market.category}
+                  </div>
+                </div>
+                <div
+                  className="bureau-related-grid"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: 14,
+                  }}
+                >
+                  {relatedMarkets.map((rm) => (
+                    <Link
+                      key={rm.id}
+                      href={`/market/${rm.id}`}
+                      style={{
+                        border: "1px solid var(--rule)",
+                        padding: 14,
+                        background: "var(--paper)",
+                        textDecoration: "none",
+                        color: "inherit",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 10,
+                      }}
+                    >
+                      <div
+                        className="bureau-serif"
+                        style={{
+                          fontSize: 15,
+                          lineHeight: 1.3,
+                          fontWeight: 500,
+                          color: "var(--ink)",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {rm.question}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "baseline",
+                        }}
+                      >
+                        <span
+                          className="bureau-num"
+                          style={{ fontSize: 14, fontWeight: 600 }}
+                        >
+                          {Math.round(rm.yesPrice * 100)}¢{" "}
+                          <span style={{ color: "var(--ink-3)", fontSize: 11 }}>
+                            YES
+                          </span>
+                        </span>
+                        <span
+                          className="bureau-mono"
+                          style={{
+                            fontSize: 10,
+                            color: "var(--ink-3)",
+                            letterSpacing: "0.08em",
+                          }}
+                        >
+                          {formatVolume(rm.volume)}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-    </>
+      </div>
+
+      <Disclaimer />
+    </div>
   );
 }
