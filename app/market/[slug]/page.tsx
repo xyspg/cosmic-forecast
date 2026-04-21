@@ -20,7 +20,6 @@ import marketsData from "@/data/markets.json";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { formatVolume } from "@/lib/fake-data";
-import { generatePriceHistory } from "@/lib/generate-price-history";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market, ResolveBetResponse } from "@/lib/types";
@@ -61,11 +60,6 @@ function MarketPageContent({
   const resolveMarket = useCosmicStore((s) => s.resolveMarket);
 
   const bureau = useMemo(() => enrich(market, index), [market, index]);
-  const series = useMemo(
-    () =>
-      generatePriceHistory(market.id, ticker.yesPrice, 180).map((p) => p.yes),
-    [market.id, ticker.yesPrice],
-  );
 
   const [showSpeedUp, setShowSpeedUp] = useState(false);
   const [showWarp, setShowWarp] = useState(false);
@@ -304,7 +298,7 @@ function MarketPageContent({
             className="min-w-0 md:col-start-1 md:row-start-1"
           >
             <MarketChartPanel
-              series={series}
+              marketId={market.id}
               yesPrice={ticker.yesPrice}
               volume={ticker.volume}
             />

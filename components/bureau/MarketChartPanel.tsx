@@ -1,47 +1,35 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import {
+  axisTicks,
+  CHART_RANGES,
+  type ChartRange,
+  rangeConfig,
+  labelForIndex as rangeLabelForIndex,
+} from "@/lib/chart-range";
+import { generatePriceHistory } from "@/lib/generate-price-history";
 import { fmtUSDShort } from "@/lib/market-metadata";
 import { Sparkline } from "./Sparkline";
 
-const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC",
-];
-
-const REFERENCE_NOW = new Date("2026-04-19T14:22:00Z");
-const WINDOW_DAYS = 30;
-
-function shortDateForIndex(index: number, n: number): string {
-  if (n <= 1) return "";
-  const daysAgo = (1 - index / (n - 1)) * WINDOW_DAYS;
-  const d = new Date(REFERENCE_NOW.getTime() - daysAgo * 86_400_000);
-  return `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCDate()).padStart(2, "0")}`;
-}
-
-const RANGES = ["1H", "1D", "1W", "1M", "ALL"] as const;
-
 export function MarketChartPanel({
-  series,
+  marketId,
   yesPrice,
   volume,
 }: {
-  series: number[];
+  marketId: string;
   yesPrice: number;
   volume: number;
 }) {
-  const [range, setRange] = useState<(typeof RANGES)[number]>("1M");
+  const [range, setRange] = useState<ChartRange>("1M");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const series = useMemo(() => {
+    const { spanMs, points } = rangeConfig(range);
+    return generatePriceHistory(marketId, yesPrice, points, spanMs).map(
+      (p) => p.yes,
+    );
+  }, [marketId, yesPrice, range]);
 
   const n = series.length;
   const hoverYes = hoverIndex !== null ? series[hoverIndex] : null;
@@ -52,16 +40,17 @@ export function MarketChartPanel({
 
   const deltaCents = useMemo(() => {
     if (n < 2) return 0;
-    const lookback = Math.max(1, Math.round((n - 1) / WINDOW_DAYS));
     const current = hoverYes ?? series[n - 1];
-    const prior = series[Math.max(0, (hoverIndex ?? n - 1) - lookback)];
-    return Math.round((current - prior) * 100 * 10) / 10;
-  }, [hoverIndex, hoverYes, n, series]);
+    const base = series[0];
+    return Math.round((current - base) * 100 * 10) / 10;
+  }, [hoverYes, n, series]);
 
   const labelForIndex = useCallback(
-    (i: number) => shortDateForIndex(i, n),
-    [n],
+    (i: number) => rangeLabelForIndex(range, i, n),
+    [range, n],
   );
+
+  const ticks = useMemo(() => axisTicks(range), [range]);
 
   return (
     <div>
@@ -82,7 +71,7 @@ export function MarketChartPanel({
         </div>
         <div>
           <div className="bureau-eyebrow">
-            {hoverIndex !== null ? "Δ 24H" : "24H change"}
+            {hoverIndex !== null ? `Δ ${range}` : `${range} change`}
           </div>
           <div
             className={`bureau-num text-[18px] ${deltaCents >= 0 ? "text-pl-pos" : "text-pl-neg"}`}
@@ -98,7 +87,7 @@ export function MarketChartPanel({
           </div>
         </div>
         <div className="ml-auto flex gap-[2px] font-mono text-[10px] tracking-[0.1em] max-sm:ml-0 max-sm:w-full">
-          {RANGES.map((r) => {
+          {CHART_RANGES.map((r) => {
             const active = r === range;
             return (
               <button
@@ -106,9 +95,7 @@ export function MarketChartPanel({
                 type="button"
                 onClick={() => setRange(r)}
                 className={`cursor-pointer border border-rule px-[10px] py-1 font-[inherit] text-[inherit] tracking-[inherit] ${
-                  active
-                    ? "bg-ink text-paper"
-                    : "bg-paper text-ink-3"
+                  active ? "bg-ink text-paper" : "bg-paper text-ink-3"
                 }`}
               >
                 {r}
@@ -127,11 +114,9 @@ export function MarketChartPanel({
           labelForIndex={labelForIndex}
         />
         <div className="flex justify-between pt-1 font-mono text-[10px] text-ink-4">
-          <span>MAR 20</span>
-          <span>MAR 28</span>
-          <span>APR 04</span>
-          <span>APR 12</span>
-          <span>APR 19</span>
+          {ticks.map((t) => (
+            <span key={t}>{t}</span>
+          ))}
         </div>
       </div>
     </div>

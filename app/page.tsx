@@ -91,13 +91,7 @@ export default function HomePage() {
 
       <div className="bureau-page grid grid-cols-[1fr_320px] gap-8 max-[960px]:grid-cols-1 max-[960px]:gap-6">
         <div>
-          {lead && (
-            <LeadMarket
-              m={lead}
-              series={seriesById[lead.id] ?? []}
-              slug={lead.id}
-            />
-          )}
+          {lead && <LeadMarket m={lead} slug={lead.id} />}
 
           <div className="mt-7">
             <CategoryBar active={category} onChange={setCategory} />
