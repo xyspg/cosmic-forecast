@@ -1,64 +1,216 @@
 "use client";
 
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import type { BureauMarket } from "@/lib/market-metadata";
+
+function CornerStamp({
+  positionClass,
+  children,
+}: {
+  positionClass: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`absolute hidden font-mono text-[9px] uppercase tracking-stamp text-bone-2 md:block ${positionClass}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function LedgerRow({
+  k,
+  v,
+  highlight,
+  last,
+}: {
+  k: string;
+  v: React.ReactNode;
+  highlight?: boolean;
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={`flex justify-between px-4 py-[10px] text-[11px] tracking-[0.06em] ${last ? "" : "border-b border-[rgba(232,228,216,0.12)]"}`}
+    >
+      <span className="text-[10px] uppercase tracking-eyebrow text-bone-2">
+        {k}
+      </span>
+      <span
+        className={
+          highlight ? "font-semibold text-amber" : "font-normal text-bone"
+        }
+      >
+        {v}
+      </span>
+    </div>
+  );
+}
 
 export function SpeedUpOverlay({
   visible,
   onSpeedUp,
+  onDismiss,
+  market,
+  side,
+  amount,
 }: {
   visible: boolean;
   onSpeedUp: () => void;
+  onDismiss?: () => void;
+  market?: BureauMarket;
+  side?: "YES" | "NO";
+  amount?: number;
 }) {
+  const [elapsed, setElapsed] = useState(0);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!visible) {
+      setElapsed(0);
+      setTick(0);
+      return;
+    }
+    const iv1 = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const iv2 = setInterval(() => setTick((t) => t + 1), 180);
+    return () => {
+      clearInterval(iv1);
+      clearInterval(iv2);
+    };
+  }, [visible]);
+
+  const price =
+    market && side ? (side === "YES" ? market.yesPrice : market.noPrice) : 0;
+  const shares = price > 0 && amount ? amount / price : 0;
+  const payout = shares;
+
   return (
     <AnimatePresence>
       {visible && (
         <motion.div
-          className="fixed inset-0 z-[90] flex items-center justify-center"
-          initial={{ backgroundColor: "rgba(0,0,0,0)" }}
-          animate={{ backgroundColor: "rgba(0,0,0,0.80)" }}
-          exit={{ backgroundColor: "rgba(0,0,0,0)" }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.9, ease: "easeInOut" }}
+          className="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-black/[0.82] px-5 py-10 font-mono"
+          style={{
+            backdropFilter: "blur(6px) saturate(0.6)",
+            WebkitBackdropFilter: "blur(6px) saturate(0.6)",
+          }}
         >
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+              backgroundSize: "80px 80px",
+            }}
+          />
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[rgba(184,132,42,0.35)]" />
+            <div className="absolute inset-y-0 left-1/2 border-l border-dashed border-[rgba(184,132,42,0.35)]" />
+          </div>
+
+          <CornerStamp positionClass="top-6 left-6">
+            BUREAU OF PREDICTION MARKETS · SETTLEMENT DIVISION
+          </CornerStamp>
+          <CornerStamp positionClass="top-6 right-6">
+            SESSION 0x9F4C8A21 · PROTOCOL v2.1
+          </CornerStamp>
+          <CornerStamp positionClass="bottom-6 left-6">
+            {market ? `α ${market.ra} · δ ${market.dec}` : "α — · δ —"}
+          </CornerStamp>
+          <CornerStamp positionClass="bottom-6 right-6">
+            T+{String(elapsed).padStart(3, "0")}s · AWAITING OPERATOR INPUT
+          </CornerStamp>
+
           <motion.div
-            className="flex flex-col items-center gap-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8, duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.2, ease: [0.19, 1, 0.22, 1] }}
+            className="relative w-[92%] max-w-[720px] text-bone"
           >
-            {/* Small cryptic text */}
-            <motion.p
-              className="text-sm text-white/40 font-mono tracking-wider"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-            >
-              Why wait for the future?
-            </motion.p>
+            <div className="flex items-center justify-between border-b border-[rgba(232,228,216,0.22)] pb-[10px] text-[10px] tracking-[0.24em] text-amber">
+              <span>◈ ORDER ACCEPTED — AWAITING SETTLEMENT WINDOW</span>
+              <span className="text-bone-2">
+                {market ? `REF ${market.ref}` : "REF —"} / ORD-
+                {String(tick).padStart(6, "0").slice(-6)}
+              </span>
+            </div>
 
-            {/* The button — minimal, eerie, doesn't belong */}
-            <motion.button
-              type="button"
-              onClick={onSpeedUp}
-              className="relative px-8 py-4 text-white/90 font-medium text-lg tracking-wide border border-white/20 rounded-sm backdrop-blur-sm transition-all hover:border-white/50 hover:text-white active:scale-[0.97]"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-              whileHover={{
-                boxShadow: "0 0 30px rgba(255,255,255,0.08)",
-              }}
-            >
-              Speed Up Time
-            </motion.button>
+            <div className="px-0 pb-[14px] pt-[18px] text-center">
+              <div className="mb-3 text-[10px] tracking-[0.24em] text-bone-2">
+                — IN THE MATTER OF —
+              </div>
+              <div className="bureau-serif mx-auto max-w-[580px] text-balance text-[22px] font-normal leading-[1.25] tracking-[-0.015em] text-bone max-sm:text-[18px]">
+                {market?.question ?? "—"}
+              </div>
+              <div className="mt-[14px] text-[10px] tracking-[0.24em] text-bone-2">
+                — POSITION OF RECORD —
+              </div>
+            </div>
 
-            {/* Subtle hint */}
-            <motion.p
-              className="text-xs text-white/20"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 2.0, duration: 1.0 }}
-            >
-              Let the cosmos decide now
-            </motion.p>
+            <div className="border border-[rgba(232,228,216,0.25)]">
+              <LedgerRow k="Declarant" v="ACCT-0042188-NYU" />
+              <LedgerRow k="Declared side" v={side ?? "—"} highlight />
+              <LedgerRow
+                k="Principal committed"
+                v={`USD ${(amount ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              />
+              <LedgerRow k="Shares" v={shares.toFixed(2)} />
+              <LedgerRow
+                k="Maximum recoverable"
+                v={`USD ${payout.toFixed(2)}`}
+              />
+              <LedgerRow k="Oracle method" v="SHA-256 ⟂ DONKI FLR" />
+              <LedgerRow
+                k="Scheduled settlement"
+                v={market?.endsLabel.toUpperCase() ?? "—"}
+                last
+              />
+            </div>
+
+            <div className="mt-[22px] border-l-2 border-amber px-4 py-[14px] font-serif text-[14px] italic leading-[1.55] text-bone">
+              The outcome awaits the next qualifying solar event. The Bureau
+              makes available a discretionary acceleration, under which the
+              settlement window is collapsed to the present instant. Operators
+              may elect to wait, or to proceed.
+            </div>
+
+            <div className="mt-[22px] grid grid-cols-[1fr_1.8fr] gap-3 max-sm:grid-cols-1 max-sm:gap-[10px]">
+              <button
+                type="button"
+                onClick={onDismiss}
+                disabled={!onDismiss}
+                className={`flex justify-between border border-[rgba(232,228,216,0.35)] bg-transparent px-[14px] py-4 text-left font-mono text-[10px] uppercase tracking-stamp text-bone-2 ${onDismiss ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <span>Await scheduled settlement</span>
+                <span>{market ? `${market.daysLeft}d` : "—"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={onSpeedUp}
+                className="relative flex cursor-pointer justify-between border border-amber bg-black px-[18px] py-4 text-left font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-amber transition-colors duration-200 hover:bg-amber hover:text-black"
+              >
+                <span>◈ Speed up time</span>
+                <span className="text-amber">⟶</span>
+                <span
+                  className="pointer-events-none absolute -inset-px border border-amber"
+                  style={{
+                    animation: "bureau-pulse-border 2.4s ease-in-out infinite",
+                  }}
+                />
+              </button>
+            </div>
+
+            <div className="mt-5 border-t border-[rgba(232,228,216,0.15)] pt-[14px] text-center text-[9px] leading-[1.7] tracking-[0.12em] text-bone-2">
+              ACCELERATION IS IRREVERSIBLE. THE SETTLEMENT DIGEST IS PUBLISHED
+              TO THE PUBLIC ARCHIVE UPON ATTESTATION.
+              <br />
+              NO REPRESENTATION IS MADE REGARDING THE AUSPICIOUSNESS OF THE
+              CURRENT OBSERVATIONAL WINDOW.
+            </div>
           </motion.div>
         </motion.div>
       )}

@@ -52,4 +52,6 @@ next-env.d.ts
 .wrangler/
 cloudflare-env.d.ts
 DESIGN_DOC.md
+PRESENTATION_NOTES.md
 .claude/
+DESIGN.md

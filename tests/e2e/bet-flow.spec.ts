@@ -9,6 +9,8 @@ const featured = markets.find(
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const featuredQuestionRegex = new RegExp(esc(featured.question));
 
+// Walk the full bet → speed-up → warp → resolution flow and leave the page
+// sitting on /resolution/<slug>.
 async function runBetFlow(
   page: Page,
   side: "YES" | "NO",
@@ -16,109 +18,85 @@ async function runBetFlow(
 ): Promise<void> {
   await page.goto("/");
 
+  // Lead market h1 is the clickable entry point.
   await page
-    .getByRole("heading", { level: 2, name: featuredQuestionRegex })
+    .getByRole("heading", { level: 1, name: featuredQuestionRegex })
     .click();
-
   await expect(page).toHaveURL(new RegExp(`/market/${featured.id}`));
 
-  // BettingPanel renders two buttons per side:
-  //   side selector: "Buy Yes 34¢" / "Buy No 66¢"  (case + ¢ matter)
-  //   action button: "Buy YES" / "Buy NO"
-  const sideSelectorRegex = side === "YES" ? /^Buy Yes \d+¢$/ : /^Buy No \d+¢$/;
-  const actionButtonRegex = side === "YES" ? /^Buy YES$/ : /^Buy NO$/;
+  // OrderTicket side toggle: each button's accessible name is "YES 28¢" / "NO 72¢".
+  const sideToggle = page
+    .getByRole("button", { name: new RegExp(`^${side} \\d+¢$`) })
+    .first();
+  await sideToggle.click();
 
-  // BettingPanel is duplicated on the page (mobile + desktop layouts).
-  // `.first()` picks whichever renders first in DOM order — either works
-  // since both panels share store state.
-  await page.getByRole("button", { name: sideSelectorRegex }).first().click();
+  // Principal field is the only <input type="text" inputmode="decimal"> in
+  // the ticket. Fill it by clearing first (default is 100).
+  const principal = page.locator('input[inputmode="decimal"]').first();
+  await principal.fill(String(amount));
 
-  // BettingPanel's amount <label> isn't associated via htmlFor, so use the
-  // "spinbutton" role that <input type="number"> exposes.
-  await page.getByRole("spinbutton").first().fill(String(amount));
-  await page.getByRole("button", { name: actionButtonRegex }).first().click();
+  // Submit button text is literal (not uppercased by DOM — CSS handles casing).
+  const submit = page.getByRole("button", {
+    name: new RegExp(`^Submit ${side} order · \\$${amount}\\.00$`),
+  });
+  await submit.click();
 
-  // Skip checking the "Your position" intermediate text — there are two
-  // panels (mobile + desktop) and the mobile one is display:none at desktop
-  // widths, confusing getByText's strict-mode selection. The SpeedUpOverlay
-  // button appearing is already a strong signal the bet went through.
-
-  // SpeedUpOverlay opens after a 2s setTimeout. Button fades in ~1.4s later
-  // via motion/react, but Playwright's click actionability ignores opacity.
-  const speedUp = page.getByRole("button", { name: "Speed Up Time" });
+  // SpeedUpOverlay opens immediately after placeBet succeeds.
+  const speedUp = page.getByRole("button", { name: /Speed up time/i });
   await expect(speedUp).toBeVisible({ timeout: 8_000 });
   await speedUp.click();
 
-  // Warp animation intervals sum to ~5.6s, then CosmicReport renders.
-  await expect(page.getByText("Cosmic Analysis Report")).toBeVisible({
+  // WarpAnimation runs ~5.6s, then the market page navigates to the
+  // resolution route. Wait on URL rather than on any interior text.
+  await expect(page).toHaveURL(new RegExp(`/resolution/${featured.id}`), {
     timeout: 20_000,
   });
 }
 
-// Verdict is rendered as a sibling span of the "Cosmic Verdict" label.
-// CosmicReport is only mounted once, so no visibility scoping needed.
-function verdictLocator(page: Page) {
-  return page
-    .getByText("Cosmic Verdict", { exact: true })
-    .locator("xpath=following-sibling::span[1]");
-}
-
-// BettingPanel is duplicated (mobile + desktop). The mobile copy is
-// display:none at the desktop viewport, so filter to visible elements
-// before asserting on strings that appear in both panels.
-const visible = { visible: true } as const;
-
 test.describe("main bet flow", () => {
-  test("Buy YES + outcome YES → win", async ({ page }) => {
+  test("Buy YES + outcome YES → win path", async ({ page }) => {
     await mockCosmicApis(page, { outcome: "YES" });
     await runBetFlow(page, "YES", 25);
 
-    await expect(
-      page.getByText("You won this market.").filter(visible),
-    ).toBeVisible();
-    await expect(page.getByText(/\[MOCKED\]/)).toBeVisible();
-    await expect(verdictLocator(page)).toHaveText("YES");
+    // Resolution page shows the outcome in the big FINAL DETERMINATION block.
+    await expect(page.getByText("FINAL DETERMINATION")).toBeVisible();
+    // Outcome rendered as heading-sized "YES" next to MARKET RESOLVED block.
+    await expect(page.getByText("——— MARKET RESOLVED ———")).toBeVisible();
 
-    // Balance: 1000 - 25 + 25/0.34 ≈ 1048.53 → RollingNumber renders "$1048.53"
-    // (no thousands separator). Use a regex to tolerate minor price drift.
-    await expect(page.locator("header")).toContainText(/\$104\d\.\d{2}/);
+    // Position settlement block: Declared side YES, Net outcome positive.
+    await expect(page.getByText("Position settlement")).toBeVisible();
+    // YES-on-YES with $25 principal at yesPrice 0.28 → shares ≈ 89.29,
+    // net = shares − principal ≈ +$64.29. Tolerate rounding with a loose regex.
+    await expect(page.getByText(/^\+\$\d+\.\d{2}$/).first()).toBeVisible();
   });
 
-  test("Buy NO + outcome NO → win", async ({ page }) => {
+  test("Buy NO + outcome NO → win path", async ({ page }) => {
     await mockCosmicApis(page, { outcome: "NO" });
     await runBetFlow(page, "NO", 25);
 
-    await expect(
-      page.getByText("You won this market.").filter(visible),
-    ).toBeVisible();
-    await expect(verdictLocator(page)).toHaveText("NO");
+    await expect(page.getByText("FINAL DETERMINATION")).toBeVisible();
+    await expect(page.getByText("Position settlement")).toBeVisible();
+    await expect(page.getByText(/^\+\$\d+\.\d{2}$/).first()).toBeVisible();
   });
 
-  test("Buy YES + outcome NO → loss", async ({ page }) => {
+  test("Buy YES + outcome NO → loss path", async ({ page }) => {
     await mockCosmicApis(page, { outcome: "NO" });
     await runBetFlow(page, "YES", 50);
 
-    await expect(
-      page.getByText("The cosmos ruled against you.").filter(visible),
-    ).toBeVisible();
-    // P&L is negative — BettingPanel renders it as "$-50.00" (the "$" is a
-    // literal prefix followed by the signed number).
-    await expect(page.getByText(/\$-50\.00/).filter(visible)).toBeVisible();
-    // Balance drops to 950 (integer → "$950", no decimals).
-    await expect(page.locator("header")).toContainText("$950");
+    await expect(page.getByText("Position settlement")).toBeVisible();
+    // Net outcome on a loss is −$50.00 (minus sign is the Unicode "−" U+2212).
+    await expect(page.getByText("−$50.00")).toBeVisible();
   });
 
-  test("Buy NO + outcome YES → loss", async ({ page }) => {
+  test("Buy NO + outcome YES → loss path", async ({ page }) => {
     await mockCosmicApis(page, { outcome: "YES" });
     await runBetFlow(page, "NO", 50);
 
-    await expect(
-      page.getByText("The cosmos ruled against you.").filter(visible),
-    ).toBeVisible();
-    await expect(page.locator("header")).toContainText("$950");
+    await expect(page.getByText("Position settlement")).toBeVisible();
+    await expect(page.getByText("−$50.00")).toBeVisible();
   });
 
-  test("direct navigation to a different market page renders", async ({
+  test("direct navigation to a different market renders hero", async ({
     page,
   }) => {
     await mockCosmicApis(page);
@@ -126,5 +104,6 @@ test.describe("main bet flow", () => {
     await expect(
       page.getByRole("heading", { level: 1, name: /AGI/ }),
     ).toBeVisible();
+    await expect(page.getByText("Order ticket")).toBeVisible();
   });
 });

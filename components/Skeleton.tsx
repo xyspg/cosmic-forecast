@@ -1,174 +1,164 @@
 /**
- * Reusable skeleton primitives for loading states.
+ * Bureau-style skeletons. Cream paper, rule lines, dashed placeholders —
+ * no rounded corners, no grey chips. Reads as "document not yet filed".
  */
 
-export function Skeleton({ className = "" }: { className?: string }) {
+export function Skeleton({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className={`animate-pulse rounded-md bg-gray-100 ${className}`} />
-  );
-}
-
-export function MarketCardSkeleton() {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <div className="flex items-start gap-3 mb-3">
-        <Skeleton className="h-10 w-10 rounded-lg" />
-        <div className="flex-1 space-y-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
-        </div>
-      </div>
-      <div className="space-y-2 mb-3">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-20" />
-          <div className="flex gap-1.5">
-            <Skeleton className="h-6 w-10 rounded-md" />
-            <Skeleton className="h-6 w-10 rounded-md" />
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-4 w-20" />
-          <div className="flex gap-1.5">
-            <Skeleton className="h-6 w-10 rounded-md" />
-            <Skeleton className="h-6 w-10 rounded-md" />
-          </div>
-        </div>
-      </div>
-      <Skeleton className="h-3 w-16" />
-    </div>
+    <div
+      className={`bureau-skeleton-pulse bg-rule-2 ${className}`}
+      style={style}
+    />
   );
 }
 
 export function FeaturedMarketSkeleton() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-      <div className="px-5 pt-5 pb-3 space-y-4">
-        <div className="flex items-start gap-3">
-          <Skeleton className="h-11 w-11 rounded-xl" />
-          <Skeleton className="h-6 w-3/4" />
-        </div>
-        <div className="flex gap-8">
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-8 w-20" />
-        </div>
-        <Skeleton className="h-[140px] w-full rounded-lg" />
+    <div className="border-y border-rule bg-paper py-[18px]">
+      <div className="mb-[14px] flex gap-[10px]">
+        <Skeleton className="h-[18px] w-[180px]" />
+        <Skeleton className="h-[18px] w-[90px]" />
+        <Skeleton className="h-[18px] w-[120px]" />
       </div>
-      <div className="border-t border-gray-100 px-5 py-3 space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-      </div>
+      <Skeleton className="mb-2 h-[40px] w-[85%]" />
+      <Skeleton className="mb-4 h-[40px] w-[60%]" />
+      <Skeleton className="mb-5 h-[12px] w-1/2" />
+      <Skeleton className="h-[180px] w-full" />
     </div>
   );
 }
 
 export function ChartSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
-          <Skeleton className="h-8 w-24" />
-          <Skeleton className="h-8 w-24" />
+    <div className="border-y border-rule py-[14px]">
+      <div className="mb-[10px] flex items-baseline justify-between border-b border-rule pb-[10px]">
+        <div className="flex gap-5">
+          <div>
+            <Skeleton className="mb-[6px] h-[9px] w-[60px]" />
+            <Skeleton className="h-[28px] w-[70px]" />
+          </div>
+          <div>
+            <Skeleton className="mb-[6px] h-[9px] w-[24px]" />
+            <Skeleton className="h-[20px] w-[44px]" />
+          </div>
+          <div>
+            <Skeleton className="mb-[6px] h-[9px] w-[50px]" />
+            <Skeleton className="h-[18px] w-[50px]" />
+          </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-[2px]">
           {[1, 2, 3, 4, 5].map((i) => (
-            <Skeleton key={i} className="h-6 w-8 rounded-md" />
+            <Skeleton key={`range-${i}`} className="h-[22px] w-[28px]" />
           ))}
         </div>
       </div>
-      <Skeleton className="h-[220px] w-full rounded-lg" />
+      <Skeleton className="h-[220px] w-full" />
     </div>
   );
 }
 
 export function BettingPanelSkeleton() {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-4">
-      <div className="grid grid-cols-2 gap-2">
-        <Skeleton className="h-12 rounded-lg" />
-        <Skeleton className="h-12 rounded-lg" />
+    <div className="border border-ink bg-paper">
+      <div className="flex justify-between border-b border-ink bg-paper-2 px-[14px] py-[10px]">
+        <Skeleton className="h-[11px] w-[100px]" />
+        <Skeleton className="h-[10px] w-[60px]" />
       </div>
-      <Skeleton className="h-10 w-full rounded-lg" />
-      <div className="flex gap-2">
-        {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-8 flex-1 rounded-md" />
-        ))}
+      <div className="p-[14px]">
+        <div className="mb-[14px] grid grid-cols-2 border border-ink">
+          <Skeleton className="h-[44px]" />
+          <Skeleton className="h-[44px] border-l border-ink" />
+        </div>
+        <Skeleton className="mb-[6px] h-[9px] w-[90px]" />
+        <Skeleton className="mb-[10px] h-[44px]" />
+        <div className="mb-[10px] grid grid-cols-4 gap-1">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={`quick-${i}`} className="h-[28px]" />
+          ))}
+        </div>
+        <Skeleton className="mb-4 h-[32px]" />
+        <div className="mb-[14px] border-y border-ink py-[10px]">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={`receipt-${i}`}
+              className={`flex justify-between py-[5px] ${i === 6 ? "" : "border-b border-dotted border-rule"}`}
+            >
+              <Skeleton className="h-[11px] w-[80px]" />
+              <Skeleton className="h-[11px] w-[50px]" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="h-[46px]" />
       </div>
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-full" />
-      </div>
-      <Skeleton className="h-12 w-full rounded-lg" />
     </div>
   );
 }
 
 export function WalletSkeleton() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      {/* Balance card */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
-        <Skeleton className="h-4 w-24 mb-2" />
-        <Skeleton className="h-10 w-40 mb-1" />
-        <Skeleton className="h-4 w-28" />
-        <div className="mt-5 flex gap-3">
-          <Skeleton className="h-10 flex-1 rounded-lg" />
-          <Skeleton className="h-10 flex-1 rounded-lg" />
+    <div className="bureau-page">
+      <div className="border-b-[3px] border-double border-ink pb-4">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <Skeleton className="mb-2 h-[10px] w-[320px]" />
+            <Skeleton className="h-[38px] w-[280px]" />
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <Skeleton className="h-[10px] w-[140px]" />
+            <Skeleton className="h-[10px] w-[100px]" />
+            <Skeleton className="h-[10px] w-[180px]" />
+          </div>
         </div>
       </div>
-      {/* Stats grid */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        {[1, 2, 3].map((i) => (
+      <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 border-ink max-[960px]:grid-cols-2 max-sm:grid-cols-1">
+        {[1, 2, 3, 4].map((i) => (
           <div
-            key={i}
-            className="rounded-xl border border-gray-200 bg-white p-4"
+            key={`stat-${i}`}
+            className={`px-6 py-[22px] ${i === 4 ? "" : "border-r border-ink"}`}
           >
-            <Skeleton className="h-3 w-20 mb-2" />
-            <Skeleton className="h-6 w-16" />
+            <Skeleton className="mb-3 h-[10px] w-[130px]" />
+            <Skeleton
+              className={`h-[32px] ${i === 1 ? "w-[170px]" : "w-[80px]"}`}
+            />
+            <Skeleton className="mt-2 h-[10px] w-[100px]" />
           </div>
         ))}
       </div>
-      {/* Positions */}
-      <Skeleton className="h-4 w-28 mb-3" />
-      <div className="rounded-xl border border-gray-200 bg-white divide-y divide-gray-100">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-center justify-between p-4">
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-3 w-1/2" />
-            </div>
-            <div className="space-y-1 text-right">
-              <Skeleton className="h-4 w-14 ml-auto" />
-              <Skeleton className="h-3 w-10 ml-auto" />
-            </div>
-          </div>
+      <div className="mt-8 flex border-b-2 border-ink">
+        {[160, 200, 140, 160].map((w, i) => (
+          <Skeleton
+            // biome-ignore lint/suspicious/noArrayIndexKey: placeholder row, order static
+            key={`tab-${i}`}
+            className="h-[38px]"
+            style={{ width: w }}
+          />
         ))}
       </div>
-    </div>
-  );
-}
-
-export function SidebarSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-32" />
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex items-start gap-3 py-2">
-            <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-4 flex-1" />
-            <Skeleton className="h-4 w-10" />
-          </div>
-        ))}
-      </div>
-      <div className="space-y-3">
-        <Skeleton className="h-5 w-24" />
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="flex items-center gap-3 py-2">
-            <Skeleton className="h-4 w-4" />
-            <Skeleton className="h-4 flex-1" />
-            <Skeleton className="h-4 w-16" />
+      <div className="bureau-table-scroll">
+        <div className="grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] gap-[14px] border-b border-rule px-3 py-[14px]">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <Skeleton key={`hdr-${i}`} className="h-[10px]" />
+          ))}
+        </div>
+        {[1, 2, 3, 4].map((i) => (
+          <div
+            key={`row-${i}`}
+            className="grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] items-center gap-[14px] border-b border-rule px-3 py-4"
+          >
+            <Skeleton className="h-[10px]" />
+            <Skeleton className="h-[18px]" />
+            <Skeleton className="h-[20px]" />
+            <Skeleton className="h-[14px]" />
+            <Skeleton className="h-[14px]" />
+            <Skeleton className="h-[14px]" />
+            <Skeleton className="h-[18px]" />
+            <Skeleton className="h-[20px]" />
           </div>
         ))}
       </div>

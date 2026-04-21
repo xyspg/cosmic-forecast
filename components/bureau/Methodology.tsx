@@ -1,0 +1,39 @@
+export function Methodology() {
+  return (
+    <div className="mt-[18px] border-t border-rule">
+      <div className="flex border-b border-rule">
+        <div className="border-r border-rule bg-paper-2 px-4 py-[10px] font-mono text-[11px] font-semibold uppercase tracking-[0.1em] text-ink">
+          Methodology
+        </div>
+      </div>
+      <div className="max-w-[720px] px-1 py-[18px] font-serif text-[15px] leading-[1.6] text-ink-2">
+        <p className="mb-3">
+          <b className="text-ink">Resolution source.</b> This market
+          resolves upon receipt and cryptographic attestation of the next
+          X-class or greater solar event recorded in the NASA Space Weather
+          Database Of Notifications, Knowledge, Information (DONKI) subsequent
+          to the market&apos;s scheduled settlement window. The event&apos;s
+          observational parameters are mapped to outcome via the published
+          resolution table per the oracle specification.
+        </p>
+        <p className="mb-3">
+          <b className="text-ink">Settlement framework.</b> Where no
+          qualifying event occurs within the settlement window, resolution
+          proceeds against the highest-class event observed in the preceding 72
+          hours. The methodology is described at length in the Oracle
+          Specification (revision 2.1, March 2026) and has been peer-reviewed by
+          the Joint Astronomical Settlement Authority.
+        </p>
+        <p>
+          <b className="text-ink">Participation.</b> Trades are
+          accepted in whole-cent increments. Orders are matched against a
+          continuous double auction with a 0.1¢ minimum price improvement. All
+          positions are fully collateralized; no leverage is extended.
+          Participants acknowledge that outcomes reflect the deterministic
+          output of the oracle function and are not influenced by subjective
+          prediction.
+        </p>
+      </div>
+    </div>
+  );
+}

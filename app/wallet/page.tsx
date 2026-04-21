@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
+import { useMemo, useState } from "react";
+import { Disclaimer } from "@/components/bureau/Disclaimer";
+import { FlareTicker } from "@/components/bureau/FlareTicker";
+import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
+import { Nav } from "@/components/bureau/Nav";
+import { WalletSkeleton } from "@/components/Skeleton";
+import { useHydrated } from "@/hooks/useHydrated";
+import { useCosmicStore } from "@/lib/store";
 
-// Apple Pay JS types (only available in Safari)
+// Apple Pay JS types
 interface ApplePaySessionConstructor {
   new (version: number, request: unknown): ApplePaySessionInstance;
   canMakePayments(): boolean;
@@ -14,105 +20,136 @@ interface ApplePaySessionInstance {
   abort(): void;
   completePayment(status: unknown): void;
   completePaymentMethodSelection(update: unknown): void;
+  // biome-ignore lint/suspicious/noExplicitAny: Apple Pay JS surface is vendor-typed
   onvalidatemerchant: ((event: any) => void) | null;
+  // biome-ignore lint/suspicious/noExplicitAny: Apple Pay JS surface is vendor-typed
   onpaymentmethodselected: ((event: any) => void) | null;
+  // biome-ignore lint/suspicious/noExplicitAny: Apple Pay JS surface is vendor-typed
   onpaymentauthorized: ((event: any) => void) | null;
   oncancel: (() => void) | null;
 }
-import { useCosmicStore } from "@/lib/store";
-import { useHydrated } from "@/hooks/useHydrated";
-import { WalletSkeleton } from "@/components/Skeleton";
 
 const DEPOSIT_AMOUNTS = [100, 250, 500, 1000];
 
-type Transaction = {
-  id: string;
-  type: "bet" | "win" | "loss" | "deposit";
+const TH_CLS =
+  "p-3 font-medium font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3";
+const TD_CLS = "p-3 align-middle";
+
+function fmtUSD(n: number) {
+  return `$${n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function StatCell({
+  label,
+  value,
+  hint,
+  last,
+}: {
   label: string;
-  amount: number;
-  timestamp: number;
-  marketId?: string;
-  side?: "YES" | "NO";
-};
+  value: React.ReactNode;
+  hint: string;
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={`px-6 py-[22px] ${last ? "" : "border-r border-ink max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink"}`}
+    >
+      <div className="bureau-eyebrow">{label}</div>
+      <div className="bureau-num bureau-serif text-[32px] font-medium leading-[1.1] tracking-[-0.02em]">
+        {value}
+      </div>
+      <div className="bureau-mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-3">
+        {hint}
+      </div>
+    </div>
+  );
+}
+
+function StmtBtn({
+  primary,
+  onClick,
+  disabled,
+  children,
+}: {
+  primary?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-[10px] font-mono text-[10px] font-semibold uppercase tracking-stamp ${
+        primary
+          ? "border-0 bg-ink text-paper"
+          : "border border-ink bg-paper text-ink"
+      } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
+    >
+      {children}
+    </button>
+  );
+}
 
 export default function WalletPage() {
   const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
   const positions = useCosmicStore((s) => s.positions);
   const resolutions = useCosmicStore((s) => s.resolutions);
+  const deposits = useCosmicStore((s) => s.deposits ?? []);
   const getPnL = useCosmicStore((s) => s.getPnL);
+  const recordDeposit = useCosmicStore((s) => s.recordDeposit);
+
   const [showDeposit, setShowDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState(100);
+  const [activeTab, setActiveTab] = useState<"positions" | "history" | "tax">(
+    "positions",
+  );
 
-  const addBalance = useCosmicStore((s) => s.addBalance);
-
-  // Build transaction history from positions + resolutions
-  const transactions = useMemo(() => {
-    const txs: Transaction[] = [];
-
-    for (const pos of positions) {
-      txs.push({
-        id: `bet-${pos.marketId}-${pos.timestamp}`,
-        type: "bet",
-        label: pos.marketQuestion,
-        amount: -pos.amount,
-        timestamp: pos.timestamp,
-        marketId: pos.marketId,
-        side: pos.side,
-      });
-    }
-
-    for (const res of resolutions) {
-      const pos = positions.find((p) => p.marketId === res.marketId);
-      if (!pos) continue;
-
-      const won = pos.side === res.outcome;
-      txs.push({
-        id: `resolve-${res.marketId}-${res.timestamp}`,
-        type: won ? "win" : "loss",
-        label: pos.marketQuestion,
-        amount: won ? pos.shares : 0,
-        timestamp: res.timestamp,
-        marketId: res.marketId,
-        side: pos.side,
-      });
-    }
-
-    return txs.sort((a, b) => b.timestamp - a.timestamp);
-  }, [positions, resolutions]);
-
-  // Portfolio stats
-  const stats = useMemo(() => {
-    let totalWagered = 0;
-    let totalWon = 0;
-    let totalLost = 0;
-    let wins = 0;
-    let losses = 0;
-
-    for (const pos of positions) {
-      totalWagered += pos.amount;
-    }
-
-    for (const res of resolutions) {
-      const pnl = getPnL(res.marketId);
-      if (pnl === null) continue;
-      if (pnl >= 0) {
-        totalWon += pnl;
-        wins++;
-      } else {
-        totalLost += Math.abs(pnl);
-        losses++;
-      }
-    }
-
-    const activeBets = positions.filter(
-      (p) => !resolutions.some((r) => r.marketId === p.marketId),
-    ).length;
-
-    return { totalWagered, totalWon, totalLost, wins, losses, activeBets };
+  const rows = useMemo(() => {
+    return positions.map((pos) => {
+      const res = resolutions.find((r) => r.marketId === pos.marketId);
+      const pnl = getPnL(pos.marketId);
+      const won = res ? pos.side === res.outcome : null;
+      const status = won === null ? "OPEN" : won ? "WON" : "LOST";
+      return {
+        pos,
+        resolution: res,
+        pnl,
+        won,
+        status,
+        ref: `POS-${String(pos.timestamp).slice(-6)}-${pos.marketId.slice(0, 3).toUpperCase()}`,
+      };
+    });
   }, [positions, resolutions, getPnL]);
 
-  const netPnL = stats.totalWon - stats.totalLost;
+  const stats = useMemo(() => {
+    const totalWagered = positions.reduce((a, p) => a + p.amount, 0);
+    const settled = rows.filter((r) => r.pnl !== null);
+    const wonCount = settled.filter((r) => (r.pnl ?? 0) > 0).length;
+    const winRate = settled.length
+      ? Math.round((wonCount / settled.length) * 100)
+      : 0;
+    const activeCost = rows
+      .filter((r) => r.pnl === null)
+      .reduce((a, r) => a + r.pos.amount, 0);
+    const settledPL = settled.reduce((a, r) => a + (r.pnl ?? 0), 0);
+    return {
+      totalWagered,
+      settled: settled.length,
+      wonCount,
+      winRate,
+      activeCost,
+      activeCount: rows.length - settled.length,
+      settledPL,
+    };
+  }, [rows, positions]);
+
+  const totalCost = positions.reduce((a, p) => a + p.amount, 0);
 
   const handleDeposit = () => {
     const ApplePay = (
@@ -123,17 +160,18 @@ export default function WalletPage() {
     try {
       canPay = !!ApplePay?.canMakePayments?.();
     } catch {
-      /* requires HTTPS */
+      // requires HTTPS
     }
 
     if (canPay && ApplePay) {
-      // Negotiate highest supported version
       let version = 3;
       try {
+        // biome-ignore lint/suspicious/noExplicitAny: Apple Pay version probe
         if ((ApplePay as any).supportsVersion?.(6)) version = 6;
+        // biome-ignore lint/suspicious/noExplicitAny: Apple Pay version probe
         else if ((ApplePay as any).supportsVersion?.(4)) version = 4;
       } catch {
-        /* fallback to 3 */
+        // fallback to 3
       }
 
       const paymentTotal = {
@@ -156,337 +194,416 @@ export default function WalletPage() {
         total: paymentTotal,
       });
 
+      // biome-ignore lint/suspicious/noExplicitAny: Apple Pay event
       session.onvalidatemerchant = (event: any) => {
-        // No real merchant — call completeMerchantValidation to keep sheet open
         event.completeMerchantValidation();
       };
-
       session.onpaymentmethodselected = () => {
         session.completePaymentMethodSelection({ newTotal: paymentTotal });
       };
-
       session.oncancel = () => {
-        addBalance(depositAmount);
+        recordDeposit(depositAmount);
         setShowDeposit(false);
       };
-
       session.onpaymentauthorized = () => {
-        // Real payment went through — never add balance, just fail it
-        session.completePayment({ status: 1 /* failure */ });
+        session.completePayment({ status: 1 });
       };
 
       session.begin();
     } else {
-      // Non-Apple device — just add balance
-      addBalance(depositAmount);
+      recordDeposit(depositAmount);
       setShowDeposit(false);
     }
   };
 
+  const depositForm = (
+    <div className="border border-ink bg-paper-2 p-[18px]">
+      <div className="bureau-eyebrow mb-[10px]">
+        Deposit principal — test mode
+      </div>
+      <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
+        {DEPOSIT_AMOUNTS.map((a) => {
+          const active = depositAmount === a;
+          return (
+            <button
+              key={a}
+              type="button"
+              onClick={() => setDepositAmount(a)}
+              className={`cursor-pointer border border-rule py-[10px] font-mono text-[11px] tracking-wire ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
+            >
+              ${a}
+            </button>
+          );
+        })}
+      </div>
+      <div className="relative mb-[10px]">
+        <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
+          $
+        </span>
+        <input
+          type="text"
+          inputMode="decimal"
+          value={depositAmount}
+          onChange={(e) =>
+            setDepositAmount(
+              Math.max(0, Number(e.target.value.replace(/[^\d.]/g, "")) || 0),
+            )
+          }
+          className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[16px] text-ink outline-none"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={handleDeposit}
+        className="w-full cursor-pointer border-0 bg-ink py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
+      >
+        Credit ${depositAmount.toLocaleString()} to account
+      </button>
+    </div>
+  );
+
   if (!hydrated) {
     return (
-      <>
-        <Navbar />
+      <div className="min-h-screen bg-paper">
+        <GovHeaderStrip />
+        <FlareTicker />
+        <Nav active="ledger" />
         <WalletSkeleton />
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        {/* Balance Card */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
-          <p className="text-sm text-muted mb-1">Total Balance</p>
-          <p className="text-4xl font-black tabular-nums text-gray-900 mb-1">
-            ${balance.toFixed(2)}
-          </p>
-          <p
-            className={`text-sm font-medium tabular-nums ${netPnL >= 0 ? "text-green" : "text-red"}`}
-          >
-            {netPnL >= 0 ? "+" : ""}${netPnL.toFixed(2)} All Time
-          </p>
+    <div className="min-h-screen bg-paper text-ink">
+      <GovHeaderStrip />
+      <FlareTicker />
+      <Nav active="ledger" />
 
-          <div className="mt-5 flex gap-3">
-            <button
-              type="button"
-              onClick={() => setShowDeposit(!showDeposit)}
-              className="flex-1 rounded-lg bg-green py-2.5 text-sm font-bold text-white transition-colors hover:bg-green/90"
-            >
-              Deposit
-            </button>
-            <button
-              type="button"
-              className="flex-1 rounded-lg border border-gray-200 py-2.5 text-sm font-bold text-gray-900 transition-colors hover:bg-gray-50 cursor-not-allowed opacity-50"
-              disabled
-            >
-              Withdraw
-            </button>
+      <div className="bureau-page">
+        <div className="border-b-[3px] border-double border-ink pb-4">
+          <div className="flex items-baseline justify-between max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
+            <div>
+              <div className="bureau-eyebrow mb-1">
+                Statement of account · period ending April 19, 2026
+              </div>
+              <div className="bureau-serif text-[clamp(26px,6vw,38px)] font-medium leading-none tracking-[-0.025em] max-sm:text-[28px]">
+                Declarant ledger
+              </div>
+            </div>
+            <div className="bureau-mono text-right font-mono text-[10px] uppercase leading-[1.7] tracking-[0.12em] text-ink-3 max-sm:text-left">
+              <div>ACCT · 0042188-NYU</div>
+              <div>OPENED · 12 SEP 2025</div>
+              <div>
+                STATUS · <span className="text-ink">IN GOOD STANDING</span>
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* Deposit panel */}
-          {showDeposit && (
-            <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="text-xs font-medium text-muted mb-3">
-                Add funds to your account
-              </p>
-              <div className="flex gap-2 mb-3">
-                {DEPOSIT_AMOUNTS.map((a) => (
-                  <button
-                    key={a}
-                    type="button"
-                    onClick={() => setDepositAmount(a)}
-                    className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
-                      depositAmount === a
-                        ? "bg-foreground text-background"
-                        : "bg-white border border-gray-200 text-muted hover:bg-gray-100"
-                    }`}
-                  >
-                    ${a}
-                  </button>
-                ))}
-              </div>
-              <div className="relative mb-3">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">
-                  $
-                </span>
-                <input
-                  type="number"
-                  value={depositAmount}
-                  onChange={(e) =>
-                    setDepositAmount(Number(e.target.value) || 0)
-                  }
-                  className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-7 pr-3 text-sm font-medium tabular-nums focus:border-foreground focus:outline-none focus:ring-1 focus:ring-foreground"
-                />
-              </div>
+        <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 border-ink max-[960px]:grid-cols-2 max-sm:grid-cols-1">
+          <div className="border-r border-ink px-6 py-[22px] max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink">
+            <div className="bureau-eyebrow">Cash balance</div>
+            <div
+              className="bureau-num bureau-serif text-[clamp(28px,7vw,42px)] font-medium leading-[1.05] tracking-[-0.02em]"
+              suppressHydrationWarning
+            >
+              {fmtUSD(balance)}
+            </div>
+            <div
+              className={`bureau-mono mt-1 text-[11px] ${stats.settledPL >= 0 ? "text-pl-pos" : "text-pl-neg"}`}
+            >
+              {stats.settledPL >= 0 ? "+" : "−"}
+              {fmtUSD(Math.abs(stats.settledPL))} lifetime
+            </div>
+            <div className="mt-[14px] flex gap-2">
+              <StmtBtn primary onClick={() => setShowDeposit((v) => !v)}>
+                ◆ Deposit
+              </StmtBtn>
+              <StmtBtn disabled>Withdraw</StmtBtn>
+            </div>
+            {showDeposit && <div className="mt-4 sm:hidden">{depositForm}</div>}
+          </div>
+          <StatCell
+            label="Total principal wagered"
+            value={fmtUSD(stats.totalWagered)}
+            hint="LIFETIME"
+          />
+          <StatCell
+            label="Win rate"
+            value={stats.settled > 0 ? `${stats.winRate}%` : "—"}
+            hint={`${stats.wonCount} of ${stats.settled} settled`}
+          />
+          <StatCell
+            label="Active positions"
+            value={stats.activeCount}
+            hint={`${fmtUSD(stats.activeCost)} committed`}
+            last
+          />
+        </div>
+
+        {showDeposit && <div className="mt-5 max-sm:hidden">{depositForm}</div>}
+
+        <div className="scrollbar-none mt-8 flex border-b-2 border-ink max-sm:overflow-x-auto max-sm:whitespace-nowrap">
+          {[
+            { k: "positions" as const, label: "Positions" },
+            { k: "history" as const, label: "Transaction history" },
+            { k: "tax" as const, label: "Tax documents" },
+          ].map(({ k, label }) => {
+            const active = activeTab === k;
+            return (
               <button
+                key={k}
                 type="button"
-                onClick={handleDeposit}
-                className="w-full rounded-lg bg-green py-2.5 text-sm font-bold text-white transition-colors hover:bg-green/90"
+                onClick={() => setActiveTab(k)}
+                className={`cursor-pointer border-0 px-[18px] py-3 font-mono text-[11px] font-medium uppercase tracking-eyebrow ${active ? "bg-ink text-paper" : "bg-transparent text-ink-3"}`}
               >
-                Add ${depositAmount.toLocaleString()}
+                {label}
               </button>
+            );
+          })}
+        </div>
+
+        {activeTab === "tax" ? (
+          <div className="border border-t-0 border-rule bg-paper-2 px-5 py-[60px] text-center">
+            <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-mark text-ink-3">
+              — FORM 1099-COS —
             </div>
-          )}
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="text-xs text-muted mb-1">Total Wagered</p>
-            <p className="text-lg font-bold tabular-nums">
-              ${stats.totalWagered.toFixed(2)}
-            </p>
+            <div className="bureau-serif mb-[10px] text-[22px] font-medium leading-[1.3] tracking-[-0.015em]">
+              Tax document not available for 2025
+            </div>
+            <div className="bureau-serif mx-auto max-w-[520px] text-[14px] italic leading-[1.5] text-ink-3">
+              Year-end statements are issued by the Bureau on or before 15
+              February of the following calendar year. Documents for tax year
+              2026 will be prepared upon conclusion of the reporting period.
+            </div>
           </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="text-xs text-muted mb-1">Win Rate</p>
-            <p className="text-lg font-bold tabular-nums">
-              {stats.wins + stats.losses > 0
-                ? `${Math.round((stats.wins / (stats.wins + stats.losses)) * 100)}%`
-                : "—"}
-            </p>
-          </div>
-          <div className="rounded-xl border border-gray-200 bg-white p-4">
-            <p className="text-xs text-muted mb-1">Active Bets</p>
-            <p className="text-lg font-bold tabular-nums">{stats.activeBets}</p>
-          </div>
-        </div>
-
-        {/* Positions */}
-        {positions.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-sm font-bold text-gray-900 mb-3">
-              Your Positions
-            </h2>
-            <div className="rounded-xl border border-gray-200 bg-white divide-y divide-gray-100">
-              {positions.map((pos) => {
-                const resolution = resolutions.find(
-                  (r) => r.marketId === pos.marketId,
-                );
-                const pnl = getPnL(pos.marketId);
-                const won = resolution ? pos.side === resolution.outcome : null;
-
-                return (
-                  <Link
-                    key={`${pos.marketId}-${pos.timestamp}`}
-                    href={`/market/${pos.marketId}`}
-                    className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="min-w-0 flex-1 mr-4">
-                      <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                        {pos.marketQuestion}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span
-                          className={`text-xs font-bold ${pos.side === "YES" ? "text-green" : "text-red"}`}
+        ) : activeTab === "positions" ? (
+          rows.length === 0 ? (
+            <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
+              No positions on file.{" "}
+              <Link href="/" className="text-ink underline">
+                Browse the market index
+              </Link>{" "}
+              to open a position.
+            </div>
+          ) : (
+            <div className="bureau-table-scroll">
+              <table className="w-full min-w-[920px] border-collapse font-sans text-[13px]">
+                <thead>
+                  <tr className="text-left">
+                    <th className={TH_CLS}>Position ref</th>
+                    <th className={TH_CLS}>Market</th>
+                    <th className={`${TH_CLS} text-center`}>Side</th>
+                    <th className={`${TH_CLS} text-right`}>Shares</th>
+                    <th className={`${TH_CLS} text-right`}>Entry</th>
+                    <th className={`${TH_CLS} text-right`}>Principal</th>
+                    <th className={`${TH_CLS} text-right`}>Net outcome</th>
+                    <th className={`${TH_CLS} text-center`}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r, i) => {
+                    const colorCls =
+                      r.status === "WON"
+                        ? "text-pl-pos"
+                        : r.status === "LOST"
+                          ? "text-pl-neg"
+                          : "text-ink-3";
+                    const borderColorCls =
+                      r.status === "WON"
+                        ? "border-pl-pos"
+                        : r.status === "LOST"
+                          ? "border-pl-neg"
+                          : "border-ink-3";
+                    return (
+                      <tr
+                        key={`${r.pos.marketId}-${r.pos.timestamp}`}
+                        className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
+                      >
+                        <td
+                          className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
                         >
-                          {pos.side}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {pos.shares.toFixed(2)} shares @{" "}
-                          {Math.round(pos.price * 100)}¢
-                        </span>
-                        {resolution && (
-                          <span
-                            className={`text-xs font-medium px-1.5 py-0.5 rounded ${
-                              won
-                                ? "bg-green-bg text-green"
-                                : "bg-red-bg text-red"
-                            }`}
+                          {r.ref}
+                        </td>
+                        <td className={TD_CLS}>
+                          <Link
+                            href={`/market/${r.pos.marketId}`}
+                            className="text-inherit no-underline"
                           >
-                            {won ? "Won" : "Lost"}
+                            <div className="bureau-serif max-w-[520px] text-[14px] leading-[1.3]">
+                              {r.pos.marketQuestion}
+                            </div>
+                          </Link>
+                        </td>
+                        <td className={`${TD_CLS} text-center`}>
+                          <span
+                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${r.pos.side === "YES" ? "border-ink text-ink" : "border-ink-3 text-ink-3"}`}
+                          >
+                            {r.pos.side}
                           </span>
-                        )}
-                        {!resolution && (
-                          <span className="text-xs font-medium px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
-                            Active
+                        </td>
+                        <td className={`${TD_CLS} text-right`}>
+                          <span className="bureau-num">
+                            {r.pos.shares.toLocaleString("en-US", {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
                           </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-bold tabular-nums">
-                        ${pos.amount.toFixed(2)}
-                      </p>
-                      {pnl !== null && (
-                        <p
-                          className={`text-xs font-medium tabular-nums ${pnl >= 0 ? "text-green" : "text-red"}`}
-                        >
-                          {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
+                        </td>
+                        <td className={`${TD_CLS} text-right`}>
+                          <span className="bureau-num text-ink-3">
+                            {Math.round(r.pos.price * 100)}¢
+                          </span>
+                        </td>
+                        <td className={`${TD_CLS} text-right`}>
+                          <span className="bureau-num">
+                            {fmtUSD(r.pos.amount)}
+                          </span>
+                        </td>
+                        <td className={`${TD_CLS} text-right`}>
+                          {r.pnl === null ? (
+                            <span className="bureau-mono text-[11px] tracking-wire text-ink-3">
+                              — PENDING —
+                            </span>
+                          ) : (
+                            <span
+                              className={`bureau-num text-[14px] font-medium ${colorCls}`}
+                            >
+                              {r.pnl > 0 ? "+" : "−"}
+                              {fmtUSD(Math.abs(r.pnl))}
+                            </span>
+                          )}
+                        </td>
+                        <td className={`${TD_CLS} text-center`}>
+                          <span
+                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${colorCls} ${borderColorCls}`}
+                          >
+                            {r.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t-2 border-ink bg-paper-2">
+                    <td className={TD_CLS} colSpan={5}>
+                      <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+                        Totals · {rows.length} positions
+                      </span>
+                    </td>
+                    <td className={`${TD_CLS} text-right`}>
+                      <span className="bureau-num text-[15px] font-medium">
+                        {fmtUSD(totalCost)}
+                      </span>
+                    </td>
+                    <td className={`${TD_CLS} text-right`}>
+                      <span
+                        className={`bureau-num text-[15px] font-medium ${stats.settledPL < 0 ? "text-pl-neg" : "text-pl-pos"}`}
+                      >
+                        {stats.settledPL >= 0 ? "+" : "−"}
+                        {fmtUSD(Math.abs(stats.settledPL))}
+                      </span>
+                    </td>
+                    <td className={TD_CLS} />
+                  </tr>
+                </tfoot>
+              </table>
             </div>
+          )
+        ) : deposits.length === 0 ? (
+          <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
+            No deposits on file. Use{" "}
+            <span className="text-ink">◆ Deposit</span> above to add principal
+            to your account.
+          </div>
+        ) : (
+          <div className="bureau-table-scroll">
+            <table className="w-full min-w-[820px] border-collapse font-sans text-[13px]">
+              <thead>
+                <tr className="text-left">
+                  <th className={TH_CLS}>Deposit ref</th>
+                  <th className={TH_CLS}>Filed</th>
+                  <th className={TH_CLS}>Method</th>
+                  <th className={`${TH_CLS} text-center`}>Type</th>
+                  <th className={`${TH_CLS} text-right`}>Amount</th>
+                  <th className={`${TH_CLS} text-center`}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...deposits]
+                  .sort((a, b) => b.timestamp - a.timestamp)
+                  .map((d, i) => (
+                    <tr
+                      key={d.id}
+                      className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
+                    >
+                      <td
+                        className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
+                      >
+                        {d.id.toUpperCase()}
+                      </td>
+                      <td className={TD_CLS}>
+                        <span className="bureau-mono text-[11px] text-ink-2">
+                          {new Date(d.timestamp)
+                            .toUTCString()
+                            .replace("GMT", "UTC")}
+                        </span>
+                      </td>
+                      <td className={TD_CLS}>
+                        <span className="bureau-mono text-[11px] text-ink-2">
+                          Apple Pay · test mode
+                        </span>
+                      </td>
+                      <td className={`${TD_CLS} text-center`}>
+                        <span className="bureau-mono border border-ink-3 px-2 py-[3px] text-[10px] tracking-eyebrow text-ink-3">
+                          CREDIT
+                        </span>
+                      </td>
+                      <td className={`${TD_CLS} text-right`}>
+                        <span className="bureau-num text-[14px] font-medium text-pl-pos">
+                          +{fmtUSD(d.amount)}
+                        </span>
+                      </td>
+                      <td className={`${TD_CLS} text-center`}>
+                        <span className="bureau-mono border border-pl-pos px-2 py-[3px] text-[10px] tracking-eyebrow text-pl-pos">
+                          POSTED
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-2 border-ink bg-paper-2">
+                  <td className={TD_CLS} colSpan={4}>
+                    <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+                      Totals · {deposits.length} deposit
+                      {deposits.length === 1 ? "" : "s"}
+                    </span>
+                  </td>
+                  <td className={`${TD_CLS} text-right`}>
+                    <span className="bureau-num text-[15px] font-medium text-pl-pos">
+                      +{fmtUSD(deposits.reduce((a, d) => a + d.amount, 0))}
+                    </span>
+                  </td>
+                  <td className={TD_CLS} />
+                </tr>
+              </tfoot>
+            </table>
           </div>
         )}
 
-        {/* Transaction History */}
-        <div>
-          <h2 className="text-sm font-bold text-gray-900 mb-3">
-            Transaction History
-          </h2>
-          {transactions.length > 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-white divide-y divide-gray-100">
-              {transactions.map((tx) => (
-                <div
-                  key={tx.id}
-                  className="flex items-center justify-between p-4"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                        tx.type === "bet"
-                          ? "bg-blue-50 text-blue-600"
-                          : tx.type === "win"
-                            ? "bg-green-bg text-green"
-                            : tx.type === "deposit"
-                              ? "bg-purple-50 text-purple-600"
-                              : "bg-red-bg text-red"
-                      }`}
-                    >
-                      {tx.type === "bet" && (
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path d="M12 5v14M5 12h14" />
-                        </svg>
-                      )}
-                      {tx.type === "win" && (
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
-                      {tx.type === "loss" && (
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path d="M18 6 6 18M6 6l12 12" />
-                        </svg>
-                      )}
-                      {tx.type === "deposit" && (
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path d="M12 2v20M17 7l-5-5-5 5" />
-                        </svg>
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 line-clamp-1">
-                        {tx.type === "bet"
-                          ? `Bought ${tx.side}`
-                          : tx.type === "win"
-                            ? "Payout"
-                            : tx.type === "loss"
-                              ? "Market resolved"
-                              : "Deposit"}
-                      </p>
-                      <p className="text-xs text-muted line-clamp-1">
-                        {tx.type === "deposit" ? "Added funds" : tx.label}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0 ml-4">
-                    <p
-                      className={`text-sm font-bold tabular-nums ${
-                        tx.amount > 0
-                          ? "text-green"
-                          : tx.amount < 0
-                            ? "text-gray-900"
-                            : "text-muted"
-                      }`}
-                    >
-                      {tx.amount > 0
-                        ? `+$${tx.amount.toFixed(2)}`
-                        : tx.amount < 0
-                          ? `-$${Math.abs(tx.amount).toFixed(2)}`
-                          : "$0.00"}
-                    </p>
-                    <p className="text-xs text-muted tabular-nums">
-                      {new Date(tx.timestamp).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-              <p className="text-sm text-muted">No transactions yet</p>
-              <Link
-                href="/"
-                className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
-              >
-                Browse markets to get started
-              </Link>
-            </div>
-          )}
+        <div className="mt-8 border border-rule bg-paper-2 px-5 py-4 font-serif text-[13px] italic leading-[1.55] text-ink-2">
+          This statement reflects activity recorded through 19 April 2026, 14:22
+          UTC. Settled positions are final and non-appealable. Open positions
+          reflect mark-to-market fair value based on last observed trade and may
+          differ from terminal settlement value. For questions regarding the
+          resolution of any market listed above, consult the corresponding entry
+          in the public resolution archive.
         </div>
-      </main>
-    </>
+      </div>
+
+      <Disclaimer />
+    </div>
   );
 }

@@ -29,10 +29,13 @@ export interface PricePoint {
   no: number;
 }
 
+const BASE_SPAN = 30 * 24 * 60 * 60 * 1000;
+
 export function generatePriceHistory(
   slug: string,
   currentPrice: number,
   points = 200,
+  spanMs = BASE_SPAN,
 ): PricePoint[] {
   const rand = seededRandom(hashString(slug));
   const history: PricePoint[] = [];
@@ -42,11 +45,11 @@ export function generatePriceHistory(
   yesPrice = Math.max(0.03, Math.min(0.97, yesPrice));
 
   const now = Date.now();
-  const timeSpan = 30 * 24 * 60 * 60 * 1000; // 30 days
+  const volScale = Math.sqrt(spanMs / BASE_SPAN);
 
   for (let i = 0; i < points; i++) {
     const t = i / (points - 1);
-    const date = new Date(now - timeSpan * (1 - t));
+    const date = new Date(now - spanMs * (1 - t));
 
     history.push({
       time: i,
@@ -57,14 +60,14 @@ export function generatePriceHistory(
 
     // Realistic price movement: mean reversion + noise + occasional jumps
     const drift = (currentPrice - yesPrice) * 0.015;
-    const noise = (rand() - 0.5) * 0.025;
+    const noise = (rand() - 0.5) * 0.025 * volScale;
 
     // Occasional larger moves (step changes like real prediction markets)
     const jumpChance = rand();
-    const jump = jumpChance > 0.95 ? (rand() - 0.5) * 0.08 : 0;
+    const jump = jumpChance > 0.95 ? (rand() - 0.5) * 0.08 * volScale : 0;
 
     // Micro-noise for realistic texture
-    const micro = (rand() - 0.5) * 0.005;
+    const micro = (rand() - 0.5) * 0.005 * volScale;
 
     yesPrice += drift + noise + jump + micro;
     yesPrice = Math.max(0.02, Math.min(0.98, yesPrice));
