@@ -22,7 +22,11 @@ import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { formatVolume } from "@/lib/fake-data";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
-import type { Market, ResolveBetResponse } from "@/lib/types";
+import type {
+  CosmicEventSnapshot,
+  Market,
+  ResolveBetResponse,
+} from "@/lib/types";
 import MarketLoading from "./loading";
 
 const rawMarkets = marketsData as Market[];
@@ -71,6 +75,7 @@ function MarketPageContent({
     nasaEventId: string;
     nasaEventType: string;
     hash: string;
+    nasaEvent?: CosmicEventSnapshot;
   };
   const apiResultRef = useRef<ApiResult | null>(null);
   const warpDoneRef = useRef(false);
@@ -87,6 +92,7 @@ function MarketPageContent({
       result.nasaEventType,
       result.hash,
       confidence,
+      result.nasaEvent,
     );
     router.push(`/resolution/${market.id}`);
     // leave showWarp=true; navigation unmounts the market page and the warp with it
@@ -143,6 +149,7 @@ function MarketPageContent({
           nasaEventId: resolveData.nasaEventId,
           nasaEventType: resolveData.nasaEventType || "Solar Flare",
           hash: resolveData.hash,
+          nasaEvent: resolveData.nasaEvent,
         };
       } else {
         result = fallback;
@@ -214,6 +221,7 @@ function MarketPageContent({
           data.nasaEventType || "Solar Flare",
           data.hash,
           confidence,
+          data.nasaEvent,
         );
       } catch {
         // Leave state as-is

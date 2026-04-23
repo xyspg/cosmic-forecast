@@ -272,7 +272,6 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
         className="block min-h-0 flex-1"
         role="presentation"
       >
-        <title>Solar disk acquisition</title>
         <circle
           cx={cx}
           cy={cy}

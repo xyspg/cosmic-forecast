@@ -13,6 +13,21 @@ export interface Market {
   resolved: boolean;
 }
 
+export interface CosmicEventSnapshot {
+  type: string;
+  id: string;
+  date: string;
+  classType?: string;
+  peakTime?: string;
+  endTime?: string;
+  sourceLocation?: string;
+  activeRegionNum?: number;
+  note?: string;
+  kpIndex?: number;
+  instruments?: string[];
+  link?: string;
+}
+
 export interface CosmicResolution {
   outcome: "YES" | "NO";
   nasaEventId: string;
@@ -20,6 +35,7 @@ export interface CosmicResolution {
   hash: string;
   explanation: string;
   confidence: number;
+  nasaEvent?: CosmicEventSnapshot;
 }
 
 export interface ResolveBetResponse {
@@ -27,19 +43,7 @@ export interface ResolveBetResponse {
   hash: string;
   nasaEventId: string;
   nasaEventType: string;
+  nasaEvent?: CosmicEventSnapshot;
   explanation: string;
-  date: string;
-}
-
-export interface NasaEvent {
-  flrID?: string;
-  activityID?: string;
-  classType?: string;
-  beginTime?: string;
-  peakTime?: string;
-  endTime?: string;
-  sourceLocation?: string;
-  type: string;
-  id: string;
   date: string;
 }

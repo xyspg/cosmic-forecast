@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { BureauMarket } from "@/lib/market-metadata";
 import type { Position, Resolution } from "@/lib/store";
+import type { CosmicEventSnapshot } from "@/lib/types";
 
 function CiteRow({
   k,
@@ -51,6 +52,110 @@ function fmtUSD(n: number) {
   })}`;
 }
 
+function utcTime(iso?: string): string | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return undefined;
+  const hh = String(d.getUTCHours()).padStart(2, "0");
+  const mm = String(d.getUTCMinutes()).padStart(2, "0");
+  const ss = String(d.getUTCSeconds()).padStart(2, "0");
+  return `${hh}:${mm}:${ss}`;
+}
+
+function peakFluxFromClass(classType?: string): string | undefined {
+  if (!classType) return undefined;
+  const m = classType.trim().match(/^([ABCMX])\s*([\d.]+)?/i);
+  if (!m) return undefined;
+  const letter = m[1].toUpperCase();
+  const coef = m[2] ? Number.parseFloat(m[2]) : 1;
+  const exp: Record<string, number> = {
+    A: -8,
+    B: -7,
+    C: -6,
+    M: -5,
+    X: -4,
+  };
+  const e = exp[letter];
+  if (e === undefined || !Number.isFinite(coef)) return undefined;
+  const sup = String(e)
+    .replace("-", "⁻")
+    .replace(/\d/g, (d) => "⁰¹²³⁴⁵⁶⁷⁸⁹"[Number(d)]);
+  return `${coef.toFixed(1)}×10${sup} W/m²`;
+}
+
+function gstSeverity(kp?: number): string | undefined {
+  if (kp === undefined || kp === null) return undefined;
+  if (kp >= 9) return "G5 (Extreme)";
+  if (kp >= 8) return "G4 (Severe)";
+  if (kp >= 7) return "G3 (Strong)";
+  if (kp >= 6) return "G2 (Moderate)";
+  if (kp >= 5) return "G1 (Minor)";
+  return `Kp ${kp}`;
+}
+
+function regionLabel(ev?: CosmicEventSnapshot): string | undefined {
+  if (!ev) return undefined;
+  if (ev.activeRegionNum) return `AR${ev.activeRegionNum}`;
+  if (ev.sourceLocation) return ev.sourceLocation;
+  return undefined;
+}
+
+function headline(
+  outcome: "YES" | "NO",
+  ev?: CosmicEventSnapshot,
+): React.ReactNode {
+  const oc = (
+    <>
+      Market resolves <span className="italic">{outcome.toLowerCase()}</span>
+    </>
+  );
+  if (!ev) {
+    return <>{oc} following cosmic observational attestation.</>;
+  }
+  const region = regionLabel(ev);
+  const regionClause = region ? ` over active region ${region}` : "";
+  switch (ev.type) {
+    case "Solar Flare": {
+      const cls = ev.classType ? `${ev.classType}-class ` : "";
+      return (
+        <>
+          {oc} following {cls}solar flare event{regionClause}.
+        </>
+      );
+    }
+    case "Coronal Mass Ejection": {
+      const src = ev.sourceLocation ? ` from ${ev.sourceLocation}` : "";
+      return (
+        <>
+          {oc} following coronal mass ejection{src}.
+        </>
+      );
+    }
+    case "Geomagnetic Storm": {
+      const sev = gstSeverity(ev.kpIndex);
+      return (
+        <>
+          {oc} following {sev ? `${sev} ` : ""}geomagnetic storm.
+        </>
+      );
+    }
+    case "Solar Energetic Particle":
+      return <>{oc} following solar energetic particle event.</>;
+    case "Interplanetary Shock":
+      return (
+        <>
+          {oc} following interplanetary shock{regionClause}.
+        </>
+      );
+    case "High Speed Stream":
+      return <>{oc} following high-speed solar wind stream.</>;
+    case "Radiation Belt Enhancement":
+      return <>{oc} following radiation belt enhancement.</>;
+    default:
+      return <>{oc} following cosmic observational attestation.</>;
+  }
+}
+
 export function CosmicReport({
   resolution,
   marketQuestion,
@@ -72,9 +177,43 @@ export function CosmicReport({
   const hashShort = (resolution.hash ?? "").slice(0, 64).padEnd(64, "0");
   const nibble = hashShort.slice(-1);
   const eventShort = resolution.nasaEventId || "FLR-0000";
-  const classRef = "M2.1";
-  const region = "AR3947";
   const refNum = market?.ref ?? "MKT-0000";
+
+  const ev = resolution.nasaEvent;
+  const eventLink = ev?.link;
+  const classRef = ev?.classType;
+  const region = regionLabel(ev);
+  const onset = utcTime(ev?.date);
+  const peak = utcTime(ev?.peakTime);
+  const decay = utcTime(ev?.endTime);
+  const heliocoords = ev?.sourceLocation || undefined;
+  const instrument = ev?.instruments?.[0];
+  const peakFlux = peakFluxFromClass(ev?.classType);
+  const sev = gstSeverity(ev?.kpIndex);
+
+  const primaryEvent =
+    classRef && region
+      ? `${classRef} · ${region}`
+      : classRef
+        ? classRef
+        : region
+          ? region
+          : sev
+            ? sev
+            : ev?.type || resolution.nasaEventType || "—";
+
+  const EventIdView = eventLink ? (
+    <a
+      href={eventLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline decoration-dotted underline-offset-[3px]"
+    >
+      {eventShort}
+    </a>
+  ) : (
+    <span>{eventShort}</span>
+  );
 
   return (
     <motion.div
@@ -121,8 +260,7 @@ export function CosmicReport({
             ARECIBO, P.R. — 19 APR.
           </div>
           <h1 className="bureau-serif m-0 text-balance text-[clamp(24px,5.5vw,40px)] font-medium leading-[1.12] tracking-[-0.028em] max-sm:break-words max-sm:text-[28px]">
-            Market resolves <span className="italic">{outcome.toLowerCase()}</span>{" "}
-            following {classRef}-class solar event over active region {region}.
+            {headline(outcome, ev)}
           </h1>
           <div className="bureau-serif mt-[18px] text-[18px] italic leading-[1.45] text-ink-2 max-sm:text-[15px]">
             Observational window collapsed by operator request; oracle
@@ -144,15 +282,33 @@ export function CosmicReport({
               he market referenced by instrument {refNum} —{" "}
               <em>{marketQuestion}</em> — has been formally resolved{" "}
               <b>{outcome}</b> by the Settlement Bureau following the attested
-              observation of a {classRef}-class solar flare event over active
-              region {region}.
+              observation of a{" "}
+              {classRef ? (
+                <>
+                  {classRef}-class {ev?.type.toLowerCase() ?? "solar"} event
+                </>
+              ) : (
+                <>{(ev?.type ?? "cosmic").toLowerCase()} event</>
+              )}
+              {region ? (
+                <>
+                  {" "}
+                  over active region <b>{region}</b>
+                </>
+              ) : null}
+              .
             </p>
             <p className="mb-[14px]">{resolution.explanation}</p>
             <p className="mb-[14px]">
               The event, recorded in the NASA Space Weather Database Of
-              Notifications, Knowledge, Information as {eventShort}, exhibited a
-              peak flux of 2.1 × 10⁻⁵ W/m² over the 1–8 Å soft X-ray band. Per
-              methodology revision 2.1, the event&apos;s observational
+              Notifications, Knowledge, Information as {EventIdView}
+              {peakFlux ? (
+                <>
+                  , exhibited a peak flux of {peakFlux} over the 1–8 Å soft
+                  X-ray band
+                </>
+              ) : null}
+              . Per methodology revision 2.1, the event&apos;s observational
               parameters were mapped to outcome against the published resolution
               table, and the determination attested to the Bureau ledger.
             </p>
@@ -193,18 +349,36 @@ export function CosmicReport({
                   Cited observational data
                 </div>
               </div>
-              <CiteRow k="Primary event" v={`${classRef} · ${region}`} />
-              <CiteRow k="Peak flux" v="2.1×10⁻⁵ W/m²" />
-              <CiteRow k="Onset (UTC)" v="14:22:11" />
-              <CiteRow k="Peak (UTC)" v="14:31:04" />
-              <CiteRow k="Decay (UTC)" v="14:38:22" />
-              <CiteRow k="Position (helio.)" v="N08 W41" />
-              <CiteRow k="Radio burst" v="Type II (Culgoora)" />
+              <CiteRow k="Primary event" v={primaryEvent} />
+              {peakFlux && <CiteRow k="Peak flux" v={peakFlux} />}
+              {sev && <CiteRow k="Storm severity" v={sev} />}
+              {ev?.kpIndex !== undefined && (
+                <CiteRow k="Kp (max)" v={ev.kpIndex.toFixed(1)} />
+              )}
+              {onset && <CiteRow k="Onset (UTC)" v={onset} />}
+              {peak && <CiteRow k="Peak (UTC)" v={peak} />}
+              {decay && <CiteRow k="Decay (UTC)" v={decay} />}
+              {heliocoords && <CiteRow k="Position (helio.)" v={heliocoords} />}
               <CiteRow
                 k="Instrument"
-                v={resolution.nasaEventType || "GOES-19 XRS-B"}
-                last
+                v={instrument || resolution.nasaEventType || "—"}
+                last={!eventLink}
               />
+              {eventLink && (
+                <div className="flex justify-between px-3 py-[7px] font-mono text-[11px]">
+                  <span className="text-[10px] uppercase tracking-wire text-ink-3">
+                    DONKI record
+                  </span>
+                  <a
+                    href={eventLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-ink underline decoration-dotted underline-offset-[3px] hover:text-amber"
+                  >
+                    View on NASA DONKI ↗
+                  </a>
+                </div>
+              )}
             </div>
 
             {position && (
@@ -255,7 +429,7 @@ export function CosmicReport({
             {hashShort}
           </div>
           <div className="mt-[14px] grid grid-cols-4 gap-[14px] font-mono text-[10px] max-sm:grid-cols-1">
-            <AttestCol k="EVENT ID" v={eventShort} />
+            <AttestCol k="EVENT ID" v={EventIdView} />
             <AttestCol k="NIBBLE" v={`0x${nibble}`} />
             <AttestCol k="OUTCOME MAP" v={`→ ${outcome}`} accent />
             <AttestCol k="OBSERVER" v="BPM · SETTLE" />

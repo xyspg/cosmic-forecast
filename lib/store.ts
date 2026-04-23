@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { CosmicEventSnapshot } from "@/lib/types";
 
 export interface Position {
   marketId: string;
@@ -17,6 +18,7 @@ export interface Resolution {
   explanation: string;
   nasaEventId: string;
   nasaEventType: string;
+  nasaEvent?: CosmicEventSnapshot;
   hash: string;
   confidence: number;
   timestamp: number;
@@ -50,6 +52,7 @@ interface CosmicStore {
     nasaEventType: string,
     hash: string,
     confidence: number,
+    nasaEvent?: CosmicEventSnapshot,
   ) => void;
 
   getPosition: (marketId: string) => Position | undefined;
@@ -99,6 +102,7 @@ export const useCosmicStore = create<CosmicStore>()(
         nasaEventType,
         hash,
         confidence,
+        nasaEvent,
       ) => {
         const { positions, balance, resolutions } = get();
 
@@ -111,6 +115,7 @@ export const useCosmicStore = create<CosmicStore>()(
           explanation,
           nasaEventId,
           nasaEventType,
+          nasaEvent,
           hash,
           confidence,
           timestamp: Date.now(),
