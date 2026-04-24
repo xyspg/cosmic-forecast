@@ -25,31 +25,29 @@ export default function ErrorBoundary({
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-paper px-5 py-10 text-ink">
-      <div className="w-full max-w-[680px] border border-ink bg-paper">
-        <div className="flex flex-wrap items-center justify-between gap-[10px] bg-black px-5 py-3 font-mono text-bone">
-          <span className="text-[10px] tracking-mark text-amber">
+    <div className="bg-paper text-ink flex min-h-screen items-center justify-center px-5 py-10">
+      <div className="border-ink bg-paper w-full max-w-[680px] border">
+        <div className="text-bone flex flex-wrap items-center justify-between gap-[10px] bg-black px-5 py-3 font-mono">
+          <span className="tracking-mark text-amber text-[10px]">
             ◈ SYSTEM NOTICE · BUREAU OF PREDICTION MARKETS
           </span>
-          <span className="text-[10px] tracking-eyebrow text-bone-2">
-            FORM ERR-7
-          </span>
+          <span className="tracking-eyebrow text-bone-2 text-[10px]">FORM ERR-7</span>
         </div>
 
-        <div className="px-8 pb-8 pt-7 max-sm:px-[18px] max-sm:pb-6 max-sm:pt-[22px]">
-          <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-[0.24em] text-ink-3">
+        <div className="px-8 pt-7 pb-8 max-sm:px-[18px] max-sm:pt-[22px] max-sm:pb-6">
+          <div className="bureau-mono text-ink-3 mb-[10px] text-[10px] tracking-[0.24em] uppercase">
             — UNSCHEDULED INTERRUPTION —
           </div>
-          <h1 className="bureau-serif m-0 mb-[14px] text-balance text-[32px] font-medium leading-[1.15] tracking-[-0.02em] max-sm:text-[24px]">
+          <h1 className="bureau-serif m-0 mb-[14px] text-[32px] leading-[1.15] font-medium tracking-[-0.02em] text-balance max-sm:text-[24px]">
             The Bureau has encountered an irregularity.
           </h1>
-          <p className="bureau-serif m-0 mb-5 text-[15px] italic leading-[1.55] text-ink-2">
-            Operations have been suspended pending review. Your session will be
-            restored from the Bureau&apos;s archive upon retry.
+          <p className="bureau-serif text-ink-2 m-0 mb-5 text-[15px] leading-[1.55] italic">
+            Operations have been suspended pending review. Your session will be restored from the
+            Bureau&apos;s archive upon retry.
           </p>
 
           {error?.digest && (
-            <div className="bureau-mono mb-[18px] border-b border-dotted border-rule pb-[10px] text-[10px] tracking-wire text-ink-4">
+            <div className="bureau-mono border-rule tracking-wire text-ink-4 mb-[18px] border-b border-dotted pb-[10px] text-[10px]">
               FILING DIGEST · {error.digest}
             </div>
           )}
@@ -57,7 +55,7 @@ export default function ErrorBoundary({
           <button
             type="button"
             onClick={handleTryAgain}
-            className="w-full cursor-pointer border-0 bg-ink px-[22px] py-[14px] font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
+            className="bg-ink tracking-stamp text-paper w-full cursor-pointer border-0 px-[22px] py-[14px] font-mono text-[11px] font-semibold uppercase"
           >
             Try again
           </button>

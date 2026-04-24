@@ -6,19 +6,19 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "directory": ".open-next/assets",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
   },
   "vars": {
     "OPENAI_BASE_URL": "https://api.deepseek.com/v1",
-    "OPENAI_MODEL": "deepseek-chat"
+    "OPENAI_MODEL": "deepseek-chat",
   },
   "services": [
     {
       // Self-reference service binding, the service name must match the worker name
       // see https://opennext.js.org/cloudflare/caching
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "cosmic-forecast"
-    }
+      "service": "cosmic-forecast",
+    },
   ],
   "r2_buckets": [
     // Use R2 incremental cache
@@ -28,19 +28,19 @@
       // Create the bucket before deploying
       // You can change the bucket name if you want
       // See https://developers.cloudflare.com/workers/wrangler/commands/#r2-bucket-create
-      "bucket_name": "cosmic-forecast-opennext-cache"
-    }
+      "bucket_name": "cosmic-forecast-opennext-cache",
+    },
   ],
   "kv_namespaces": [
     {
       "binding": "KV",
-      "id": "b11df778ce1a4c8fa680aac28a51d16a"
-    }
+      "id": "b11df778ce1a4c8fa680aac28a51d16a",
+    },
   ],
   "images": {
     // Enable image optimization
     // see https://opennext.js.org/cloudflare/howtos/image
-    "binding": "IMAGES"
+    "binding": "IMAGES",
   },
   "observability": {
     "enabled": false,
@@ -49,12 +49,12 @@
       "enabled": true,
       "head_sampling_rate": 1,
       "persist": true,
-      "invocation_logs": true
+      "invocation_logs": true,
     },
     "traces": {
       "enabled": false,
       "persist": true,
-      "head_sampling_rate": 1
-    }
-  }
+      "head_sampling_rate": 1,
+    },
+  },
 }

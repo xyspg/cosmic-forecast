@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
 import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
@@ -22,20 +23,13 @@ import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { formatVolume } from "@/lib/fake-data";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
-import type {
-  CosmicEventSnapshot,
-  Market,
-  ResolveBetResponse,
-} from "@/lib/types";
+import type { CosmicEventSnapshot, Market, ResolveBetResponse } from "@/lib/types";
+
 import MarketLoading from "./loading";
 
 const rawMarkets = marketsData as Market[];
 
-export default function MarketPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function MarketPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const marketIndex = rawMarkets.findIndex((m) => m.id === slug);
   const rawMarket = marketIndex >= 0 ? rawMarkets[marketIndex] : undefined;
@@ -47,17 +41,10 @@ export default function MarketPage({
   return <MarketPageContent market={rawMarket} index={marketIndex} />;
 }
 
-function MarketPageContent({
-  market,
-  index,
-}: {
-  market: Market;
-  index: number;
-}) {
+function MarketPageContent({ market, index }: { market: Market; index: number }) {
   const searchParams = useSearchParams();
   const sideParam = searchParams.get("side");
-  const initialSide: "YES" | "NO" =
-    sideParam?.toLowerCase() === "no" ? "NO" : "YES";
+  const initialSide: "YES" | "NO" = sideParam?.toLowerCase() === "no" ? "NO" : "YES";
 
   const router = useRouter();
   const ticker = useMarketTicker(market);
@@ -137,15 +124,10 @@ function MarketPageContent({
       // Required fields must all be present before we persist the resolution.
       // A partial response (e.g. LLM timeout) used to write an orphan object
       // that broke P&L and CosmicReport rendering. See KNOWN_ISSUES.md.
-      if (
-        resolveData?.outcome &&
-        resolveData?.nasaEventId &&
-        resolveData?.hash
-      ) {
+      if (resolveData?.outcome && resolveData?.nasaEventId && resolveData?.hash) {
         result = {
           outcome: resolveData.outcome,
-          explanation:
-            resolveData.explanation || "The universe has spoken decisively.",
+          explanation: resolveData.explanation || "The universe has spoken decisively.",
           nasaEventId: resolveData.nasaEventId,
           nasaEventType: resolveData.nasaEventType || "Solar Flare",
           hash: resolveData.hash,
@@ -183,9 +165,7 @@ function MarketPageContent({
 
   const relatedMarkets = useMemo(
     () =>
-      rawMarkets
-        .filter((m) => m.category === market.category && m.id !== market.id)
-        .slice(0, 4),
+      rawMarkets.filter((m) => m.category === market.category && m.id !== market.id).slice(0, 4),
     [market.category, market.id],
   );
 
@@ -227,14 +207,7 @@ function MarketPageContent({
         // Leave state as-is
       }
     })();
-  }, [
-    hydrated,
-    existingPosition,
-    storeResolution,
-    market.id,
-    resolveMarket,
-    ticker,
-  ]);
+  }, [hydrated, existingPosition, storeResolution, market.id, resolveMarket, ticker]);
 
   const yesCent = Math.round(ticker.yesPrice * 100);
   const noCent = Math.round(ticker.noPrice * 100);
@@ -277,14 +250,12 @@ function MarketPageContent({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="pointer-events-none fixed right-0 top-0 z-30 hidden h-[600px] w-[500px] lg:block"
+            className="pointer-events-none fixed top-0 right-0 z-30 hidden h-[600px] w-[500px] lg:block"
             style={{
               top: "120px",
               right: "calc(50% - 560px + 380px)",
               background: `radial-gradient(ellipse at center, ${
-                allInSide === "YES"
-                  ? "rgba(14, 14, 12, 0.14)"
-                  : "rgba(184, 132, 42, 0.18)"
+                allInSide === "YES" ? "rgba(14, 14, 12, 0.14)" : "rgba(184, 132, 42, 0.18)"
               } 0%, transparent 70%)`,
             }}
           />
@@ -314,19 +285,18 @@ function MarketPageContent({
             {resolution && (
               <Link
                 href={`/resolution/${market.id}`}
-                className="mt-6 flex flex-wrap items-center justify-between gap-[10px] border border-ink bg-paper-2 px-5 py-4 text-inherit no-underline"
+                className="border-ink bg-paper-2 mt-6 flex flex-wrap items-center justify-between gap-[10px] border px-5 py-4 text-inherit no-underline"
               >
                 <div>
-                  <div className="bureau-mono mb-1 text-[10px] uppercase tracking-[0.22em] text-ink-3">
+                  <div className="bureau-mono text-ink-3 mb-1 text-[10px] tracking-[0.22em] uppercase">
                     This market has been resolved
                   </div>
                   <div className="bureau-serif text-[18px] font-medium tracking-[-0.01em]">
                     Read the official resolution notice →
                   </div>
                 </div>
-                <span className="bureau-mono text-[11px] uppercase tracking-stamp text-ink">
-                  {resolution.outcome} ·{" "}
-                  {pnl !== null && (pnl >= 0 ? "+" : "−")}$
+                <span className="bureau-mono tracking-stamp text-ink text-[11px] uppercase">
+                  {resolution.outcome} · {pnl !== null && (pnl >= 0 ? "+" : "−")}$
                   {pnl !== null ? Math.abs(pnl).toFixed(2) : "—"}
                 </span>
               </Link>
@@ -334,7 +304,7 @@ function MarketPageContent({
           </motion.div>
 
           {/* Sidebar — spans both rows on desktop; on mobile appears right after the chart */}
-          <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-start-1 md:row-span-2">
+          <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-span-2 md:row-start-1">
             <OrderTicket
               market={market}
               yesPrice={ticker.yesPrice}
@@ -357,11 +327,9 @@ function MarketPageContent({
                   .padEnd(8, "0")
                   .slice(0, 8)}…`}
               />
-              <div className="bureau-mono flex justify-between border-t border-rule pt-3 text-[10px] uppercase tracking-[0.1em] text-ink-3">
+              <div className="bureau-mono border-rule text-ink-3 flex justify-between border-t pt-3 text-[10px] tracking-[0.1em] uppercase">
                 <span>OPEN INTEREST</span>
-                <span className="bureau-num text-ink">
-                  {fmtUSDShort(ticker.volume)}
-                </span>
+                <span className="bureau-num text-ink">{fmtUSDShort(ticker.volume)}</span>
               </div>
             </motion.div>
           </div>
@@ -372,11 +340,11 @@ function MarketPageContent({
 
             {relatedMarkets.length > 0 && (
               <div className="mt-7">
-                <div className="mb-[14px] flex items-baseline justify-between border-b-2 border-ink pb-2">
+                <div className="border-ink mb-[14px] flex items-baseline justify-between border-b-2 pb-2">
                   <div className="bureau-serif text-[20px] font-medium tracking-[-0.01em]">
                     Related markets
                   </div>
-                  <div className="bureau-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+                  <div className="bureau-mono text-ink-3 text-[10px] tracking-[0.1em] uppercase">
                     Same desk · {market.category}
                   </div>
                 </div>
@@ -385,10 +353,10 @@ function MarketPageContent({
                     <Link
                       key={rm.id}
                       href={`/market/${rm.id}`}
-                      className="flex flex-col gap-[10px] border border-rule bg-paper p-[14px] text-inherit no-underline"
+                      className="border-rule bg-paper flex flex-col gap-[10px] border p-[14px] text-inherit no-underline"
                     >
                       <div
-                        className="bureau-serif overflow-hidden text-[15px] font-medium leading-[1.3] text-ink"
+                        className="bureau-serif text-ink overflow-hidden text-[15px] leading-[1.3] font-medium"
                         style={{
                           display: "-webkit-box",
                           WebkitLineClamp: 2,
@@ -400,9 +368,9 @@ function MarketPageContent({
                       <div className="flex items-baseline justify-between">
                         <span className="bureau-num text-[14px] font-semibold">
                           {Math.round(rm.yesPrice * 100)}¢{" "}
-                          <span className="text-[11px] text-ink-3">YES</span>
+                          <span className="text-ink-3 text-[11px]">YES</span>
                         </span>
-                        <span className="bureau-mono text-[10px] tracking-wire text-ink-3">
+                        <span className="bureau-mono tracking-wire text-ink-3 text-[10px]">
                           {formatVolume(rm.volume)}
                         </span>
                       </div>

@@ -9,20 +9,19 @@ export function Disclaimer() {
     window.location.reload();
   };
   return (
-    <footer className="mt-16 border-t border-rule bg-paper-2 px-[32px] pb-[60px] pt-[40px] font-sans text-[11px] leading-[1.55] text-ink-3 max-sm:px-3">
+    <footer className="border-rule bg-paper-2 text-ink-3 mt-16 border-t px-[32px] pt-[40px] pb-[60px] font-sans text-[11px] leading-[1.55] max-sm:px-3">
       <div className="mx-auto grid max-w-[1280px] grid-cols-[1.2fr_1fr_1fr_1fr] gap-8 max-[960px]:grid-cols-2 max-[960px]:gap-6 max-sm:grid-cols-1">
         <div>
-          <div className="mb-2 text-ink">
+          <div className="text-ink mb-2">
             <BrandMark size={20} />
           </div>
-          <div className="bureau-serif mb-[6px] text-[13px] text-ink">
+          <div className="bureau-serif text-ink mb-[6px] text-[13px]">
             Cosmic Forecast · Bureau of Prediction Markets
           </div>
           <div className="max-w-[320px]">
-            An instrumented venue for the expression of probabilistic belief
-            regarding future events of public interest. Established 2024 under
-            the provisional charter of the Joint Astronomical Settlement
-            Authority.
+            An instrumented venue for the expression of probabilistic belief regarding future events
+            of public interest. Established 2024 under the provisional charter of the Joint
+            Astronomical Settlement Authority.
           </div>
         </div>
         <div>
@@ -48,18 +47,17 @@ export function Disclaimer() {
           <button
             type="button"
             onClick={handleClearStorage}
-            className="mt-1 cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[11px] leading-[1.55] text-ink-3 underline underline-offset-2"
+            className="text-ink-3 mt-1 cursor-pointer border-0 bg-transparent p-0 text-left font-sans text-[11px] leading-[1.55] underline underline-offset-2"
           >
             Purge local ledger data
           </button>
         </div>
       </div>
-      <div className="mx-auto mt-10 flex max-w-[1280px] justify-between gap-8 border-t border-rule pt-5 font-mono text-[10px] uppercase tracking-[0.1em] text-ink-4 max-sm:flex-col max-sm:gap-[10px] max-sm:text-left">
+      <div className="border-rule text-ink-4 mx-auto mt-10 flex max-w-[1280px] justify-between gap-8 border-t pt-5 font-mono text-[10px] tracking-[0.1em] uppercase max-sm:flex-col max-sm:gap-[10px] max-sm:text-left">
         <div>© 2026 History of Universe · HOU-UF 101 002</div>
         <div className="max-w-[700px] text-right max-sm:max-w-full max-sm:text-left">
-          This platform references publicly available NASA DONKI data · Outcomes
-          are algorithmically determined · Participation constitutes acceptance
-          of settlement methodology
+          This platform references publicly available NASA DONKI data · Outcomes are algorithmically
+          determined · Participation constitutes acceptance of settlement methodology
         </div>
       </div>
     </footer>

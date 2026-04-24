@@ -1,12 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Inter,
-  JetBrains_Mono,
-  Source_Serif_4,
-} from "next/font/google";
+import { Geist, Geist_Mono, Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import Script from "next/script";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,9 +52,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased `}
+      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col w-full max-w-[100vw] overflow-x-hidden">
+      <body className="flex min-h-full w-full max-w-[100vw] flex-col overflow-x-hidden">
         {children}
       </body>
       <Script

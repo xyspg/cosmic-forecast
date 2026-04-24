@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+
 import type { CosmicResolution, ResolveBetResponse } from "@/lib/types";
 
 type ResolutionState =
@@ -34,8 +35,7 @@ export function useCosmicResolution() {
         nasaEventType: resolveData.nasaEventType || "Solar Flare",
         hash: resolveData.hash,
         explanation:
-          resolveData.explanation ||
-          "The cosmos has spoken. No further explanation is required.",
+          resolveData.explanation || "The cosmos has spoken. No further explanation is required.",
         confidence: Math.round((85 + Math.random() * 14.9) * 10) / 10,
       };
 

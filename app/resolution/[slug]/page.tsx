@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { use, useMemo } from "react";
+
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
 import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
@@ -16,11 +17,7 @@ import type { Market } from "@/lib/types";
 
 const rawMarkets = marketsData as Market[];
 
-export default function ResolutionPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default function ResolutionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const idx = rawMarkets.findIndex((m) => m.id === slug);
   const market = idx >= 0 ? rawMarkets[idx] : undefined;
@@ -36,11 +33,9 @@ export default function ResolutionPage({
 
   if (!hydrated) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center gap-[14px] bg-black font-mono text-bone">
-        <div className="text-[10px] uppercase tracking-mark text-amber">
-          ◈ ATTESTATION FILED
-        </div>
-        <div className="text-[12px] uppercase tracking-stamp text-bone-2">
+      <div className="text-bone fixed inset-0 flex flex-col items-center justify-center gap-[14px] bg-black font-mono">
+        <div className="tracking-mark text-amber text-[10px] uppercase">◈ ATTESTATION FILED</div>
+        <div className="tracking-stamp text-bone-2 text-[12px] uppercase">
           Retrieving record from public archive…
         </div>
       </div>
@@ -48,27 +43,27 @@ export default function ResolutionPage({
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="bg-paper text-ink min-h-screen">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="markets" />
 
       <div className="bureau-page bureau-page--tight">
         {!resolution ? (
-          <div className="border border-rule bg-paper-2 px-10 py-20 text-center max-sm:px-5 max-sm:py-12">
-            <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-[0.24em] text-ink-3">
+          <div className="border-rule bg-paper-2 border px-10 py-20 text-center max-sm:px-5 max-sm:py-12">
+            <div className="bureau-mono text-ink-3 mb-[10px] text-[10px] tracking-[0.24em] uppercase">
               — NO RECORD ON FILE —
             </div>
-            <div className="bureau-serif mb-3 text-balance text-[26px] font-medium leading-[1.3] tracking-[-0.015em]">
+            <div className="bureau-serif mb-3 text-[26px] leading-[1.3] font-medium tracking-[-0.015em] text-balance">
               {market.question}
             </div>
-            <div className="bureau-serif mx-auto mb-[22px] max-w-[560px] text-[15px] italic leading-[1.5] text-ink-3">
-              This market has not yet been resolved by the Settlement Bureau.
-              The observational window remains open.
+            <div className="bureau-serif text-ink-3 mx-auto mb-[22px] max-w-[560px] text-[15px] leading-[1.5] italic">
+              This market has not yet been resolved by the Settlement Bureau. The observational
+              window remains open.
             </div>
             <Link
               href={`/market/${slug}`}
-              className="inline-block bg-ink px-[22px] py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper no-underline"
+              className="bg-ink tracking-stamp text-paper inline-block px-[22px] py-3 font-mono text-[11px] font-semibold uppercase no-underline"
             >
               Return to market ⟶
             </Link>
@@ -81,22 +76,22 @@ export default function ResolutionPage({
               market={bureau}
               position={position}
             />
-            <div className="mt-7 flex flex-wrap items-center justify-between gap-[14px] border-t border-rule pt-4 max-sm:flex-col max-sm:items-start">
-              <div className="bureau-mono text-[10px] uppercase tracking-eyebrow text-ink-3">
+            <div className="border-rule mt-7 flex flex-wrap items-center justify-between gap-[14px] border-t pt-4 max-sm:flex-col max-sm:items-start">
+              <div className="bureau-mono tracking-eyebrow text-ink-3 text-[10px] uppercase">
                 Archived under RES-
-                {new Date(resolution.timestamp).toISOString().slice(0, 10)}-
-                {bureau.ref.slice(-4)} · permanent record
+                {new Date(resolution.timestamp).toISOString().slice(0, 10)}-{bureau.ref.slice(-4)} ·
+                permanent record
               </div>
               <div className="flex flex-wrap gap-[10px]">
                 <Link
                   href={`/market/${slug}`}
-                  className="border border-ink bg-paper px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-ink no-underline"
+                  className="border-ink bg-paper tracking-stamp text-ink border px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Market page
                 </Link>
                 <Link
                   href="/"
-                  className="bg-ink px-5 py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper no-underline"
+                  className="bg-ink tracking-stamp text-paper px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Return to market index ⟶
                 </Link>

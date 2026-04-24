@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
 import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
@@ -31,8 +32,7 @@ interface ApplePaySessionInstance {
 
 const DEPOSIT_AMOUNTS = [100, 250, 500, 1000];
 
-const TH_CLS =
-  "p-3 font-medium font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3";
+const TH_CLS = "p-3 font-medium font-mono text-[10px] uppercase tracking-[0.12em] text-ink-3";
 const TD_CLS = "p-3 align-middle";
 
 function fmtUSD(n: number) {
@@ -55,13 +55,13 @@ function StatCell({
 }) {
   return (
     <div
-      className={`px-6 py-[22px] ${last ? "" : "border-r border-ink max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink"}`}
+      className={`px-6 py-[22px] ${last ? "" : "border-ink max-[960px]:border-ink border-r max-[960px]:border-r-0 max-[960px]:border-b"}`}
     >
       <div className="bureau-eyebrow">{label}</div>
-      <div className="bureau-num bureau-serif text-[32px] font-medium leading-[1.1] tracking-[-0.02em]">
+      <div className="bureau-num bureau-serif text-[32px] leading-[1.1] font-medium tracking-[-0.02em]">
         {value}
       </div>
-      <div className="bureau-mono mt-1 text-[10px] uppercase tracking-[0.1em] text-ink-3">
+      <div className="bureau-mono text-ink-3 mt-1 text-[10px] tracking-[0.1em] uppercase">
         {hint}
       </div>
     </div>
@@ -84,10 +84,8 @@ function StmtBtn({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-[10px] font-mono text-[10px] font-semibold uppercase tracking-stamp ${
-        primary
-          ? "border-0 bg-ink text-paper"
-          : "border border-ink bg-paper text-ink"
+      className={`tracking-stamp px-4 py-[10px] font-mono text-[10px] font-semibold uppercase ${
+        primary ? "bg-ink text-paper border-0" : "border-ink bg-paper text-ink border"
       } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       {children}
@@ -106,9 +104,7 @@ export default function WalletPage() {
 
   const [showDeposit, setShowDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState(100);
-  const [activeTab, setActiveTab] = useState<"positions" | "history" | "tax">(
-    "positions",
-  );
+  const [activeTab, setActiveTab] = useState<"positions" | "history" | "tax">("positions");
 
   const rows = useMemo(() => {
     return positions.map((pos) => {
@@ -131,12 +127,8 @@ export default function WalletPage() {
     const totalWagered = positions.reduce((a, p) => a + p.amount, 0);
     const settled = rows.filter((r) => r.pnl !== null);
     const wonCount = settled.filter((r) => (r.pnl ?? 0) > 0).length;
-    const winRate = settled.length
-      ? Math.round((wonCount / settled.length) * 100)
-      : 0;
-    const activeCost = rows
-      .filter((r) => r.pnl === null)
-      .reduce((a, r) => a + r.pos.amount, 0);
+    const winRate = settled.length ? Math.round((wonCount / settled.length) * 100) : 0;
+    const activeCost = rows.filter((r) => r.pnl === null).reduce((a, r) => a + r.pos.amount, 0);
     const settledPL = settled.reduce((a, r) => a + (r.pnl ?? 0), 0);
     return {
       totalWagered,
@@ -152,9 +144,8 @@ export default function WalletPage() {
   const totalCost = positions.reduce((a, p) => a + p.amount, 0);
 
   const handleDeposit = () => {
-    const ApplePay = (
-      window as unknown as { ApplePaySession?: ApplePaySessionConstructor }
-    ).ApplePaySession;
+    const ApplePay = (window as unknown as { ApplePaySession?: ApplePaySessionConstructor })
+      .ApplePaySession;
 
     let canPay = false;
     try {
@@ -183,13 +174,7 @@ export default function WalletPage() {
       const session = new ApplePay(version, {
         countryCode: "US",
         currencyCode: "USD",
-        supportedNetworks: [
-          "visa",
-          "masterCard",
-          "amex",
-          "discover",
-          "chinaUnionPay",
-        ],
+        supportedNetworks: ["visa", "masterCard", "amex", "discover", "chinaUnionPay"],
         merchantCapabilities: ["supports3DS"],
         total: paymentTotal,
       });
@@ -217,10 +202,8 @@ export default function WalletPage() {
   };
 
   const depositForm = (
-    <div className="border border-ink bg-paper-2 p-[18px]">
-      <div className="bureau-eyebrow mb-[10px]">
-        Deposit principal — test mode
-      </div>
+    <div className="border-ink bg-paper-2 border p-[18px]">
+      <div className="bureau-eyebrow mb-[10px]">Deposit principal — test mode</div>
       <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
         {DEPOSIT_AMOUNTS.map((a) => {
           const active = depositAmount === a;
@@ -229,7 +212,7 @@ export default function WalletPage() {
               key={a}
               type="button"
               onClick={() => setDepositAmount(a)}
-              className={`cursor-pointer border border-rule py-[10px] font-mono text-[11px] tracking-wire ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
+              className={`border-rule tracking-wire cursor-pointer border py-[10px] font-mono text-[11px] ${active ? "bg-ink text-paper" : "bg-paper text-ink-2"}`}
             >
               ${a}
             </button>
@@ -237,7 +220,7 @@ export default function WalletPage() {
         })}
       </div>
       <div className="relative mb-[10px]">
-        <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
+        <span className="bureau-mono text-ink-3 absolute top-1/2 left-[10px] -translate-y-1/2">
           $
         </span>
         <input
@@ -245,17 +228,15 @@ export default function WalletPage() {
           inputMode="decimal"
           value={depositAmount}
           onChange={(e) =>
-            setDepositAmount(
-              Math.max(0, Number(e.target.value.replace(/[^\d.]/g, "")) || 0),
-            )
+            setDepositAmount(Math.max(0, Number(e.target.value.replace(/[^\d.]/g, "")) || 0))
           }
-          className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[16px] text-ink outline-none"
+          className="border-rule bg-paper text-ink box-border w-full border py-3 pr-3 pl-6 font-mono text-[16px] outline-none"
         />
       </div>
       <button
         type="button"
         onClick={handleDeposit}
-        className="w-full cursor-pointer border-0 bg-ink py-3 font-mono text-[11px] font-semibold uppercase tracking-stamp text-paper"
+        className="bg-ink tracking-stamp text-paper w-full cursor-pointer border-0 py-3 font-mono text-[11px] font-semibold uppercase"
       >
         Credit ${depositAmount.toLocaleString()} to account
       </button>
@@ -264,7 +245,7 @@ export default function WalletPage() {
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen bg-paper">
+      <div className="bg-paper min-h-screen">
         <GovHeaderStrip />
         <FlareTicker />
         <Nav active="ledger" />
@@ -274,23 +255,23 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="min-h-screen bg-paper text-ink">
+    <div className="bg-paper text-ink min-h-screen">
       <GovHeaderStrip />
       <FlareTicker />
       <Nav active="ledger" />
 
       <div className="bureau-page">
-        <div className="border-b-[3px] border-double border-ink pb-4">
+        <div className="border-ink border-b-[3px] border-double pb-4">
           <div className="flex items-baseline justify-between max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
             <div>
               <div className="bureau-eyebrow mb-1">
                 Statement of account · period ending April 19, 2026
               </div>
-              <div className="bureau-serif text-[clamp(26px,6vw,38px)] font-medium leading-none tracking-[-0.025em] max-sm:text-[28px]">
+              <div className="bureau-serif text-[clamp(26px,6vw,38px)] leading-none font-medium tracking-[-0.025em] max-sm:text-[28px]">
                 Declarant ledger
               </div>
             </div>
-            <div className="bureau-mono text-right font-mono text-[10px] uppercase leading-[1.7] tracking-[0.12em] text-ink-3 max-sm:text-left">
+            <div className="bureau-mono text-ink-3 text-right font-mono text-[10px] leading-[1.7] tracking-[0.12em] uppercase max-sm:text-left">
               <div>ACCT · 0042188-NYU</div>
               <div>OPENED · 12 SEP 2025</div>
               <div>
@@ -300,11 +281,11 @@ export default function WalletPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 border-ink max-[960px]:grid-cols-2 max-sm:grid-cols-1">
-          <div className="border-r border-ink px-6 py-[22px] max-[960px]:border-r-0 max-[960px]:border-b max-[960px]:border-ink">
+        <div className="border-ink grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 max-[960px]:grid-cols-2 max-sm:grid-cols-1">
+          <div className="border-ink max-[960px]:border-ink border-r px-6 py-[22px] max-[960px]:border-r-0 max-[960px]:border-b">
             <div className="bureau-eyebrow">Cash balance</div>
             <div
-              className="bureau-num bureau-serif text-[clamp(28px,7vw,42px)] font-medium leading-[1.05] tracking-[-0.02em]"
+              className="bureau-num bureau-serif text-[clamp(28px,7vw,42px)] leading-[1.05] font-medium tracking-[-0.02em]"
               suppressHydrationWarning
             >
               {fmtUSD(balance)}
@@ -343,7 +324,7 @@ export default function WalletPage() {
 
         {showDeposit && <div className="mt-5 max-sm:hidden">{depositForm}</div>}
 
-        <div className="scrollbar-none mt-8 flex border-b-2 border-ink max-sm:overflow-x-auto max-sm:whitespace-nowrap">
+        <div className="scrollbar-none border-ink mt-8 flex border-b-2 max-sm:overflow-x-auto max-sm:whitespace-nowrap">
           {[
             { k: "positions" as const, label: "Positions" },
             { k: "history" as const, label: "Transaction history" },
@@ -355,7 +336,7 @@ export default function WalletPage() {
                 key={k}
                 type="button"
                 onClick={() => setActiveTab(k)}
-                className={`cursor-pointer border-0 px-[18px] py-3 font-mono text-[11px] font-medium uppercase tracking-eyebrow ${active ? "bg-ink text-paper" : "bg-transparent text-ink-3"}`}
+                className={`tracking-eyebrow cursor-pointer border-0 px-[18px] py-3 font-mono text-[11px] font-medium uppercase ${active ? "bg-ink text-paper" : "text-ink-3 bg-transparent"}`}
               >
                 {label}
               </button>
@@ -364,22 +345,22 @@ export default function WalletPage() {
         </div>
 
         {activeTab === "tax" ? (
-          <div className="border border-t-0 border-rule bg-paper-2 px-5 py-[60px] text-center">
-            <div className="bureau-mono mb-[10px] text-[10px] uppercase tracking-mark text-ink-3">
+          <div className="border-rule bg-paper-2 border border-t-0 px-5 py-[60px] text-center">
+            <div className="bureau-mono tracking-mark text-ink-3 mb-[10px] text-[10px] uppercase">
               — FORM 1099-COS —
             </div>
-            <div className="bureau-serif mb-[10px] text-[22px] font-medium leading-[1.3] tracking-[-0.015em]">
+            <div className="bureau-serif mb-[10px] text-[22px] leading-[1.3] font-medium tracking-[-0.015em]">
               Tax document not available for 2025
             </div>
-            <div className="bureau-serif mx-auto max-w-[520px] text-[14px] italic leading-[1.5] text-ink-3">
-              Year-end statements are issued by the Bureau on or before 15
-              February of the following calendar year. Documents for tax year
-              2026 will be prepared upon conclusion of the reporting period.
+            <div className="bureau-serif text-ink-3 mx-auto max-w-[520px] text-[14px] leading-[1.5] italic">
+              Year-end statements are issued by the Bureau on or before 15 February of the following
+              calendar year. Documents for tax year 2026 will be prepared upon conclusion of the
+              reporting period.
             </div>
           </div>
         ) : activeTab === "positions" ? (
           rows.length === 0 ? (
-            <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
+            <div className="border-rule text-ink-3 border border-t-0 px-5 py-12 text-center font-serif text-[15px] italic">
               No positions on file.{" "}
               <Link href="/" className="text-ink underline">
                 Browse the market index
@@ -418,10 +399,10 @@ export default function WalletPage() {
                     return (
                       <tr
                         key={`${r.pos.marketId}-${r.pos.timestamp}`}
-                        className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
+                        className={`border-rule border-t ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
                       >
                         <td
-                          className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
+                          className={`${TD_CLS} text-ink-3 font-mono text-[10px] tracking-[0.06em]`}
                         >
                           {r.ref}
                         </td>
@@ -437,7 +418,7 @@ export default function WalletPage() {
                         </td>
                         <td className={`${TD_CLS} text-center`}>
                           <span
-                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${r.pos.side === "YES" ? "border-ink text-ink" : "border-ink-3 text-ink-3"}`}
+                            className={`bureau-mono tracking-eyebrow border px-2 py-[3px] text-[10px] ${r.pos.side === "YES" ? "border-ink text-ink" : "border-ink-3 text-ink-3"}`}
                           >
                             {r.pos.side}
                           </span>
@@ -456,19 +437,15 @@ export default function WalletPage() {
                           </span>
                         </td>
                         <td className={`${TD_CLS} text-right`}>
-                          <span className="bureau-num">
-                            {fmtUSD(r.pos.amount)}
-                          </span>
+                          <span className="bureau-num">{fmtUSD(r.pos.amount)}</span>
                         </td>
                         <td className={`${TD_CLS} text-right`}>
                           {r.pnl === null ? (
-                            <span className="bureau-mono text-[11px] tracking-wire text-ink-3">
+                            <span className="bureau-mono tracking-wire text-ink-3 text-[11px]">
                               — PENDING —
                             </span>
                           ) : (
-                            <span
-                              className={`bureau-num text-[14px] font-medium ${colorCls}`}
-                            >
+                            <span className={`bureau-num text-[14px] font-medium ${colorCls}`}>
                               {r.pnl > 0 ? "+" : "−"}
                               {fmtUSD(Math.abs(r.pnl))}
                             </span>
@@ -476,7 +453,7 @@ export default function WalletPage() {
                         </td>
                         <td className={`${TD_CLS} text-center`}>
                           <span
-                            className={`bureau-mono border px-2 py-[3px] text-[10px] tracking-eyebrow ${colorCls} ${borderColorCls}`}
+                            className={`bureau-mono tracking-eyebrow border px-2 py-[3px] text-[10px] ${colorCls} ${borderColorCls}`}
                           >
                             {r.status}
                           </span>
@@ -486,9 +463,9 @@ export default function WalletPage() {
                   })}
                 </tbody>
                 <tfoot>
-                  <tr className="border-t-2 border-ink bg-paper-2">
+                  <tr className="border-ink bg-paper-2 border-t-2">
                     <td className={TD_CLS} colSpan={5}>
-                      <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+                      <span className="bureau-mono text-ink-3 text-[11px] tracking-[0.12em] uppercase">
                         Totals · {rows.length} positions
                       </span>
                     </td>
@@ -512,10 +489,9 @@ export default function WalletPage() {
             </div>
           )
         ) : deposits.length === 0 ? (
-          <div className="border border-t-0 border-rule px-5 py-12 text-center font-serif text-[15px] italic text-ink-3">
-            No deposits on file. Use{" "}
-            <span className="text-ink">◆ Deposit</span> above to add principal
-            to your account.
+          <div className="border-rule text-ink-3 border border-t-0 px-5 py-12 text-center font-serif text-[15px] italic">
+            No deposits on file. Use <span className="text-ink">◆ Deposit</span> above to add
+            principal to your account.
           </div>
         ) : (
           <div className="bureau-table-scroll">
@@ -536,37 +512,35 @@ export default function WalletPage() {
                   .map((d, i) => (
                     <tr
                       key={d.id}
-                      className={`border-t border-rule ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
+                      className={`border-rule border-t ${i % 2 === 0 ? "" : "bg-black/[0.015]"}`}
                     >
                       <td
-                        className={`${TD_CLS} font-mono text-[10px] tracking-[0.06em] text-ink-3`}
+                        className={`${TD_CLS} text-ink-3 font-mono text-[10px] tracking-[0.06em]`}
                       >
                         {d.id.toUpperCase()}
                       </td>
                       <td className={TD_CLS}>
-                        <span className="bureau-mono text-[11px] text-ink-2">
-                          {new Date(d.timestamp)
-                            .toUTCString()
-                            .replace("GMT", "UTC")}
+                        <span className="bureau-mono text-ink-2 text-[11px]">
+                          {new Date(d.timestamp).toUTCString().replace("GMT", "UTC")}
                         </span>
                       </td>
                       <td className={TD_CLS}>
-                        <span className="bureau-mono text-[11px] text-ink-2">
+                        <span className="bureau-mono text-ink-2 text-[11px]">
                           Apple Pay · test mode
                         </span>
                       </td>
                       <td className={`${TD_CLS} text-center`}>
-                        <span className="bureau-mono border border-ink-3 px-2 py-[3px] text-[10px] tracking-eyebrow text-ink-3">
+                        <span className="bureau-mono border-ink-3 tracking-eyebrow text-ink-3 border px-2 py-[3px] text-[10px]">
                           CREDIT
                         </span>
                       </td>
                       <td className={`${TD_CLS} text-right`}>
-                        <span className="bureau-num text-[14px] font-medium text-pl-pos">
+                        <span className="bureau-num text-pl-pos text-[14px] font-medium">
                           +{fmtUSD(d.amount)}
                         </span>
                       </td>
                       <td className={`${TD_CLS} text-center`}>
-                        <span className="bureau-mono border border-pl-pos px-2 py-[3px] text-[10px] tracking-eyebrow text-pl-pos">
+                        <span className="bureau-mono border-pl-pos tracking-eyebrow text-pl-pos border px-2 py-[3px] text-[10px]">
                           POSTED
                         </span>
                       </td>
@@ -574,15 +548,15 @@ export default function WalletPage() {
                   ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-ink bg-paper-2">
+                <tr className="border-ink bg-paper-2 border-t-2">
                   <td className={TD_CLS} colSpan={4}>
-                    <span className="bureau-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+                    <span className="bureau-mono text-ink-3 text-[11px] tracking-[0.12em] uppercase">
                       Totals · {deposits.length} deposit
                       {deposits.length === 1 ? "" : "s"}
                     </span>
                   </td>
                   <td className={`${TD_CLS} text-right`}>
-                    <span className="bureau-num text-[15px] font-medium text-pl-pos">
+                    <span className="bureau-num text-pl-pos text-[15px] font-medium">
                       +{fmtUSD(deposits.reduce((a, d) => a + d.amount, 0))}
                     </span>
                   </td>
@@ -593,13 +567,12 @@ export default function WalletPage() {
           </div>
         )}
 
-        <div className="mt-8 border border-rule bg-paper-2 px-5 py-4 font-serif text-[13px] italic leading-[1.55] text-ink-2">
-          This statement reflects activity recorded through 19 April 2026, 14:22
-          UTC. Settled positions are final and non-appealable. Open positions
-          reflect mark-to-market fair value based on last observed trade and may
-          differ from terminal settlement value. For questions regarding the
-          resolution of any market listed above, consult the corresponding entry
-          in the public resolution archive.
+        <div className="border-rule bg-paper-2 text-ink-2 mt-8 border px-5 py-4 font-serif text-[13px] leading-[1.55] italic">
+          This statement reflects activity recorded through 19 April 2026, 14:22 UTC. Settled
+          positions are final and non-appealable. Open positions reflect mark-to-market fair value
+          based on last observed trade and may differ from terminal settlement value. For questions
+          regarding the resolution of any market listed above, consult the corresponding entry in
+          the public resolution archive.
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+
 import { CategoryBar } from "@/components/bureau/CategoryBar";
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
@@ -18,6 +19,7 @@ import { generatePriceHistory } from "@/lib/generate-price-history";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
+
 import HomeLoading from "./loading";
 
 const rawMarkets = marketsData as Market[];
@@ -28,10 +30,7 @@ export default function HomePage() {
   const resolutions = useCosmicStore((s) => s.resolutions);
 
   const resolvedIds = useMemo(
-    () =>
-      hydrated
-        ? new Set(resolutions.map((r) => r.marketId))
-        : new Set<string>(),
+    () => (hydrated ? new Set(resolutions.map((r) => r.marketId)) : new Set<string>()),
     [resolutions, hydrated],
   );
 
@@ -97,11 +96,11 @@ export default function HomePage() {
             <CategoryBar active={category} onChange={setCategory} />
           </div>
 
-          <div className="mt-5 flex items-baseline justify-between border-b-2 border-ink pb-2">
+          <div className="border-ink mt-5 flex items-baseline justify-between border-b-2 pb-2">
             <div className="bureau-serif text-[22px] font-medium tracking-[-0.01em]">
               Active markets
             </div>
-            <div className="bureau-mono text-[10px] uppercase tracking-[0.1em] text-ink-3">
+            <div className="bureau-mono text-ink-3 text-[10px] tracking-[0.1em] uppercase">
               {tableMarkets.length} of {enriched.length} · updated 14:22:41 UTC
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import { fetchCosmicEvents } from "@/lib/cosmic-data";
 
 export async function GET(request: Request) {

@@ -21,7 +21,7 @@ export function GovHeaderStrip() {
   }, []);
 
   return (
-    <div className="flex flex-wrap justify-between gap-2 border-b border-rule bg-paper-2 px-[20px] py-[4px] font-mono text-[10px] uppercase tracking-[0.08em] text-ink-3 max-sm:px-3 max-sm:text-[9px]">
+    <div className="border-rule bg-paper-2 text-ink-3 flex flex-wrap justify-between gap-2 border-b px-[20px] py-[4px] font-mono text-[10px] tracking-[0.08em] uppercase max-sm:px-3 max-sm:text-[9px]">
       <div className="flex flex-wrap gap-[18px] max-sm:gap-2">
         <span>Vol. XII · No. 0419</span>
         <span suppressHydrationWarning>SYS {sys}</span>

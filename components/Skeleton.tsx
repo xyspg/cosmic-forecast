@@ -10,17 +10,12 @@ export function Skeleton({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  return (
-    <div
-      className={`bureau-skeleton-pulse bg-rule-2 ${className}`}
-      style={style}
-    />
-  );
+  return <div className={`bureau-skeleton-pulse bg-rule-2 ${className}`} style={style} />;
 }
 
 export function FeaturedMarketSkeleton() {
   return (
-    <div className="border-y border-rule bg-paper py-[18px]">
+    <div className="border-rule bg-paper border-y py-[18px]">
       <div className="mb-[14px] flex gap-[10px]">
         <Skeleton className="h-[18px] w-[180px]" />
         <Skeleton className="h-[18px] w-[90px]" />
@@ -36,8 +31,8 @@ export function FeaturedMarketSkeleton() {
 
 export function ChartSkeleton() {
   return (
-    <div className="border-y border-rule py-[14px]">
-      <div className="mb-[10px] flex items-baseline justify-between border-b border-rule pb-[10px]">
+    <div className="border-rule border-y py-[14px]">
+      <div className="border-rule mb-[10px] flex items-baseline justify-between border-b pb-[10px]">
         <div className="flex gap-5">
           <div>
             <Skeleton className="mb-[6px] h-[9px] w-[60px]" />
@@ -65,15 +60,15 @@ export function ChartSkeleton() {
 
 export function BettingPanelSkeleton() {
   return (
-    <div className="border border-ink bg-paper">
-      <div className="flex justify-between border-b border-ink bg-paper-2 px-[14px] py-[10px]">
+    <div className="border-ink bg-paper border">
+      <div className="border-ink bg-paper-2 flex justify-between border-b px-[14px] py-[10px]">
         <Skeleton className="h-[11px] w-[100px]" />
         <Skeleton className="h-[10px] w-[60px]" />
       </div>
       <div className="p-[14px]">
-        <div className="mb-[14px] grid grid-cols-2 border border-ink">
+        <div className="border-ink mb-[14px] grid grid-cols-2 border">
           <Skeleton className="h-[44px]" />
-          <Skeleton className="h-[44px] border-l border-ink" />
+          <Skeleton className="border-ink h-[44px] border-l" />
         </div>
         <Skeleton className="mb-[6px] h-[9px] w-[90px]" />
         <Skeleton className="mb-[10px] h-[44px]" />
@@ -83,11 +78,11 @@ export function BettingPanelSkeleton() {
           ))}
         </div>
         <Skeleton className="mb-4 h-[32px]" />
-        <div className="mb-[14px] border-y border-ink py-[10px]">
+        <div className="border-ink mb-[14px] border-y py-[10px]">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={`receipt-${i}`}
-              className={`flex justify-between py-[5px] ${i === 6 ? "" : "border-b border-dotted border-rule"}`}
+              className={`flex justify-between py-[5px] ${i === 6 ? "" : "border-rule border-b border-dotted"}`}
             >
               <Skeleton className="h-[11px] w-[80px]" />
               <Skeleton className="h-[11px] w-[50px]" />
@@ -103,7 +98,7 @@ export function BettingPanelSkeleton() {
 export function WalletSkeleton() {
   return (
     <div className="bureau-page">
-      <div className="border-b-[3px] border-double border-ink pb-4">
+      <div className="border-ink border-b-[3px] border-double pb-4">
         <div className="flex items-baseline justify-between">
           <div>
             <Skeleton className="mb-2 h-[10px] w-[320px]" />
@@ -116,21 +111,19 @@ export function WalletSkeleton() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 border-ink max-[960px]:grid-cols-2 max-sm:grid-cols-1">
+      <div className="border-ink grid grid-cols-[1.4fr_1fr_1fr_1fr] border border-t-0 max-[960px]:grid-cols-2 max-sm:grid-cols-1">
         {[1, 2, 3, 4].map((i) => (
           <div
             key={`stat-${i}`}
-            className={`px-6 py-[22px] ${i === 4 ? "" : "border-r border-ink"}`}
+            className={`px-6 py-[22px] ${i === 4 ? "" : "border-ink border-r"}`}
           >
             <Skeleton className="mb-3 h-[10px] w-[130px]" />
-            <Skeleton
-              className={`h-[32px] ${i === 1 ? "w-[170px]" : "w-[80px]"}`}
-            />
+            <Skeleton className={`h-[32px] ${i === 1 ? "w-[170px]" : "w-[80px]"}`} />
             <Skeleton className="mt-2 h-[10px] w-[100px]" />
           </div>
         ))}
       </div>
-      <div className="mt-8 flex border-b-2 border-ink">
+      <div className="border-ink mt-8 flex border-b-2">
         {[160, 200, 140, 160].map((w, i) => (
           <Skeleton
             // biome-ignore lint/suspicious/noArrayIndexKey: placeholder row, order static
@@ -141,7 +134,7 @@ export function WalletSkeleton() {
         ))}
       </div>
       <div className="bureau-table-scroll">
-        <div className="grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] gap-[14px] border-b border-rule px-3 py-[14px]">
+        <div className="border-rule grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] gap-[14px] border-b px-3 py-[14px]">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <Skeleton key={`hdr-${i}`} className="h-[10px]" />
           ))}
@@ -149,7 +142,7 @@ export function WalletSkeleton() {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={`row-${i}`}
-            className="grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] items-center gap-[14px] border-b border-rule px-3 py-4"
+            className="border-rule grid min-w-[920px] grid-cols-[140px_1.5fr_80px_80px_80px_100px_120px_100px] items-center gap-[14px] border-b px-3 py-4"
           >
             <Skeleton className="h-[10px]" />
             <Skeleton className="h-[18px]" />

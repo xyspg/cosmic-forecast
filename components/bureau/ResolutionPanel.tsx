@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+
 import marketsData from "@/data/markets.json";
 import { useHydrated } from "@/hooks/useHydrated";
 import { enrich } from "@/lib/market-metadata";
@@ -71,8 +72,8 @@ export function ResolutionPanel() {
   if (!hydrated || items.length === 0) return null;
 
   return (
-    <section className="border border-ink bg-paper p-4">
-      <div className="flex items-baseline justify-between border-b border-rule pb-2">
+    <section className="border-ink bg-paper border p-4">
+      <div className="border-rule flex items-baseline justify-between border-b pb-2">
         <div className="bureau-serif text-[18px] font-medium tracking-[-0.01em]">
           Resolution archive
         </div>
@@ -82,21 +83,17 @@ export function ResolutionPanel() {
         <Link
           key={r.id}
           href={`/resolution/${r.id}`}
-          className={`block py-3 text-inherit no-underline ${i === items.length - 1 ? "" : "border-b border-dashed border-rule"}`}
+          className={`block py-3 text-inherit no-underline ${i === items.length - 1 ? "" : "border-rule border-b border-dashed"}`}
         >
-          <div className="bureau-mono text-[9px] uppercase tracking-[0.1em] text-ink-4">
+          <div className="bureau-mono text-ink-4 text-[9px] tracking-[0.1em] uppercase">
             {r.resolvedOn}
           </div>
-          <div className="bureau-serif my-[3px] text-[14px] leading-[1.3]">
-            {r.question}
-          </div>
+          <div className="bureau-serif my-[3px] text-[14px] leading-[1.3]">{r.question}</div>
           <div className="mt-[6px] flex items-baseline justify-between">
-            <div className="bureau-mono text-[10px] tracking-[0.05em] text-ink-3">
+            <div className="bureau-mono text-ink-3 text-[10px] tracking-[0.05em]">
               Resolved <b className="text-ink">{r.outcome}</b> · {r.ref}
             </div>
-            <span className="bureau-mono text-[10px] text-amber">
-              ◈ {r.eventTag}
-            </span>
+            <span className="bureau-mono text-amber text-[10px]">◈ {r.eventTag}</span>
           </div>
         </Link>
       ))}

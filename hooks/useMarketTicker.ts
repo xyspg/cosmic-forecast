@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+
 import type { Market } from "@/lib/types";
 
 export function useMarketTicker(market: Market) {
@@ -8,9 +9,7 @@ export function useMarketTicker(market: Market) {
   const [noPrice, setNoPrice] = useState(market.noPrice);
   const [volume, setVolume] = useState(market.volume);
   const [totalBettors, setTotalBettors] = useState(market.totalBettors);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(
-    null,
-  );
+  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
   const frozen = useRef(false);
 
   useEffect(() => {

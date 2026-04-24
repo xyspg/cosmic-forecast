@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+
 import type { BureauMarket } from "@/lib/market-metadata";
 
 const DURATION = 5600;
@@ -29,16 +30,10 @@ function phaseLabel(p: Phase): string {
   )[p];
 }
 
-function Corner({
-  positionClass,
-  children,
-}: {
-  positionClass: string;
-  children: React.ReactNode;
-}) {
+function Corner({ positionClass, children }: { positionClass: string; children: React.ReactNode }) {
   return (
     <div
-      className={`absolute hidden font-mono text-[9px] uppercase tracking-stamp text-bone-2 md:block ${positionClass}`}
+      className={`tracking-stamp text-bone-2 absolute hidden font-mono text-[9px] uppercase md:block ${positionClass}`}
     >
       {children}
     </div>
@@ -46,18 +41,14 @@ function Corner({
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="text-[9px] uppercase tracking-mark text-bone-2">
-      {children}
-    </div>
-  );
+  return <div className="tracking-mark text-bone-2 text-[9px] uppercase">{children}</div>;
 }
 
 function ProgressBar({ p }: { p: number }) {
   return (
     <div className="relative mx-auto mt-[10px] h-[3px] w-[min(220px,38vw)] bg-[rgba(232,228,216,0.15)]">
       <div
-        className="absolute inset-0 origin-left bg-amber"
+        className="bg-amber absolute inset-0 origin-left"
         style={{
           transform: `scaleX(${p})`,
           transition: "transform 60ms linear",
@@ -73,12 +64,8 @@ const PANEL_CLS =
 function PanelHead({ title, right }: { title: string; right: string }) {
   return (
     <div className="flex items-baseline justify-between border-b border-[rgba(232,228,216,0.12)] pb-2">
-      <span className="text-[10px] uppercase tracking-stamp text-bone">
-        {title}
-      </span>
-      <span className="text-[9px] uppercase tracking-stamp text-amber">
-        {right}
-      </span>
+      <span className="tracking-stamp text-bone text-[10px] uppercase">{title}</span>
+      <span className="tracking-stamp text-amber text-[9px] uppercase">{right}</span>
     </div>
   );
 }
@@ -182,24 +169,11 @@ function FluxPanel({ t, className }: { t: number; className?: string }) {
           y2={padT + ih}
           stroke="rgba(232,228,216,0.25)"
         />
-        <line
-          x1={padL}
-          y1={padT}
-          x2={padL}
-          y2={padT + ih}
-          stroke="rgba(232,228,216,0.25)"
-        />
-        {pts && (
-          <path d={pts} fill="none" stroke="var(--amber)" strokeWidth="1.5" />
-        )}
+        <line x1={padL} y1={padT} x2={padL} y2={padT + ih} stroke="rgba(232,228,216,0.25)" />
+        {pts && <path d={pts} fill="none" stroke="var(--amber)" strokeWidth="1.5" />}
         {filled > 0 && (
           <g>
-            <circle
-              cx={headX.toFixed(2)}
-              cy={headY.toFixed(2)}
-              r="3"
-              fill="var(--amber)"
-            />
+            <circle cx={headX.toFixed(2)} cy={headY.toFixed(2)} r="3" fill="var(--amber)" />
             <circle
               cx={headX.toFixed(2)}
               cy={headY.toFixed(2)}
@@ -208,12 +182,7 @@ function FluxPanel({ t, className }: { t: number; className?: string }) {
               stroke="var(--amber)"
               opacity="0.5"
             >
-              <animate
-                attributeName="r"
-                values="4;10;4"
-                dur="1.2s"
-                repeatCount="indefinite"
-              />
+              <animate attributeName="r" values="4;10;4" dur="1.2s" repeatCount="indefinite" />
               <animate
                 attributeName="opacity"
                 values="0.5;0;0.5"
@@ -240,7 +209,7 @@ function FluxPanel({ t, className }: { t: number; className?: string }) {
           );
         })}
       </svg>
-      <div className="flex justify-between px-1 text-[10px] tracking-[0.12em] text-bone-2">
+      <div className="text-bone-2 flex justify-between px-1 text-[10px] tracking-[0.12em]">
         <span>PEAK {(peak * 2.9).toFixed(2)}×10⁻⁵</span>
         <span>WINDOW 60 SEC</span>
       </div>
@@ -255,8 +224,7 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
   const cy = H / 2;
   const R = 104;
   const rot = (t / 1000) * 18;
-  const arx =
-    cx + R * Math.sin((41 * Math.PI) / 180) * Math.cos((8 * Math.PI) / 180);
+  const arx = cx + R * Math.sin((41 * Math.PI) / 180) * Math.cos((8 * Math.PI) / 180);
   const ary = cy - R * Math.sin((8 * Math.PI) / 180);
   const acquired = t > 1050;
   const flared = t > 2800;
@@ -272,14 +240,7 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
         className="block min-h-0 flex-1"
         role="presentation"
       >
-        <circle
-          cx={cx}
-          cy={cy}
-          r={R}
-          fill="none"
-          stroke="rgba(232,228,216,0.35)"
-          strokeWidth="1"
-        />
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="rgba(232,228,216,0.35)" strokeWidth="1" />
         <circle
           cx={cx}
           cy={cy}
@@ -389,13 +350,7 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
               stroke="var(--amber)"
               strokeWidth="1"
             />
-            <text
-              x={arx + 20}
-              y={ary + 4}
-              fill="var(--amber)"
-              fontSize="10"
-              letterSpacing="0.12em"
-            >
+            <text x={arx + 20} y={ary + 4} fill="var(--amber)" fontSize="10" letterSpacing="0.12em">
               AR3947
             </text>
             {flared && (
@@ -407,12 +362,7 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
                 stroke="var(--amber)"
                 strokeWidth="1"
               >
-                <animate
-                  attributeName="r"
-                  values="9;24;9"
-                  dur="1.6s"
-                  repeatCount="indefinite"
-                />
+                <animate attributeName="r" values="9;24;9" dur="1.6s" repeatCount="indefinite" />
                 <animate
                   attributeName="opacity"
                   values="0.7;0;0.7"
@@ -456,15 +406,9 @@ function SolarDisk({ t, className }: { t: number; className?: string }) {
           strokeDasharray="2 3"
         />
       </svg>
-      <div className="flex justify-between px-1 text-[10px] tracking-[0.12em] text-bone-2">
+      <div className="text-bone-2 flex justify-between px-1 text-[10px] tracking-[0.12em]">
         <span>HELIO N08 W41</span>
-        <span>
-          {acquired
-            ? flared
-              ? "EVENT CONFIRMED"
-              : "TARGET ACQUIRED"
-            : "SLEWING…"}
-        </span>
+        <span>{acquired ? (flared ? "EVENT CONFIRMED" : "TARGET ACQUIRED") : "SLEWING…"}</span>
       </div>
     </div>
   );
@@ -520,7 +464,7 @@ function EventLog({ t, className }: { t: number; className?: string }) {
         })}
         <div className="mt-[2px] flex h-[14px] items-center">
           <span
-            className="inline-block h-3 w-2 bg-amber"
+            className="bg-amber inline-block h-3 w-2"
             style={{ animation: "bureau-cursor-blink 0.7s steps(1) infinite" }}
           />
         </div>
@@ -546,19 +490,15 @@ function DigestPanel({ t, fullHash }: { t: number; fullHash: string }) {
   const mapReady = t >= 4830;
 
   return (
-    <div
-      className={`${PANEL_CLS} px-[14px] pb-[14px] pt-3 md:px-[18px] md:py-[14px]`}
-    >
+    <div className={`${PANEL_CLS} px-[14px] pt-3 pb-[14px] md:px-[18px] md:py-[14px]`}>
       <div className="flex flex-col gap-1 border-b border-[rgba(232,228,216,0.15)] pb-2 md:flex-row md:items-baseline md:justify-between md:gap-4 md:pb-[10px]">
         <div className="flex flex-wrap items-baseline gap-2 md:gap-4">
-          <span className="text-[10px] tracking-mark text-amber">
-            ◈ SHA-256 DIGEST
-          </span>
-          <span className="text-[10px] tracking-eyebrow text-bone-2">
+          <span className="tracking-mark text-amber text-[10px]">◈ SHA-256 DIGEST</span>
+          <span className="tracking-eyebrow text-bone-2 text-[10px]">
             PROTOCOL v2.1 · ROUND {Math.min(64, filled)} / 64
           </span>
         </div>
-        <span className="hidden text-[10px] tracking-eyebrow text-bone-2 md:inline">
+        <span className="tracking-eyebrow text-bone-2 hidden text-[10px] md:inline">
           INPUT · DONKI FLR 2026-04-19T14:38Z · AR3947 · M2.1
         </span>
       </div>
@@ -599,26 +539,20 @@ function DigestPanel({ t, fullHash }: { t: number; fullHash: string }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-dashed border-[rgba(232,228,216,0.15)] pt-2 text-[11px] tracking-eyebrow text-bone-2 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-5 md:pt-3">
+      <div className="tracking-eyebrow text-bone-2 flex flex-col gap-2 border-t border-dashed border-[rgba(232,228,216,0.15)] pt-2 text-[11px] md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-5 md:pt-3">
         <div className="text-left">
           TERMINAL NIBBLE{" "}
-          <span
-            className={
-              nibbleReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"
-            }
-          >
+          <span className={nibbleReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"}>
             → {nibbleReady ? `0x${fullHash[63]}` : "0x·"}
           </span>
         </div>
-        <div
-          className={`text-left md:text-center ${mapReady ? "text-amber" : "text-bone-2"}`}
-        >
+        <div className={`text-left md:text-center ${mapReady ? "text-amber" : "text-bone-2"}`}>
           {mapReady ? "ORACLE TABLE §4.2 ·" : "AWAITING DIGEST ·"}
         </div>
         <div className="text-left md:text-right">
           OUTCOME{" "}
           <span
-            className={`font-semibold tracking-stamp ${mapReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"}`}
+            className={`tracking-stamp font-semibold ${mapReady ? "text-amber" : "text-[rgba(232,228,216,0.35)]"}`}
           >
             {mapReady ? "→ FILED" : "→ ——"}
           </span>
@@ -711,7 +645,7 @@ export function WarpAnimation({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.42, ease: "easeInOut" }}
-          className="fixed inset-0 z-[1100] bg-black font-mono text-bone"
+          className="text-bone fixed inset-0 z-[1100] bg-black font-mono"
         >
           <div
             className="pointer-events-none absolute inset-0"
@@ -732,8 +666,7 @@ export function WarpAnimation({
             BUREAU OF PREDICTION MARKETS · SETTLEMENT DIVISION
           </Corner>
           <Corner positionClass="top-[18px] right-6">
-            {market ? `REF ${market.ref} · ` : ""}OBSERVATION SHEET N°
-            RES-2026-04-19-0042
+            {market ? `REF ${market.ref} · ` : ""}OBSERVATION SHEET N° RES-2026-04-19-0042
           </Corner>
           <Corner positionClass="bottom-[18px] left-6">
             INSTRUMENT: GOES-19 XRS-B · SOHO LASCO C2 · DSN-14
@@ -742,23 +675,22 @@ export function WarpAnimation({
             SIGNAL OK · 1.412 MHz DOWNLINK · CHECKSUM GOOD
           </Corner>
 
-          <div className="absolute inset-x-3 inset-y-4 flex min-w-0 flex-col gap-3 overflow-y-auto overflow-x-hidden md:inset-[60px_40px_50px_40px] md:gap-[14px] md:overflow-hidden">
+          <div className="absolute inset-x-3 inset-y-4 flex min-w-0 flex-col gap-3 overflow-x-hidden overflow-y-auto md:inset-[60px_40px_50px_40px] md:gap-[14px] md:overflow-hidden">
             <div className="grid min-w-0 grid-cols-[auto_1fr] items-center gap-3 border-b border-[rgba(232,228,216,0.22)] pb-3 md:grid-cols-[1fr_auto_1fr] md:gap-8 md:pb-[18px]">
               <div className="min-w-0">
                 <Label>Mission elapsed</Label>
-                <div className="mt-[6px] text-[clamp(20px,6.4vw,48px)] font-medium leading-none tracking-[0.04em] tabular-nums text-bone">
+                <div className="text-bone mt-[6px] text-[clamp(20px,6.4vw,48px)] leading-none font-medium tracking-[0.04em] tabular-nums">
                   T+{tc}
                 </div>
               </div>
               <div className="min-w-0 text-right md:text-center">
                 <Label>Phase</Label>
                 <div
-                  className="mt-2 text-[12px] tracking-[0.3em] text-amber"
+                  className="text-amber mt-2 text-[12px] tracking-[0.3em]"
                   style={
                     waiting
                       ? {
-                          animation:
-                            "bureau-cursor-blink 1.1s steps(1) infinite",
+                          animation: "bureau-cursor-blink 1.1s steps(1) infinite",
                         }
                       : undefined
                   }
@@ -771,16 +703,16 @@ export function WarpAnimation({
               </div>
               <div className="hidden text-right md:block">
                 <Label>Scheduled window</Label>
-                <div className="mt-2 text-[15px] tracking-[0.1em] text-bone">
+                <div className="text-bone mt-2 text-[15px] tracking-[0.1em]">
                   COLLAPSED BY OPERATOR REQUEST
                 </div>
-                <div className="mt-1 text-[10px] tracking-[0.18em] text-bone-2">
+                <div className="text-bone-2 mt-1 text-[10px] tracking-[0.18em]">
                   AUTH · ACCT-0042188-NYU
                 </div>
               </div>
             </div>
 
-            <div className="grid min-w-0 grid-cols-1 gap-3 md:grid-cols-[1.3fr_1fr_1.2fr] md:min-h-[220px] md:flex-1 md:gap-4 md:overflow-hidden">
+            <div className="grid min-w-0 grid-cols-1 gap-3 md:min-h-[220px] md:flex-1 md:grid-cols-[1.3fr_1fr_1.2fr] md:gap-4 md:overflow-hidden">
               <FluxPanel t={t} className="min-h-[240px] min-w-0 md:min-h-0" />
               <SolarDisk t={t} className="min-h-[240px] min-w-0 md:min-h-0" />
               <EventLog t={t} className="min-h-[240px] min-w-0 md:min-h-0" />

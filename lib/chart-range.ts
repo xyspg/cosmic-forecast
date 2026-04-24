@@ -3,20 +3,7 @@ export type ChartRange = (typeof CHART_RANGES)[number];
 
 export const REFERENCE_NOW = new Date("2026-04-19T14:22:00Z");
 
-const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC",
-];
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 const MIN = 60_000;
 const HR = 3_600_000;

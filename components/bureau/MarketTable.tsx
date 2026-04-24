@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
 import type { BureauMarket } from "@/lib/market-metadata";
 import { fmtNum, fmtUSDShort } from "@/lib/market-metadata";
+
 import { MiniSpark } from "./Sparkline";
 
 const TH_BASE =
@@ -47,10 +49,10 @@ export function MarketTable({
               <tr
                 key={m.id}
                 onClick={() => router.push(`/market/${m.id}`)}
-                className={`cursor-pointer border-t border-rule hover:bg-paper-2 ${zebra}`}
+                className={`border-rule hover:bg-paper-2 cursor-pointer border-t ${zebra}`}
               >
                 <td
-                  className={`${TD_BASE} w-[110px] font-mono text-[10px] tracking-[0.05em] text-ink-3`}
+                  className={`${TD_BASE} text-ink-3 w-[110px] font-mono text-[10px] tracking-[0.05em]`}
                 >
                   {m.ref}
                 </td>
@@ -64,19 +66,15 @@ export function MarketTable({
                       {m.question}
                     </div>
                   </Link>
-                  <div className="bureau-mono mt-[2px] text-[10px] tracking-[0.04em] text-ink-4">
+                  <div className="bureau-mono text-ink-4 mt-[2px] text-[10px] tracking-[0.04em]">
                     α {m.ra} · δ {m.dec} · {m.category.toUpperCase()}
                   </div>
                 </td>
                 <td className={`${TD_BASE} text-right`}>
-                  <span className="bureau-num text-[15px] font-medium">
-                    {yesCent}
-                  </span>
+                  <span className="bureau-num text-[15px] font-medium">{yesCent}</span>
                 </td>
                 <td className={`${TD_BASE} text-right`}>
-                  <span className="bureau-num text-[15px] text-ink-3">
-                    {noCent}
-                  </span>
+                  <span className="bureau-num text-ink-3 text-[15px]">{noCent}</span>
                 </td>
                 <td className={`${TD_BASE} text-right`}>
                   <div className="inline-block align-middle">
@@ -92,17 +90,13 @@ export function MarketTable({
                   <span className="bureau-num">{fmtUSDShort(m.volume)}</span>
                 </td>
                 <td className={`${TD_BASE} text-right`}>
-                  <span className="bureau-num text-ink-3">
-                    {fmtNum(m.totalBettors)}
-                  </span>
+                  <span className="bureau-num text-ink-3">{fmtNum(m.totalBettors)}</span>
                 </td>
-                <td
-                  className={`${TD_BASE} text-right font-mono text-[11px] text-ink-3`}
-                >
+                <td className={`${TD_BASE} text-ink-3 text-right font-mono text-[11px]`}>
                   {m.endsLabel}
                 </td>
                 <td className={`${TD_BASE} text-center`}>
-                  <span className="border border-rule px-[6px] py-[2px] font-mono text-[10px] tracking-[0.1em] text-ink-3">
+                  <span className="border-rule text-ink-3 border px-[6px] py-[2px] font-mono text-[10px] tracking-[0.1em]">
                     {m.risk}
                   </span>
                 </td>

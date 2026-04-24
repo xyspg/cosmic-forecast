@@ -1,9 +1,6 @@
 import type { Page } from "@playwright/test";
 
-export async function mockCosmicApis(
-  page: Page,
-  opts: { outcome?: "YES" | "NO" } = {},
-) {
+export async function mockCosmicApis(page: Page, opts: { outcome?: "YES" | "NO" } = {}) {
   const outcome = opts.outcome ?? "YES";
 
   await page.route("**/api/resolve-bet", async (route) => {

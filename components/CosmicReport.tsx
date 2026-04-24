@@ -1,46 +1,27 @@
 "use client";
 
 import { motion } from "motion/react";
+
 import type { BureauMarket } from "@/lib/market-metadata";
 import type { Position, Resolution } from "@/lib/store";
 import type { CosmicEventSnapshot } from "@/lib/types";
 
-function CiteRow({
-  k,
-  v,
-  last,
-}: {
-  k: string;
-  v: React.ReactNode;
-  last?: boolean;
-}) {
+function CiteRow({ k, v, last }: { k: string; v: React.ReactNode; last?: boolean }) {
   return (
     <div
-      className={`flex justify-between px-3 py-[7px] font-mono text-[11px] ${last ? "" : "border-b border-dotted border-rule"}`}
+      className={`flex justify-between px-3 py-[7px] font-mono text-[11px] ${last ? "" : "border-rule border-b border-dotted"}`}
     >
-      <span className="text-[10px] uppercase tracking-wire text-ink-3">
-        {k}
-      </span>
+      <span className="tracking-wire text-ink-3 text-[10px] uppercase">{k}</span>
       <span className="text-ink">{v}</span>
     </div>
   );
 }
 
-function AttestCol({
-  k,
-  v,
-  accent,
-}: {
-  k: string;
-  v: React.ReactNode;
-  accent?: boolean;
-}) {
+function AttestCol({ k, v, accent }: { k: string; v: React.ReactNode; accent?: boolean }) {
   return (
     <div>
-      <div className="text-[9px] tracking-stamp text-bone-2">{k}</div>
-      <div className={`mt-[2px] ${accent ? "text-amber" : "text-bone"}`}>
-        {v}
-      </div>
+      <div className="tracking-stamp text-bone-2 text-[9px]">{k}</div>
+      <div className={`mt-[2px] ${accent ? "text-amber" : "text-bone"}`}>{v}</div>
     </div>
   );
 }
@@ -100,10 +81,7 @@ function regionLabel(ev?: CosmicEventSnapshot): string | undefined {
   return undefined;
 }
 
-function headline(
-  outcome: "YES" | "NO",
-  ev?: CosmicEventSnapshot,
-): React.ReactNode {
+function headline(outcome: "YES" | "NO", ev?: CosmicEventSnapshot): React.ReactNode {
   const oc = (
     <>
       Market resolves <span className="italic">{outcome.toLowerCase()}</span>
@@ -220,68 +198,61 @@ export function CosmicReport({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.7 }}
-      className="overflow-hidden border border-ink bg-paper"
+      className="border-ink bg-paper overflow-hidden border"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 bg-black px-6 py-[14px] font-mono text-bone max-sm:px-4 max-sm:py-3">
+      <div className="text-bone flex flex-wrap items-center justify-between gap-2 bg-black px-6 py-[14px] font-mono max-sm:px-4 max-sm:py-3">
         <div className="flex items-center gap-[14px]">
           <span className="text-amber">◈</span>
-          <span className="text-[10px] tracking-mark">
-            COSMIC FORECAST · SETTLEMENT DIVISION
-          </span>
+          <span className="tracking-mark text-[10px]">COSMIC FORECAST · SETTLEMENT DIVISION</span>
         </div>
-        <div className="text-[10px] tracking-eyebrow text-bone-2">
+        <div className="tracking-eyebrow text-bone-2 text-[10px]">
           OFFICIAL RECORD OF RESOLUTION · N° {refNum}
         </div>
       </div>
 
-      <div className="px-8 pb-10 pt-8 max-sm:px-[18px] max-sm:pb-7 max-sm:pt-[22px]">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 border-b-[3px] border-double border-ink pb-[14px]">
+      <div className="px-8 pt-8 pb-10 max-sm:px-[18px] max-sm:pt-[22px] max-sm:pb-7">
+        <div className="border-ink flex flex-wrap items-baseline justify-between gap-3 border-b-[3px] border-double pb-[14px]">
           <div>
-            <div className="bureau-mono text-[10px] uppercase tracking-[0.22em] text-ink-3">
+            <div className="bureau-mono text-ink-3 text-[10px] tracking-[0.22em] uppercase">
               For immediate release
             </div>
-            <div className="bureau-mono mt-[2px] text-[10px] uppercase tracking-eyebrow text-ink-3">
-              {new Date(resolution.timestamp)
-                .toUTCString()
-                .replace("GMT", "UTC")}
+            <div className="bureau-mono tracking-eyebrow text-ink-3 mt-[2px] text-[10px] uppercase">
+              {new Date(resolution.timestamp).toUTCString().replace("GMT", "UTC")}
             </div>
           </div>
-          <div className="bureau-mono text-right text-[10px] uppercase tracking-eyebrow text-ink-3">
+          <div className="bureau-mono tracking-eyebrow text-ink-3 text-right text-[10px] uppercase">
             <div>Filing reference</div>
             <div className="text-ink">
-              RES-{new Date(resolution.timestamp).toISOString().slice(0, 10)}-
-              {refNum.slice(-4)}
+              RES-{new Date(resolution.timestamp).toISOString().slice(0, 10)}-{refNum.slice(-4)}
             </div>
           </div>
         </div>
 
         <div className="mt-6">
-          <div className="bureau-mono mb-3 text-[11px] uppercase tracking-[0.22em] text-ink-3">
+          <div className="bureau-mono text-ink-3 mb-3 text-[11px] tracking-[0.22em] uppercase">
             ARECIBO, P.R. — 19 APR.
           </div>
-          <h1 className="bureau-serif m-0 text-balance text-[clamp(24px,5.5vw,40px)] font-medium leading-[1.12] tracking-[-0.028em] max-sm:break-words max-sm:text-[28px]">
+          <h1 className="bureau-serif m-0 text-[clamp(24px,5.5vw,40px)] leading-[1.12] font-medium tracking-[-0.028em] text-balance max-sm:text-[28px] max-sm:break-words">
             {headline(outcome, ev)}
           </h1>
-          <div className="bureau-serif mt-[18px] text-[18px] italic leading-[1.45] text-ink-2 max-sm:text-[15px]">
-            Observational window collapsed by operator request; oracle
-            attestation rendered at{" "}
+          <div className="bureau-serif text-ink-2 mt-[18px] text-[18px] leading-[1.45] italic max-sm:text-[15px]">
+            Observational window collapsed by operator request; oracle attestation rendered at{" "}
             {new Date(resolution.timestamp).toISOString().slice(11, 19)} UTC.
           </div>
-          <div className="bureau-mono mt-[14px] text-[11px] tracking-[0.1em] text-ink-3">
-            By <span className="text-ink">SETTLEMENT BUREAU STAFF</span> · with
-            DONKI observational support
+          <div className="bureau-mono text-ink-3 mt-[14px] text-[11px] tracking-[0.1em]">
+            By <span className="text-ink">SETTLEMENT BUREAU STAFF</span> · with DONKI observational
+            support
           </div>
         </div>
 
         <div className="mt-7 grid grid-cols-[1.7fr_1fr] gap-8 max-[960px]:grid-cols-1 max-[960px]:gap-[22px]">
-          <div className="bureau-serif text-[15px] leading-[1.7] text-ink max-sm:text-[14px]">
+          <div className="bureau-serif text-ink text-[15px] leading-[1.7] max-sm:text-[14px]">
             <p className="mb-[14px]">
-              <span className="float-left pr-[10px] pt-[5px] font-serif text-[52px] font-medium leading-[0.9] max-sm:text-[36px]">
+              <span className="float-left pt-[5px] pr-[10px] font-serif text-[52px] leading-[0.9] font-medium max-sm:text-[36px]">
                 T
               </span>
-              he market referenced by instrument {refNum} —{" "}
-              <em>{marketQuestion}</em> — has been formally resolved{" "}
-              <b>{outcome}</b> by the Settlement Bureau following the attested
+              he market referenced by instrument {refNum} — <em>{marketQuestion}</em> — has been
+              formally resolved <b>{outcome}</b> by the Settlement Bureau following the attested
               observation of a{" "}
               {classRef ? (
                 <>
@@ -300,61 +271,52 @@ export function CosmicReport({
             </p>
             <p className="mb-[14px]">{resolution.explanation}</p>
             <p className="mb-[14px]">
-              The event, recorded in the NASA Space Weather Database Of
-              Notifications, Knowledge, Information as {EventIdView}
+              The event, recorded in the NASA Space Weather Database Of Notifications, Knowledge,
+              Information as {EventIdView}
               {peakFlux ? (
-                <>
-                  , exhibited a peak flux of {peakFlux} over the 1–8 Å soft
-                  X-ray band
-                </>
+                <>, exhibited a peak flux of {peakFlux} over the 1–8 Å soft X-ray band</>
               ) : null}
-              . Per methodology revision 2.1, the event&apos;s observational
-              parameters were mapped to outcome against the published resolution
-              table, and the determination attested to the Bureau ledger.
+              . Per methodology revision 2.1, the event&apos;s observational parameters were mapped
+              to outcome against the published resolution table, and the determination attested to
+              the Bureau ledger.
             </p>
             <p className="mb-[14px]">
-              The resolution proceeded without incident. No discretionary
-              adjustment was applied. All open positions have been marked to
-              terminal value; settlement proceeds will be available in
-              participant accounts upon the next scheduled ledger flush.
+              The resolution proceeded without incident. No discretionary adjustment was applied.
+              All open positions have been marked to terminal value; settlement proceeds will be
+              available in participant accounts upon the next scheduled ledger flush.
             </p>
-            <p className="m-0 font-serif text-[13px] italic text-ink-3">
-              — END OF NOTICE —
-            </p>
+            <p className="text-ink-3 m-0 font-serif text-[13px] italic">— END OF NOTICE —</p>
           </div>
 
           <div>
-            <div className="mb-[18px] border-2 border-ink bg-paper-2 px-4 py-[18px]">
-              <div className="bureau-mono mb-[10px] text-center text-[9px] tracking-mark text-ink-3">
+            <div className="border-ink bg-paper-2 mb-[18px] border-2 px-4 py-[18px]">
+              <div className="bureau-mono tracking-mark text-ink-3 mb-[10px] text-center text-[9px]">
                 ——— MARKET RESOLVED ———
               </div>
-              <div className="bureau-serif mb-[14px] text-balance text-center text-[13px] italic leading-[1.35]">
+              <div className="bureau-serif mb-[14px] text-center text-[13px] leading-[1.35] text-balance italic">
                 {marketQuestion}
               </div>
-              <div className="bureau-mono mb-[6px] text-center text-[9px] tracking-stamp text-ink-3">
+              <div className="bureau-mono tracking-stamp text-ink-3 mb-[6px] text-center text-[9px]">
                 FINAL DETERMINATION
               </div>
-              <div className="bureau-serif text-center text-[clamp(40px,9vw,52px)] font-medium leading-none tracking-[-0.02em] text-ink max-sm:text-[40px]">
+              <div className="bureau-serif text-ink text-center text-[clamp(40px,9vw,52px)] leading-none font-medium tracking-[-0.02em] max-sm:text-[40px]">
                 {outcome}
               </div>
-              <div className="bureau-mono mt-[14px] border-t border-rule pt-3 text-center text-[9px] tracking-stamp text-ink-3">
-                RESOLVED{" "}
-                {new Date(resolution.timestamp).toUTCString().slice(5, 22)} UTC
+              <div className="bureau-mono border-rule tracking-stamp text-ink-3 mt-[14px] border-t pt-3 text-center text-[9px]">
+                RESOLVED {new Date(resolution.timestamp).toUTCString().slice(5, 22)} UTC
               </div>
             </div>
 
-            <div className="border border-ink">
-              <div className="border-b border-ink bg-paper-2 px-3 py-2">
-                <div className="bureau-mono text-[10px] font-semibold uppercase tracking-[0.18em]">
+            <div className="border-ink border">
+              <div className="border-ink bg-paper-2 border-b px-3 py-2">
+                <div className="bureau-mono text-[10px] font-semibold tracking-[0.18em] uppercase">
                   Cited observational data
                 </div>
               </div>
               <CiteRow k="Primary event" v={primaryEvent} />
               {peakFlux && <CiteRow k="Peak flux" v={peakFlux} />}
               {sev && <CiteRow k="Storm severity" v={sev} />}
-              {ev?.kpIndex !== undefined && (
-                <CiteRow k="Kp (max)" v={ev.kpIndex.toFixed(1)} />
-              )}
+              {ev?.kpIndex !== undefined && <CiteRow k="Kp (max)" v={ev.kpIndex.toFixed(1)} />}
               {onset && <CiteRow k="Onset (UTC)" v={onset} />}
               {peak && <CiteRow k="Peak (UTC)" v={peak} />}
               {decay && <CiteRow k="Decay (UTC)" v={decay} />}
@@ -366,14 +328,14 @@ export function CosmicReport({
               />
               {eventLink && (
                 <div className="flex justify-between px-3 py-[7px] font-mono text-[11px]">
-                  <span className="text-[10px] uppercase tracking-wire text-ink-3">
+                  <span className="tracking-wire text-ink-3 text-[10px] uppercase">
                     DONKI record
                   </span>
                   <a
                     href={eventLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-ink underline decoration-dotted underline-offset-[3px] hover:text-amber"
+                    className="text-ink hover:text-amber underline decoration-dotted underline-offset-[3px]"
                   >
                     View on NASA DONKI ↗
                   </a>
@@ -382,26 +344,20 @@ export function CosmicReport({
             </div>
 
             {position && (
-              <div className="mt-[18px] border border-ink">
-                <div className="border-b border-ink bg-paper-2 px-3 py-2">
-                  <div className="bureau-mono text-[10px] font-semibold uppercase tracking-[0.18em]">
+              <div className="border-ink mt-[18px] border">
+                <div className="border-ink bg-paper-2 border-b px-3 py-2">
+                  <div className="bureau-mono text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Position settlement
                   </div>
                 </div>
                 <CiteRow k="Declared side" v={side ?? "—"} />
                 <CiteRow k="Shares" v={shares.toFixed(2)} />
-                <CiteRow
-                  k="Entry (avg.)"
-                  v={`${Math.round((position.price || 0) * 100)}¢`}
-                />
+                <CiteRow k="Entry (avg.)" v={`${Math.round((position.price || 0) * 100)}¢`} />
                 <CiteRow k="Terminal value" v={`${won ? "100" : "0"}¢`} />
                 <CiteRow k="Principal" v={fmtUSD(amount)} />
-                <CiteRow
-                  k="Return of principal"
-                  v={won ? fmtUSD(shares) : "$0.00"}
-                />
-                <div className="flex justify-between border-t-2 border-ink px-3 py-[10px] font-mono">
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-ink-3">
+                <CiteRow k="Return of principal" v={won ? fmtUSD(shares) : "$0.00"} />
+                <div className="border-ink flex justify-between border-t-2 px-3 py-[10px] font-mono">
+                  <span className="text-ink-3 text-[10px] tracking-[0.18em] uppercase">
                     Net outcome
                   </span>
                   <span
@@ -416,16 +372,16 @@ export function CosmicReport({
           </div>
         </div>
 
-        <div className="mt-8 bg-black px-6 py-5 text-bone">
+        <div className="text-bone mt-8 bg-black px-6 py-5">
           <div className="flex items-baseline justify-between border-b border-[#2b2a26] pb-3">
-            <div className="bureau-mono text-[10px] tracking-[0.22em] text-amber">
+            <div className="bureau-mono text-amber text-[10px] tracking-[0.22em]">
               ◈ CRYPTOGRAPHIC ATTESTATION
             </div>
-            <div className="bureau-mono text-[10px] tracking-eyebrow text-bone-2">
+            <div className="bureau-mono tracking-eyebrow text-bone-2 text-[10px]">
               SHA-256 · PROTOCOL v2.1 · CONFIDENCE {resolution.confidence}%
             </div>
           </div>
-          <div className="bureau-mono mt-3 break-all text-[11px] leading-[1.7] tracking-[0.04em] text-bone">
+          <div className="bureau-mono text-bone mt-3 text-[11px] leading-[1.7] tracking-[0.04em] break-all">
             {hashShort}
           </div>
           <div className="mt-[14px] grid grid-cols-4 gap-[14px] font-mono text-[10px] max-sm:grid-cols-1">
@@ -434,12 +390,11 @@ export function CosmicReport({
             <AttestCol k="OUTCOME MAP" v={`→ ${outcome}`} accent />
             <AttestCol k="OBSERVER" v="BPM · SETTLE" />
           </div>
-          <div className="mt-[14px] font-mono text-[9px] leading-[1.7] tracking-[0.04em] text-bone-2">
-            This attestation is published to the public archive in perpetuity.
-            Verification instructions are provided in the Oracle Specification,
-            § 4.2. Any discrepancy between the published digest and
-            independently computed value should be reported to the Bureau within
-            72 hours of publication.
+          <div className="text-bone-2 mt-[14px] font-mono text-[9px] leading-[1.7] tracking-[0.04em]">
+            This attestation is published to the public archive in perpetuity. Verification
+            instructions are provided in the Oracle Specification, § 4.2. Any discrepancy between
+            the published digest and independently computed value should be reported to the Bureau
+            within 72 hours of publication.
           </div>
         </div>
       </div>

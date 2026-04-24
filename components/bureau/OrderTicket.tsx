@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
+
 import { useHydrated } from "@/hooks/useHydrated";
 import { fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
@@ -9,18 +10,10 @@ import type { Market } from "@/lib/types";
 
 const QUICK_AMOUNTS = [10, 25, 50, 100];
 
-function ReceiptRow({
-  k,
-  v,
-  last,
-}: {
-  k: string;
-  v: React.ReactNode;
-  last?: boolean;
-}) {
+function ReceiptRow({ k, v, last }: { k: string; v: React.ReactNode; last?: boolean }) {
   return (
     <div
-      className={`flex justify-between py-[5px] font-mono text-[11px] ${last ? "" : "border-b border-dotted border-rule"}`}
+      className={`flex justify-between py-[5px] font-mono text-[11px] ${last ? "" : "border-rule border-b border-dotted"}`}
     >
       <span className="text-ink-3">{k}</span>
       <span>{v}</span>
@@ -85,39 +78,31 @@ export function OrderTicket({
   };
 
   return (
-    <div className="border border-ink bg-paper">
-      <div className="flex items-baseline justify-between border-b border-ink bg-paper-2 px-[14px] py-[10px]">
-        <div className="bureau-mono text-[11px] font-semibold uppercase tracking-eyebrow">
+    <div className="border-ink bg-paper border">
+      <div className="border-ink bg-paper-2 flex items-baseline justify-between border-b px-[14px] py-[10px]">
+        <div className="bureau-mono tracking-eyebrow text-[11px] font-semibold uppercase">
           {position ? "Position on file" : "Order ticket"}
         </div>
-        <div className="bureau-mono text-[10px] tracking-[0.1em] text-ink-3">
-          FORM PM-4
-        </div>
+        <div className="bureau-mono text-ink-3 text-[10px] tracking-[0.1em]">FORM PM-4</div>
       </div>
 
       <div className="p-[14px]">
         {position ? (
           <>
-            <div className="mb-3 border-b border-ink pb-[10px]">
+            <div className="border-ink mb-3 border-b pb-[10px]">
               <div className="bureau-eyebrow mb-1">Side of record</div>
               <div
                 className={`bureau-serif text-[28px] font-medium ${position.side === "YES" ? "text-ink" : "text-ink-3"}`}
               >
                 {position.side}{" "}
-                <span className="text-[18px] text-ink-3">
+                <span className="text-ink-3 text-[18px]">
                   @ {Math.round(position.price * 100)}¢
                 </span>
               </div>
             </div>
 
-            <ReceiptRow
-              k="Principal"
-              v={<span>${position.amount.toFixed(2)}</span>}
-            />
-            <ReceiptRow
-              k="Shares"
-              v={<span>{position.shares.toFixed(2)}</span>}
-            />
+            <ReceiptRow k="Principal" v={<span>${position.amount.toFixed(2)}</span>} />
+            <ReceiptRow k="Shares" v={<span>{position.shares.toFixed(2)}</span>} />
             {resolution && pnl !== null ? (
               <>
                 <ReceiptRow
@@ -125,9 +110,7 @@ export function OrderTicket({
                   v={
                     <span
                       className={
-                        position.side === resolution.outcome
-                          ? "text-pl-pos"
-                          : "text-pl-neg"
+                        position.side === resolution.outcome ? "text-pl-pos" : "text-pl-neg"
                       }
                     >
                       {resolution.outcome}
@@ -137,9 +120,7 @@ export function OrderTicket({
                 <ReceiptRow
                   k="Realized P&L"
                   v={
-                    <span
-                      className={`font-semibold ${pnl >= 0 ? "text-pl-pos" : "text-pl-neg"}`}
-                    >
+                    <span className={`font-semibold ${pnl >= 0 ? "text-pl-pos" : "text-pl-neg"}`}>
                       {pnl >= 0 ? "+" : "−"}${Math.abs(pnl).toFixed(2)}
                     </span>
                   }
@@ -154,7 +135,7 @@ export function OrderTicket({
               <button
                 type="button"
                 onClick={onRequestSpeedUp}
-                className="mt-[14px] w-full cursor-pointer border border-amber bg-black py-[14px] font-mono text-[11px] font-semibold uppercase tracking-stamp text-amber transition-colors duration-200 hover:bg-amber hover:text-black"
+                className="border-amber tracking-stamp text-amber hover:bg-amber mt-[14px] w-full cursor-pointer border bg-black py-[14px] font-mono text-[11px] font-semibold uppercase transition-colors duration-200 hover:text-black"
               >
                 ◈ Speed up settlement
               </button>
@@ -165,7 +146,7 @@ export function OrderTicket({
                 <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`mt-[14px] border border-ink px-3 py-[10px] text-center font-mono text-[11px] font-semibold uppercase tracking-[0.1em] ${
+                  className={`border-ink mt-[14px] border px-3 py-[10px] text-center font-mono text-[11px] font-semibold tracking-[0.1em] uppercase ${
                     position.side === resolution.outcome
                       ? "bg-pl-pos-bg text-pl-pos"
                       : "bg-pl-neg-bg text-pl-neg"
@@ -180,7 +161,7 @@ export function OrderTicket({
           </>
         ) : (
           <>
-            <div className="mb-[14px] grid grid-cols-2 border border-ink">
+            <div className="border-ink mb-[14px] grid grid-cols-2 border">
               {(["YES", "NO"] as const).map((s) => {
                 const active = side === s;
                 return (
@@ -188,8 +169,8 @@ export function OrderTicket({
                     key={s}
                     type="button"
                     onClick={() => setSide(s)}
-                    className={`flex cursor-pointer items-baseline justify-between border-0 px-[10px] py-[14px] text-left font-mono text-[11px] tracking-eyebrow ${
-                      s === "YES" ? "border-r border-ink" : ""
+                    className={`tracking-eyebrow flex cursor-pointer items-baseline justify-between border-0 px-[10px] py-[14px] text-left font-mono text-[11px] ${
+                      s === "YES" ? "border-ink border-r" : ""
                     } ${active ? "bg-ink text-paper" : "bg-paper text-ink"}`}
                   >
                     <span className="font-semibold">{s}</span>
@@ -203,7 +184,7 @@ export function OrderTicket({
 
             <div className="bureau-eyebrow mb-[6px]">Principal · USD</div>
             <div className="relative mb-[10px]">
-              <span className="bureau-mono absolute left-[10px] top-1/2 -translate-y-1/2 text-ink-3">
+              <span className="bureau-mono text-ink-3 absolute top-1/2 left-[10px] -translate-y-1/2">
                 $
               </span>
               <input
@@ -215,7 +196,7 @@ export function OrderTicket({
                   const n = Number(e.target.value.replace(/[^\d.]/g, ""));
                   setAmount(Number.isFinite(n) ? Math.max(0, n) : 0);
                 }}
-                className="box-border w-full border border-rule bg-paper py-3 pl-6 pr-3 font-mono text-[18px] text-ink outline-none"
+                className="border-rule bg-paper text-ink box-border w-full border py-3 pr-3 pl-6 font-mono text-[18px] outline-none"
               />
             </div>
 
@@ -230,7 +211,7 @@ export function OrderTicket({
                       clearAllIn();
                       setAmount(v);
                     }}
-                    className={`cursor-pointer border border-rule py-2 font-mono text-[11px] tracking-wire ${
+                    className={`border-rule tracking-wire cursor-pointer border py-2 font-mono text-[11px] ${
                       active ? "bg-ink text-paper" : "bg-paper text-ink-2"
                     }`}
                   >
@@ -250,7 +231,7 @@ export function OrderTicket({
                 onAllIn?.(true, side);
               }}
               suppressHydrationWarning
-              className={`mb-[14px] w-full cursor-pointer border border-dashed border-ink py-2 font-mono text-[10px] uppercase tracking-stamp ${
+              className={`border-ink tracking-stamp mb-[14px] w-full cursor-pointer border border-dashed py-2 font-mono text-[10px] uppercase ${
                 isAllIn ? "bg-ink text-paper" : "bg-paper-2 text-ink"
               }`}
             >
@@ -259,24 +240,14 @@ export function OrderTicket({
                 : `Maximum principal · $${balance.toFixed(2)}`}
             </button>
 
-            <div className="mb-[14px] border-y border-ink py-[10px]">
-              <ReceiptRow
-                k="Avg. price"
-                v={<span>{Math.round(price * 100)}¢</span>}
-              />
+            <div className="border-ink mb-[14px] border-y py-[10px]">
+              <ReceiptRow k="Avg. price" v={<span>{Math.round(price * 100)}¢</span>} />
               <ReceiptRow k="Shares" v={<span>{shares.toFixed(2)}</span>} />
-              <ReceiptRow
-                k={`Max. payout if ${side}`}
-                v={<span>${potential.toFixed(2)}</span>}
-              />
+              <ReceiptRow k={`Max. payout if ${side}`} v={<span>${potential.toFixed(2)}</span>} />
               <ReceiptRow
                 k="Implied return"
                 v={
-                  <span
-                    className={roi > 0 ? "text-pl-pos" : "text-ink-3"}
-                  >
-                    +{roi.toFixed(1)}%
-                  </span>
+                  <span className={roi > 0 ? "text-pl-pos" : "text-ink-3"}>+{roi.toFixed(1)}%</span>
                 }
               />
               <ReceiptRow k="Fees" v={<span>$0.00</span>} />
@@ -287,9 +258,7 @@ export function OrderTicket({
               type="button"
               onClick={handleBuy}
               disabled={!canBet}
-              animate={
-                isAllIn && canBet ? { scale: [1, 1.015, 1] } : { scale: 1 }
-              }
+              animate={isAllIn && canBet ? { scale: [1, 1.015, 1] } : { scale: 1 }}
               transition={
                 isAllIn
                   ? {
@@ -299,8 +268,8 @@ export function OrderTicket({
                     }
                   : { duration: 0.15 }
               }
-              className={`w-full border-0 py-4 font-mono text-[12px] font-semibold uppercase tracking-stamp text-paper ${
-                canBet ? "cursor-pointer bg-ink" : "cursor-not-allowed bg-ink-4"
+              className={`tracking-stamp text-paper w-full border-0 py-4 font-mono text-[12px] font-semibold uppercase ${
+                canBet ? "bg-ink cursor-pointer" : "bg-ink-4 cursor-not-allowed"
               }`}
             >
               {amount > balance
@@ -308,17 +277,16 @@ export function OrderTicket({
                 : `Submit ${side} order · $${amount.toFixed(2)}`}
             </motion.button>
 
-            <div className="mt-[10px] font-sans text-[10px] leading-[1.5] text-ink-3">
-              By submitting, participant attests to understanding of the
-              resolution methodology and represents that principal is
-              uncommitted elsewhere. Positions are non-transferable.
+            <div className="text-ink-3 mt-[10px] font-sans text-[10px] leading-[1.5]">
+              By submitting, participant attests to understanding of the resolution methodology and
+              represents that principal is uncommitted elsewhere. Positions are non-transferable.
             </div>
           </>
         )}
       </div>
 
       {position && (
-        <div className="flex justify-between border-t border-ink bg-paper-2 px-[14px] py-[10px] font-mono text-[10px] tracking-[0.1em] text-ink-3">
+        <div className="border-ink bg-paper-2 text-ink-3 flex justify-between border-t px-[14px] py-[10px] font-mono text-[10px] tracking-[0.1em]">
           <span>OPEN INTEREST</span>
           <span>{fmtUSDShort(market.volume)}</span>
         </div>

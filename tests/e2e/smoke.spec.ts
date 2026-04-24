@@ -8,9 +8,7 @@ test.describe("smoke", () => {
     await page.goto("/");
     // Nav wordmark
     await expect(page.getByText("Cosmic Forecast").first()).toBeVisible();
-    await expect(
-      page.getByText("Bureau of Prediction Markets").first(),
-    ).toBeVisible();
+    await expect(page.getByText("Bureau of Prediction Markets").first()).toBeVisible();
     // Masthead
     await expect(page.getByText("The Prediction Record")).toBeVisible();
     // Cash pill shows $1000.00 after hydration
@@ -27,21 +25,15 @@ test.describe("smoke", () => {
 
   test("market detail page renders hero + order ticket", async ({ page }) => {
     await page.goto("/market/humans-on-mars-before-2035");
-    await expect(
-      page.getByRole("heading", { level: 1, name: /Mars before 2035/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /Mars before 2035/ })).toBeVisible();
     await expect(page.getByText("Order ticket")).toBeVisible();
     await expect(page.getByText("FORM PM-4", { exact: true })).toBeVisible();
   });
 
-  test("unresolved market resolution page shows no record notice", async ({
-    page,
-  }) => {
+  test("unresolved market resolution page shows no record notice", async ({ page }) => {
     await page.goto("/resolution/humans-on-mars-before-2035");
     await expect(page.getByText("— NO RECORD ON FILE —")).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Return to market/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /Return to market/ })).toBeVisible();
   });
 
   test("nav Ledger link jumps to wallet", async ({ page }) => {

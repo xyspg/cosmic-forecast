@@ -1,33 +1,24 @@
 import { expect, type Page, test } from "@playwright/test";
+
 import markets from "../../data/markets.json";
 import { mockCosmicApis } from "../fixtures/mocks";
 
-const featured = markets.find(
-  (m) => m.featured && !m.resolved,
-) as (typeof markets)[number];
+const featured = markets.find((m) => m.featured && !m.resolved) as (typeof markets)[number];
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const featuredQuestionRegex = new RegExp(esc(featured.question));
 
 // Walk the full bet → speed-up → warp → resolution flow and leave the page
 // sitting on /resolution/<slug>.
-async function runBetFlow(
-  page: Page,
-  side: "YES" | "NO",
-  amount: number,
-): Promise<void> {
+async function runBetFlow(page: Page, side: "YES" | "NO", amount: number): Promise<void> {
   await page.goto("/");
 
   // Lead market h1 is the clickable entry point.
-  await page
-    .getByRole("heading", { level: 1, name: featuredQuestionRegex })
-    .click();
+  await page.getByRole("heading", { level: 1, name: featuredQuestionRegex }).click();
   await expect(page).toHaveURL(new RegExp(`/market/${featured.id}`));
 
   // OrderTicket side toggle: each button's accessible name is "YES 28¢" / "NO 72¢".
-  const sideToggle = page
-    .getByRole("button", { name: new RegExp(`^${side} \\d+¢$`) })
-    .first();
+  const sideToggle = page.getByRole("button", { name: new RegExp(`^${side} \\d+¢$`) }).first();
   await sideToggle.click();
 
   // Principal field is the only <input type="text" inputmode="decimal"> in
@@ -96,14 +87,10 @@ test.describe("main bet flow", () => {
     await expect(page.getByText("−$50.00")).toBeVisible();
   });
 
-  test("direct navigation to a different market renders hero", async ({
-    page,
-  }) => {
+  test("direct navigation to a different market renders hero", async ({ page }) => {
     await mockCosmicApis(page);
     await page.goto("/market/agi-achieved-before-2030");
-    await expect(
-      page.getByRole("heading", { level: 1, name: /AGI/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /AGI/ })).toBeVisible();
     await expect(page.getByText("Order ticket")).toBeVisible();
   });
 });

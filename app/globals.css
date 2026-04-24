@@ -37,14 +37,9 @@
   --bone-2: #a8a395;
   --amber: #b8842a;
   --amber-2: #d4a04a;
-  --ff-serif:
-    var(--font-source-serif), "GT Sectra", "Tiempos Headline", "Canela", Georgia,
-    serif;
-  --ff-sans:
-    var(--font-inter), "Söhne", "Neue Haas Grotesk", -apple-system, sans-serif;
-  --ff-mono:
-    var(--font-jetbrains-mono), "IBM Plex Mono", "Berkeley Mono", ui-monospace,
-    monospace;
+  --ff-serif: var(--font-source-serif), "GT Sectra", "Tiempos Headline", "Canela", Georgia, serif;
+  --ff-sans: var(--font-inter), "Söhne", "Neue Haas Grotesk", -apple-system, sans-serif;
+  --ff-mono: var(--font-jetbrains-mono), "IBM Plex Mono", "Berkeley Mono", ui-monospace, monospace;
   /* shadcn tokens */
   --card-foreground: #171717;
   --popover: #ffffff;
@@ -131,7 +126,11 @@ body {
   max-width: 100vw;
 }
 body {
-  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
 *,
 *::before,
@@ -411,11 +410,7 @@ body {
 
 /* ALL IN — vignette overlay */
 .all-in-vignette {
-  background: radial-gradient(
-    ellipse at center,
-    transparent 40%,
-    rgba(0, 0, 0, 0.35) 100%
-  );
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.35) 100%);
 }
 
 /* Hide scrollbar for category tabs */

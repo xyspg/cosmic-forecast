@@ -45,10 +45,8 @@ const WALLET_SUFFIXES = [
 ];
 
 export function randomWallet(): string {
-  const prefix =
-    WALLET_PREFIXES[Math.floor(Math.random() * WALLET_PREFIXES.length)];
-  const suffix =
-    WALLET_SUFFIXES[Math.floor(Math.random() * WALLET_SUFFIXES.length)];
+  const prefix = WALLET_PREFIXES[Math.floor(Math.random() * WALLET_PREFIXES.length)];
+  const suffix = WALLET_SUFFIXES[Math.floor(Math.random() * WALLET_SUFFIXES.length)];
   return `${prefix}${suffix}`;
 }
 

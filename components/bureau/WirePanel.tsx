@@ -23,17 +23,17 @@ const WIRE_ITEMS = [
 
 export function WirePanel() {
   return (
-    <section className="border border-ink p-4">
-      <div className="flex items-baseline justify-between border-b border-rule pb-2">
+    <section className="border-ink border p-4">
+      <div className="border-rule flex items-baseline justify-between border-b pb-2">
         <div className="bureau-serif text-[18px] font-medium">Wire</div>
         <span className="bureau-eyebrow">◉ LIVE</span>
       </div>
       {WIRE_ITEMS.map((it, i) => (
         <div
           key={it.t}
-          className={`py-[10px] ${i === WIRE_ITEMS.length - 1 ? "" : "border-b border-dotted border-rule"}`}
+          className={`py-[10px] ${i === WIRE_ITEMS.length - 1 ? "" : "border-rule border-b border-dotted"}`}
         >
-          <div className="bureau-mono mb-[2px] text-[9px] uppercase tracking-[0.1em] text-ink-4">
+          <div className="bureau-mono text-ink-4 mb-[2px] text-[9px] tracking-[0.1em] uppercase">
             {it.t}
           </div>
           <div className="bureau-serif text-[13px] leading-[1.3]">{it.h}</div>

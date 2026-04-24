@@ -78,8 +78,7 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
       choices?: Array<{ message?: { content?: string } }>;
     };
     const explanation =
-      data.choices?.[0]?.message?.content ||
-      fallbackExplanation(outcome, nasaEvent);
+      data.choices?.[0]?.message?.content || fallbackExplanation(outcome, nasaEvent);
 
     await kv.put(cacheKey, explanation, { expirationTtl: CACHE_TTL });
     return explanation;
@@ -89,10 +88,7 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
   }
 }
 
-function fallbackExplanation(
-  outcome: string,
-  nasaEvent: CosmicEvent | null,
-): string {
+function fallbackExplanation(outcome: string, nasaEvent: CosmicEvent | null): string {
   const eventType = nasaEvent?.type || "solar flare";
   const qualifier = nasaEvent?.classType
     ? `${nasaEvent.classType}-class `

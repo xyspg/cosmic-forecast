@@ -9,8 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 bun run dev        # Start dev server (Next.js 16 + Turbopack)
 bun run build      # Production build
-bun run lint       # Biome check
-bun run format     # Biome format
+bun run lint       # oxlint
+bun run format     # oxfmt (writes in place)
 ```
 
 ## Tech Stack
@@ -20,7 +20,7 @@ bun run format     # Biome format
 - **Tailwind CSS v4** with `@theme inline` in globals.css for custom colors
 - **zustand 5** with `persist` middleware (localStorage) — causes hydration mismatches, always guard with `useHydrated()` hook
 - **motion/react** (framer-motion) for animations
-- **Biome** for linting/formatting (not ESLint/Prettier)
+- **oxlint** for linting and **oxfmt** for formatting (not ESLint/Prettier/Biome) — `sortImports` and `sortTailwindcss` are enabled in `.oxfmtrc.json`
 - **bun** as package manager
 
 ## Architecture
@@ -28,6 +28,7 @@ bun run format     # Biome format
 **Cosmic Forecast** is a satirical Polymarket clone for an NYU course project. Users bet on real prediction market questions, but outcomes are determined by NASA astronomical data via SHA-256 hashing. An LLM generates fake "scientific" explanations.
 
 ### Core Flow
+
 1. User browses markets on homepage → clicks Yes/No → navigates to `/market/[slug]?side=yes|no`
 2. Places a bet → balance deducts, position saved to zustand store
 3. After 2s, a dark overlay fades in with a mysterious "Speed Up Time" button (SpeedUpOverlay)
@@ -36,7 +37,9 @@ bun run format     # Biome format
 6. Result reveals → CosmicReport with fake scientific explanation → balance updates with P&L
 
 ### State Management
+
 `lib/store.ts` — single zustand store persisted to localStorage:
+
 - `balance`: starting $1,000
 - `positions[]`: bets placed (marketId, side, amount, price, shares)
 - `resolutions[]`: resolved markets (outcome, explanation, NASA event, hash)
@@ -44,16 +47,19 @@ bun run format     # Biome format
 **Hydration rule**: any component reading from the store must guard with `useHydrated()` from `hooks/useHydrated.ts`. Server renders default state (balance=1000, no positions), client updates after hydration.
 
 ### API Routes
+
 - `GET /api/cosmic-data` — fetches solar flares + CMEs from NASA DONKI (no API key needed)
 - `POST /api/resolve-bet` — SHA-256 hash of NASA event ID + date + market slug → YES/NO
 - `POST /api/generate-explanation` — OpenAI-compatible API call (DeepSeek in dev, configurable via env vars)
 
 ### Data
+
 - `data/markets.json` — 40 static market questions seeded from Polymarket format
 - `lib/generate-price-history.ts` — deterministic fake price history from market slug (seeded PRNG)
 - `lib/fake-data.ts` — random wallets, usernames, comments, trade generation
 
 ### Key Components
+
 - `FeaturedMarket` — hero card with interactive dual-line chart (hover crosshair + tooltips), scrolling comments
 - `PriceChart` — detail page chart with hover interaction, floating +$X amounts, dual Yes/No lines
 - `SpeedUpOverlay` — dark overlay with motion/react, the "Speed Up Time" button
@@ -61,6 +67,7 @@ bun run format     # Biome format
 - `BettingPanel` — Yes/No selector, amount input, position display, P&L after resolution
 
 ### Environment Variables
+
 ```
 OPENAI_API_KEY=     # OpenAI-compatible API key (DeepSeek in dev)
 OPENAI_BASE_URL=    # API base URL (https://api.deepseek.com/v1 for dev)

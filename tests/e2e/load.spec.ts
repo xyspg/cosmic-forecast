@@ -1,10 +1,9 @@
 import { expect, test } from "@playwright/test";
+
 import markets from "../../data/markets.json";
 import { mockCosmicApis } from "../fixtures/mocks";
 
-const featured = markets.find(
-  (m) => m.featured && !m.resolved,
-) as (typeof markets)[number];
+const featured = markets.find((m) => m.featured && !m.resolved) as (typeof markets)[number];
 
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const featuredQuestionRegex = new RegExp(esc(featured.question));
@@ -29,19 +28,14 @@ test("30 concurrent clients complete the bet flow", async ({ browser }) => {
       await mockCosmicApis(page, { outcome });
       await page.goto("/");
 
-      await page
-        .getByRole("heading", { level: 1, name: featuredQuestionRegex })
-        .click();
+      await page.getByRole("heading", { level: 1, name: featuredQuestionRegex }).click();
 
       await page
         .getByRole("button", { name: new RegExp(`^${side} \\d+¢$`) })
         .first()
         .click();
 
-      await page
-        .locator('input[inputmode="decimal"]')
-        .first()
-        .fill(String(amount));
+      await page.locator('input[inputmode="decimal"]').first().fill(String(amount));
 
       await page
         .getByRole("button", {

@@ -46,10 +46,7 @@ const CAT_PREFIX: Record<string, string> = {
 
 export function getRef(m: Market, index: number): string {
   const prefix = CAT_PREFIX[m.category] ?? "GEN";
-  const seq = String((index + 1) * 7 + (hashString(m.id) % 83)).padStart(
-    4,
-    "0",
-  );
+  const seq = String((index + 1) * 7 + (hashString(m.id) % 83)).padStart(4, "0");
   return `MKT-${seq}-${prefix}`;
 }
 
@@ -150,8 +147,7 @@ export function enrich(m: Market, index: number): BureauMarket {
 }
 
 export function fmtUSDShort(n: number): string {
-  if (Math.abs(n) >= 1e6)
-    return `$${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
+  if (Math.abs(n) >= 1e6) return `$${(n / 1e6).toFixed(1).replace(/\.0$/, "")}M`;
   if (Math.abs(n) >= 1e3) return `$${Math.round(n / 1e3)}K`;
   return `$${n.toLocaleString("en-US")}`;
 }

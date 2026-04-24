@@ -146,9 +146,7 @@ export async function fetchCosmicEvents(
         type: "Geomagnetic Storm" as const,
         id: g.gstID,
         date: g.startTime,
-        kpIndex: g.allKpIndex?.length
-          ? Math.max(...g.allKpIndex.map((k) => k.kpIndex))
-          : undefined,
+        kpIndex: g.allKpIndex?.length ? Math.max(...g.allKpIndex.map((k) => k.kpIndex)) : undefined,
         link: g.link,
       })),
       ...seps.map((s) => ({

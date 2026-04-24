@@ -7,8 +7,8 @@
     "dev": "next dev",
     "dev:https": "next dev --experimental-https --experimental-https-key ./localhost+2-key.pem --experimental-https-cert ./localhost+2.pem",
     "start": "next start",
-    "lint": "biome check",
-    "format": "biome format --write",
+    "lint": "oxlint",
+    "format": "oxfmt",
     "test": "playwright test --grep-invert \"30 concurrent\"",
     "test:load": "playwright test tests/e2e/load.spec.ts",
     "test:all": "playwright test",
@@ -34,13 +34,14 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
     "@cloudflare/workers-types": "^4.20260418.1",
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "oxfmt": "^0.46.0",
+    "oxlint": "^1.61.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.83.0"

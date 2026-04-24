@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 import marketsData from "@/data/markets.json";
 import { fetchCosmicEvents } from "@/lib/cosmic-data";
 import { computeCosmicOutcome } from "@/lib/cosmic-hash";
@@ -23,10 +24,7 @@ export async function POST(request: Request) {
     };
 
     if (!marketSlug || !date) {
-      return NextResponse.json(
-        { error: "marketSlug and date are required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "marketSlug and date are required" }, { status: 400 });
     }
 
     const market = markets.find((m) => m.id === marketSlug);
@@ -34,10 +32,7 @@ export async function POST(request: Request) {
 
     const { events } = await fetchCosmicEvents();
     if (events.length === 0) {
-      return NextResponse.json(
-        { error: "No cosmic data available" },
-        { status: 503 },
-      );
+      return NextResponse.json({ error: "No cosmic data available" }, { status: 503 });
     }
 
     const byType = new Map<string, typeof events>();
@@ -52,11 +47,7 @@ export async function POST(request: Request) {
     const pool = byType.get(types[typeHash % types.length]) ?? events;
     const nasaEvent = pool[eventHash % pool.length];
 
-    const { outcome, hash } = await computeCosmicOutcome(
-      nasaEvent.id,
-      date,
-      marketSlug,
-    );
+    const { outcome, hash } = await computeCosmicOutcome(nasaEvent.id, date, marketSlug);
 
     const explanation = await generateExplanation({
       outcome,

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
+
 import {
   axisTicks,
   CHART_RANGES,
@@ -12,11 +13,12 @@ import {
 import { generatePriceHistory } from "@/lib/generate-price-history";
 import type { BureauMarket } from "@/lib/market-metadata";
 import { fmtNum, fmtUSDShort } from "@/lib/market-metadata";
+
 import { Sparkline } from "./Sparkline";
 
 function SpecRow({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex items-baseline justify-between border-b border-dotted border-rule py-1 text-[12px]">
+    <div className="border-rule flex items-baseline justify-between border-b border-dotted py-1 text-[12px]">
       <span className="text-ink-3">{k}</span>
       <span className="bureau-mono text-[11px]">{v}</span>
     </div>
@@ -29,18 +31,13 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
 
   const series = useMemo(() => {
     const { spanMs, points } = rangeConfig(range);
-    return generatePriceHistory(m.id, m.yesPrice, points, spanMs).map(
-      (p) => p.yes,
-    );
+    return generatePriceHistory(m.id, m.yesPrice, points, spanMs).map((p) => p.yes);
   }, [m.id, m.yesPrice, range]);
 
   const n = series.length;
   const hoverYes = hoverIndex !== null ? series[hoverIndex] : null;
 
-  const yesCent =
-    hoverYes !== null
-      ? Math.round(hoverYes * 100)
-      : Math.round(m.yesPrice * 100);
+  const yesCent = hoverYes !== null ? Math.round(hoverYes * 100) : Math.round(m.yesPrice * 100);
   const noCent = 100 - yesCent;
 
   const deltaCents = useMemo(() => {
@@ -50,10 +47,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
     return Math.round((current - base) * 100 * 10) / 10;
   }, [hoverYes, n, series]);
 
-  const labelForIndex = useCallback(
-    (i: number) => rangeLabelForIndex(range, i, n),
-    [range, n],
-  );
+  const labelForIndex = useCallback((i: number) => rangeLabelForIndex(range, i, n), [range, n]);
 
   const ticks = useMemo(() => axisTicks(range), [range]);
 
@@ -66,30 +60,29 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
       </div>
 
       <Link href={`/market/${slug}`} className="text-inherit no-underline">
-        <h1 className="bureau-serif mx-0 mb-2 mt-0 max-w-[95%] cursor-pointer text-balance text-[clamp(24px,6vw,40px)] font-medium leading-[1.08] tracking-[-0.025em] max-sm:max-w-full max-sm:break-words max-sm:text-[26px]">
+        <h1 className="bureau-serif mx-0 mt-0 mb-2 max-w-[95%] cursor-pointer text-[clamp(24px,6vw,40px)] leading-[1.08] font-medium tracking-[-0.025em] text-balance max-sm:max-w-full max-sm:text-[26px] max-sm:break-words">
           {m.question}
         </h1>
       </Link>
 
-      <div className="bureau-mono mb-[18px] text-[11px] tracking-[0.04em] text-ink-3">
-        α {m.ra} · δ {m.dec} · RES. WINDOW {m.endsLabel.toUpperCase()} ·{" "}
-        {m.daysLeft} D LEFT
+      <div className="bureau-mono text-ink-3 mb-[18px] text-[11px] tracking-[0.04em]">
+        α {m.ra} · δ {m.dec} · RES. WINDOW {m.endsLabel.toUpperCase()} · {m.daysLeft} D LEFT
       </div>
 
       <div className="grid grid-cols-[1fr_280px] items-stretch gap-7 max-[960px]:grid-cols-1 max-[960px]:gap-[18px]">
-        <div className="border-y border-rule py-[14px]">
+        <div className="border-rule border-y py-[14px]">
           <div className="mb-[6px] flex items-baseline justify-between max-sm:flex-col max-sm:items-start max-sm:gap-[10px]">
             <div className="flex items-baseline gap-[18px] max-sm:flex-wrap max-sm:gap-[14px]">
               <div>
                 <div className="bureau-eyebrow">YES</div>
-                <div className="bureau-num bureau-serif text-[32px] font-medium leading-none">
+                <div className="bureau-num bureau-serif text-[32px] leading-none font-medium">
                   {yesCent}
-                  <span className="text-[18px] text-ink-3">¢</span>
+                  <span className="text-ink-3 text-[18px]">¢</span>
                 </div>
               </div>
               <div>
                 <div className="bureau-eyebrow">NO</div>
-                <div className="bureau-num bureau-serif text-[32px] font-medium leading-none text-ink-3">
+                <div className="bureau-num bureau-serif text-ink-3 text-[32px] leading-none font-medium">
                   {noCent}
                   <span className="text-[18px]">¢</span>
                 </div>
@@ -106,7 +99,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
                 </div>
               </div>
             </div>
-            <div className="bureau-mono flex gap-[2px] text-[10px] tracking-[0.1em] text-ink-3">
+            <div className="bureau-mono text-ink-3 flex gap-[2px] text-[10px] tracking-[0.1em]">
               {CHART_RANGES.map((r) => {
                 const active = r === range;
                 return (
@@ -114,7 +107,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
                     key={r}
                     type="button"
                     onClick={() => setRange(r)}
-                    className={`cursor-pointer border border-rule px-[8px] py-[2px] font-[inherit] text-[inherit] tracking-[inherit] ${
+                    className={`border-rule cursor-pointer border px-[8px] py-[2px] font-[inherit] tracking-[inherit] text-[inherit] ${
                       active ? "bg-ink text-paper" : "bg-paper text-ink-3"
                     }`}
                   >
@@ -131,14 +124,14 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
             onHoverChange={setHoverIndex}
             labelForIndex={labelForIndex}
           />
-          <div className="flex justify-between pt-1 font-mono text-[10px] text-ink-4">
+          <div className="text-ink-4 flex justify-between pt-1 font-mono text-[10px]">
             {ticks.map((t) => (
               <span key={t}>{t}</span>
             ))}
           </div>
         </div>
 
-        <div className="flex flex-col gap-[10px] border-l border-rule pl-5 max-[960px]:border-l-0 max-[960px]:border-t max-[960px]:border-rule max-[960px]:pl-0 max-[960px]:pt-4">
+        <div className="border-rule max-[960px]:border-rule flex flex-col gap-[10px] border-l pl-5 max-[960px]:border-t max-[960px]:border-l-0 max-[960px]:pt-4 max-[960px]:pl-0">
           <div className="bureau-eyebrow">Market specification</div>
           <SpecRow k="Open interest" v={fmtUSDShort(m.volume)} />
           <SpecRow k="Available liquidity" v={fmtUSDShort(m.liquidity)} />
@@ -149,7 +142,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
           <div className="flex-1" />
           <Link
             href={`/market/${slug}`}
-            className="flex cursor-pointer justify-between border-0 bg-ink px-[14px] py-3 text-left font-mono text-[11px] uppercase tracking-eyebrow text-paper no-underline"
+            className="bg-ink tracking-eyebrow text-paper flex cursor-pointer justify-between border-0 px-[14px] py-3 text-left font-mono text-[11px] uppercase no-underline"
           >
             <span>Open market</span>
             <span>→</span>
@@ -157,7 +150,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
         </div>
       </div>
 
-      <div className="mt-[10px] max-w-[720px] font-serif text-[14px] italic leading-[1.5] text-ink-2">
+      <div className="text-ink-2 mt-[10px] max-w-[720px] font-serif text-[14px] leading-[1.5] italic">
         {m.summary}
       </div>
     </article>

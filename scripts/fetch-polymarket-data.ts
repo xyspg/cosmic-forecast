@@ -37,14 +37,7 @@ interface Market {
   resolved: boolean;
 }
 
-const CATEGORIES = [
-  "Politics",
-  "Crypto",
-  "Sports",
-  "Tech",
-  "Culture",
-  "Science",
-] as const;
+const CATEGORIES = ["Politics", "Crypto", "Sports", "Tech", "Culture", "Science"] as const;
 
 function guessCategory(title: string): string {
   const lower = title.toLowerCase();
@@ -118,10 +111,7 @@ function seededRandom(seed: string): number {
   return Math.abs(hash % 10000) / 10000;
 }
 
-async function fetchEvents(
-  offset: number,
-  limit: number,
-): Promise<PolymarketEvent[]> {
+async function fetchEvents(offset: number, limit: number): Promise<PolymarketEvent[]> {
   const url = `https://gamma-api.polymarket.com/events?limit=${limit}&active=true&offset=${offset}`;
   console.log(`Fetching: ${url}`);
   const res = await fetch(url);
@@ -166,14 +156,10 @@ async function main() {
         yesPrice: Math.round(yesPrice * 100) / 100,
         noPrice: Math.round((1 - yesPrice) * 100) / 100,
         volume: Math.round(event.volume || seededRandom(event.slug) * 5000000),
-        liquidity: Math.round(
-          event.liquidity || seededRandom(event.slug + "liq") * 500000,
-        ),
+        liquidity: Math.round(event.liquidity || seededRandom(event.slug + "liq") * 500000),
         imageUrl: event.image || "",
-        endDate:
-          event.endDate || new Date(Date.now() + 86400000 * 30).toISOString(),
-        totalBettors:
-          Math.floor(seededRandom(event.slug + "bettors") * 15000) + 100,
+        endDate: event.endDate || new Date(Date.now() + 86400000 * 30).toISOString(),
+        totalBettors: Math.floor(seededRandom(event.slug + "bettors") * 15000) + 100,
         featured: i < 6,
         resolved: false,
       };

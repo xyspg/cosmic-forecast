@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 import type { CosmicEventSnapshot } from "@/lib/types";
 
 export interface Position {
@@ -122,9 +123,7 @@ export const useCosmicStore = create<CosmicStore>()(
         };
 
         // Calculate payout for positions on this market
-        const marketPositions = positions.filter(
-          (p) => p.marketId === marketId,
-        );
+        const marketPositions = positions.filter((p) => p.marketId === marketId);
         let payout = 0;
         for (const pos of marketPositions) {
           if (pos.side === outcome) {
@@ -153,9 +152,7 @@ export const useCosmicStore = create<CosmicStore>()(
         const resolution = resolutions.find((r) => r.marketId === marketId);
         if (!resolution) return null;
 
-        const marketPositions = positions.filter(
-          (p) => p.marketId === marketId,
-        );
+        const marketPositions = positions.filter((p) => p.marketId === marketId);
         if (marketPositions.length === 0) return null;
 
         let totalSpent = 0;

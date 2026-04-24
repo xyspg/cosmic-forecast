@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+
 import type { BureauMarket } from "@/lib/market-metadata";
 
 function CornerStamp({
@@ -13,7 +14,7 @@ function CornerStamp({
 }) {
   return (
     <div
-      className={`absolute hidden font-mono text-[9px] uppercase tracking-stamp text-bone-2 md:block ${positionClass}`}
+      className={`tracking-stamp text-bone-2 absolute hidden font-mono text-[9px] uppercase md:block ${positionClass}`}
     >
       {children}
     </div>
@@ -35,16 +36,8 @@ function LedgerRow({
     <div
       className={`flex justify-between px-4 py-[10px] text-[11px] tracking-[0.06em] ${last ? "" : "border-b border-[rgba(232,228,216,0.12)]"}`}
     >
-      <span className="text-[10px] uppercase tracking-eyebrow text-bone-2">
-        {k}
-      </span>
-      <span
-        className={
-          highlight ? "font-semibold text-amber" : "font-normal text-bone"
-        }
-      >
-        {v}
-      </span>
+      <span className="tracking-eyebrow text-bone-2 text-[10px] uppercase">{k}</span>
+      <span className={highlight ? "text-amber font-semibold" : "text-bone font-normal"}>{v}</span>
     </div>
   );
 }
@@ -81,8 +74,7 @@ export function SpeedUpOverlay({
     };
   }, [visible]);
 
-  const price =
-    market && side ? (side === "YES" ? market.yesPrice : market.noPrice) : 0;
+  const price = market && side ? (side === "YES" ? market.yesPrice : market.noPrice) : 0;
   const shares = price > 0 && amount ? amount / price : 0;
   const payout = shares;
 
@@ -129,9 +121,9 @@ export function SpeedUpOverlay({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, delay: 0.2, ease: [0.19, 1, 0.22, 1] }}
-            className="relative w-[92%] max-w-[720px] text-bone"
+            className="text-bone relative w-[92%] max-w-[720px]"
           >
-            <div className="flex items-center justify-between border-b border-[rgba(232,228,216,0.22)] pb-[10px] text-[10px] tracking-[0.24em] text-amber">
+            <div className="text-amber flex items-center justify-between border-b border-[rgba(232,228,216,0.22)] pb-[10px] text-[10px] tracking-[0.24em]">
               <span>◈ ORDER ACCEPTED — AWAITING SETTLEMENT WINDOW</span>
               <span className="text-bone-2">
                 {market ? `REF ${market.ref}` : "REF —"} / ORD-
@@ -139,14 +131,14 @@ export function SpeedUpOverlay({
               </span>
             </div>
 
-            <div className="px-0 pb-[14px] pt-[18px] text-center">
-              <div className="mb-3 text-[10px] tracking-[0.24em] text-bone-2">
+            <div className="px-0 pt-[18px] pb-[14px] text-center">
+              <div className="text-bone-2 mb-3 text-[10px] tracking-[0.24em]">
                 — IN THE MATTER OF —
               </div>
-              <div className="bureau-serif mx-auto max-w-[580px] text-balance text-[22px] font-normal leading-[1.25] tracking-[-0.015em] text-bone max-sm:text-[18px]">
+              <div className="bureau-serif text-bone mx-auto max-w-[580px] text-[22px] leading-[1.25] font-normal tracking-[-0.015em] text-balance max-sm:text-[18px]">
                 {market?.question ?? "—"}
               </div>
-              <div className="mt-[14px] text-[10px] tracking-[0.24em] text-bone-2">
+              <div className="text-bone-2 mt-[14px] text-[10px] tracking-[0.24em]">
                 — POSITION OF RECORD —
               </div>
             </div>
@@ -159,23 +151,15 @@ export function SpeedUpOverlay({
                 v={`USD ${(amount ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               />
               <LedgerRow k="Shares" v={shares.toFixed(2)} />
-              <LedgerRow
-                k="Maximum recoverable"
-                v={`USD ${payout.toFixed(2)}`}
-              />
+              <LedgerRow k="Maximum recoverable" v={`USD ${payout.toFixed(2)}`} />
               <LedgerRow k="Oracle method" v="SHA-256 ⟂ DONKI FLR" />
-              <LedgerRow
-                k="Scheduled settlement"
-                v={market?.endsLabel.toUpperCase() ?? "—"}
-                last
-              />
+              <LedgerRow k="Scheduled settlement" v={market?.endsLabel.toUpperCase() ?? "—"} last />
             </div>
 
-            <div className="mt-[22px] border-l-2 border-amber px-4 py-[14px] font-serif text-[14px] italic leading-[1.55] text-bone">
-              The outcome awaits the next qualifying solar event. The Bureau
-              makes available a discretionary acceleration, under which the
-              settlement window is collapsed to the present instant. Operators
-              may elect to wait, or to proceed.
+            <div className="border-amber text-bone mt-[22px] border-l-2 px-4 py-[14px] font-serif text-[14px] leading-[1.55] italic">
+              The outcome awaits the next qualifying solar event. The Bureau makes available a
+              discretionary acceleration, under which the settlement window is collapsed to the
+              present instant. Operators may elect to wait, or to proceed.
             </div>
 
             <div className="mt-[22px] grid grid-cols-[1fr_1.8fr] gap-3 max-sm:grid-cols-1 max-sm:gap-[10px]">
@@ -183,7 +167,7 @@ export function SpeedUpOverlay({
                 type="button"
                 onClick={onDismiss}
                 disabled={!onDismiss}
-                className={`flex justify-between border border-[rgba(232,228,216,0.35)] bg-transparent px-[14px] py-4 text-left font-mono text-[10px] uppercase tracking-stamp text-bone-2 ${onDismiss ? "cursor-pointer" : "cursor-default"}`}
+                className={`tracking-stamp text-bone-2 flex justify-between border border-[rgba(232,228,216,0.35)] bg-transparent px-[14px] py-4 text-left font-mono text-[10px] uppercase ${onDismiss ? "cursor-pointer" : "cursor-default"}`}
               >
                 <span>Await scheduled settlement</span>
                 <span>{market ? `${market.daysLeft}d` : "—"}</span>
@@ -191,12 +175,12 @@ export function SpeedUpOverlay({
               <button
                 type="button"
                 onClick={onSpeedUp}
-                className="relative flex cursor-pointer justify-between border border-amber bg-black px-[18px] py-4 text-left font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-amber transition-colors duration-200 hover:bg-amber hover:text-black"
+                className="border-amber text-amber hover:bg-amber relative flex cursor-pointer justify-between border bg-black px-[18px] py-4 text-left font-mono text-[11px] font-semibold tracking-[0.24em] uppercase transition-colors duration-200 hover:text-black"
               >
                 <span>◈ Speed up time</span>
                 <span className="text-amber">⟶</span>
                 <span
-                  className="pointer-events-none absolute -inset-px border border-amber"
+                  className="border-amber pointer-events-none absolute -inset-px border"
                   style={{
                     animation: "bureau-pulse-border 2.4s ease-in-out infinite",
                   }}
@@ -204,12 +188,12 @@ export function SpeedUpOverlay({
               </button>
             </div>
 
-            <div className="mt-5 border-t border-[rgba(232,228,216,0.15)] pt-[14px] text-center text-[9px] leading-[1.7] tracking-[0.12em] text-bone-2">
-              ACCELERATION IS IRREVERSIBLE. THE SETTLEMENT DIGEST IS PUBLISHED
-              TO THE PUBLIC ARCHIVE UPON ATTESTATION.
+            <div className="text-bone-2 mt-5 border-t border-[rgba(232,228,216,0.15)] pt-[14px] text-center text-[9px] leading-[1.7] tracking-[0.12em]">
+              ACCELERATION IS IRREVERSIBLE. THE SETTLEMENT DIGEST IS PUBLISHED TO THE PUBLIC ARCHIVE
+              UPON ATTESTATION.
               <br />
-              NO REPRESENTATION IS MADE REGARDING THE AUSPICIOUSNESS OF THE
-              CURRENT OBSERVATIONAL WINDOW.
+              NO REPRESENTATION IS MADE REGARDING THE AUSPICIOUSNESS OF THE CURRENT OBSERVATIONAL
+              WINDOW.
             </div>
           </motion.div>
         </motion.div>

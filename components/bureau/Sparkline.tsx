@@ -22,9 +22,7 @@ export function Sparkline({
 
   const w = width;
   const h = height;
-  const pad = showAxis
-    ? { t: 12, r: 36, b: 22, l: 8 }
-    : { t: 4, r: 4, b: 4, l: 4 };
+  const pad = showAxis ? { t: 12, r: 36, b: 22, l: 8 } : { t: 4, r: 4, b: 4, l: 4 };
   const innerW = w - pad.l - pad.r;
   const innerH = h - pad.t - pad.b;
   const n = series.length;
@@ -34,12 +32,8 @@ export function Sparkline({
     pad.t + (1 - v) * innerH,
   ];
 
-  const yesPath = series
-    .map((v, i) => `${i === 0 ? "M" : "L"}${pt(v, i).join(",")}`)
-    .join(" ");
-  const noPath = series
-    .map((v, i) => `${i === 0 ? "M" : "L"}${pt(1 - v, i).join(",")}`)
-    .join(" ");
+  const yesPath = series.map((v, i) => `${i === 0 ? "M" : "L"}${pt(v, i).join(",")}`).join(" ");
+  const noPath = series.map((v, i) => `${i === 0 ? "M" : "L"}${pt(1 - v, i).join(",")}`).join(" ");
 
   const last = series[n - 1];
   const [lx, ly] = pt(last, n - 1);
@@ -60,8 +54,7 @@ export function Sparkline({
     [innerW, n, onHoverChange, pad.l, w],
   );
 
-  const handleMove = (e: React.MouseEvent<SVGSVGElement>) =>
-    updateHover(e.clientX);
+  const handleMove = (e: React.MouseEvent<SVGSVGElement>) => updateHover(e.clientX);
   const handleTouch = (e: React.TouchEvent<SVGSVGElement>) => {
     const t = e.touches[0];
     if (t) updateHover(t.clientX);
@@ -72,17 +65,11 @@ export function Sparkline({
   };
 
   const hoverYes = hoverIndex !== null ? series[hoverIndex] : null;
-  const [hx, hy] =
-    hoverIndex !== null && hoverYes !== null
-      ? pt(hoverYes, hoverIndex)
-      : [0, 0];
+  const [hx, hy] = hoverIndex !== null && hoverYes !== null ? pt(hoverYes, hoverIndex) : [0, 0];
   const [hxN, hyN] =
-    hoverIndex !== null && hoverYes !== null
-      ? pt(1 - hoverYes, hoverIndex)
-      : [0, 0];
+    hoverIndex !== null && hoverYes !== null ? pt(1 - hoverYes, hoverIndex) : [0, 0];
 
-  const hoverLabel =
-    hoverIndex !== null && labelForIndex ? labelForIndex(hoverIndex) : null;
+  const hoverLabel = hoverIndex !== null && labelForIndex ? labelForIndex(hoverIndex) : null;
 
   const yesCent = hoverYes !== null ? Math.round(hoverYes * 100) : null;
   const noCent = hoverYes !== null ? 100 - Math.round(hoverYes * 100) : null;
@@ -140,23 +127,12 @@ export function Sparkline({
           );
         })}
 
-      <path
-        d={noPath}
-        fill="none"
-        stroke="var(--ink-4)"
-        strokeWidth="1"
-        strokeDasharray="2 2"
-      />
+      <path d={noPath} fill="none" stroke="var(--ink-4)" strokeWidth="1" strokeDasharray="2 2" />
       <path d={yesPath} fill="none" stroke="var(--ink)" strokeWidth="1.5" />
 
       {hoverIndex === null && (
         <>
-          <circle
-            cx={lx.toFixed(3)}
-            cy={ly.toFixed(3)}
-            r="3"
-            fill="var(--ink)"
-          />
+          <circle cx={lx.toFixed(3)} cy={ly.toFixed(3)} r="3" fill="var(--ink)" />
           <circle
             cx={lxN.toFixed(3)}
             cy={lyN.toFixed(3)}
@@ -181,12 +157,7 @@ export function Sparkline({
             strokeDasharray="2 2"
           />
           {/* YES dot */}
-          <circle
-            cx={hx.toFixed(3)}
-            cy={hy.toFixed(3)}
-            r="3.5"
-            fill="var(--ink)"
-          />
+          <circle cx={hx.toFixed(3)} cy={hy.toFixed(3)} r="3.5" fill="var(--ink)" />
           <circle
             cx={hx.toFixed(3)}
             cy={hy.toFixed(3)}
@@ -217,22 +188,10 @@ export function Sparkline({
               stroke="var(--ink)"
               strokeWidth="0.75"
             />
-            <text
-              x="8"
-              y="14"
-              fontFamily="var(--ff-mono)"
-              fontSize="10"
-              fill="var(--ink)"
-            >
+            <text x="8" y="14" fontFamily="var(--ff-mono)" fontSize="10" fill="var(--ink)">
               YES {yesCent}¢
             </text>
-            <text
-              x="8"
-              y="28"
-              fontFamily="var(--ff-mono)"
-              fontSize="10"
-              fill="var(--ink-3)"
-            >
+            <text x="8" y="28" fontFamily="var(--ff-mono)" fontSize="10" fill="var(--ink-3)">
               NO {noCent}¢
             </text>
             {hoverLabel && (
@@ -267,13 +226,8 @@ export function MiniSpark({
   color?: string;
 }) {
   const n = series.length;
-  const pt = (v: number, i: number): [number, number] => [
-    (i / (n - 1)) * width,
-    (1 - v) * height,
-  ];
-  const d = series
-    .map((v, i) => `${i === 0 ? "M" : "L"}${pt(v, i).join(",")}`)
-    .join(" ");
+  const pt = (v: number, i: number): [number, number] => [(i / (n - 1)) * width, (1 - v) * height];
+  const d = series.map((v, i) => `${i === 0 ? "M" : "L"}${pt(v, i).join(",")}`).join(" ");
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
