@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cosmic Forecast
 
-## Getting Started
+A satirical prediction-market interface where bets are resolved by the cosmos. Users trade Yes/No shares on real-world questions, but outcomes aren't settled by reality — they're settled by whatever NASA's space-weather feed happens to report that day, then rationalized by an LLM pretending to be a rigorous research bureau.
 
-First, run the development server:
+Built as an NYU course project.
+
+![Cosmic Forecast — The Prediction Record](./public/screenshot-home.jpg)
+
+## Quick start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
+bun run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Other scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run build      # production build
+bun run lint       # Biome check
+bun run format     # Biome format
+bun run test       # Playwright e2e (excludes load tests)
+bun run dev:https  # local HTTPS with mkcert certs in repo root
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it works
 
-## Learn More
+1. Browse markets on the homepage, click Yes/No → `/market/[slug]?side=yes|no`
+2. Place a bet. Balance deducts; the position is saved to localStorage.
+3. A "Speed Up Time" overlay appears, leading into a warp-starfield animation.
+4. During the animation two requests fire in parallel:
+   - `POST /api/resolve-bet` — deterministically maps a live NASA DONKI event (solar flares, CMEs) to a YES/NO outcome for the market.
+   - `POST /api/generate-explanation` — asks an OpenAI-compatible model to write a plausible-sounding cosmic rationale for that outcome.
+5. The result reveals: outcome, P&L, and a fabricated scientific write-up.
 
-To learn more about Next.js, take a look at the following resources:
+There is no database, no auth, and no real money. Everything runs client-side with Next.js API routes in front of NASA and an LLM.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 16.2.2** (App Router, Turbopack) — note: `params` / `searchParams` are async Promises
+- **React 19** + TypeScript
+- **Tailwind CSS v4** with `@theme inline`
+- **zustand 5** (persist middleware → localStorage) — guard reads with `useHydrated()` to avoid SSR mismatches
+- **motion/react** for animations
+- **Biome** for lint + format
+- **bun** as the package manager
+- **OpenNext + Cloudflare Workers** as the deploy target
 
-## Deploy on Vercel
+## Environment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+OPENAI_API_KEY=
+OPENAI_BASE_URL=
+OPENAI_MODEL=
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NASA DONKI does not require a key.
+
+## Project layout
+
+```
+app/            # routes: home, /market/[slug], /resolution, /wallet, API routes
+components/     # FeaturedMarket, PriceChart, SpeedUpOverlay, WarpAnimation, BettingPanel, ...
+data/markets.json   # 40 seeded market questions
+hooks/          # useHydrated, useMarketTicker, ...
+lib/            # zustand store, fake-data generators, seeded price history
+scripts/        # Bun-only utilities (excluded from tsconfig)
+tests/          # Playwright specs
+```
+
+## Deploy (Cloudflare)
+
+```bash
+bun run preview    # local OpenNext preview
+bun run deploy     # build + deploy via opennextjs-cloudflare
+```
