@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { Hono } from "hono";
 
 import marketsData from "@/data/markets.json";
 import { fetchCosmicEvents } from "@/lib/cosmic-data";
 import { computeCosmicOutcome } from "@/lib/cosmic-hash";
 import { generateExplanation } from "@/lib/explanation";
+import type { WorkerEnv } from "@/lib/kv";
 import type { Market } from "@/lib/types";
 
 const markets = marketsData as Market[];
@@ -16,15 +17,24 @@ function slugHash(slug: string): number {
   return Math.abs(h);
 }
 
-export async function POST(request: Request) {
+const app = new Hono<{ Bindings: WorkerEnv }>();
+
+app.get("/api/cosmic-data", async (c) => {
+  const startDate = c.req.query("startDate");
+  const endDate = c.req.query("endDate");
+  const result = await fetchCosmicEvents(startDate, endDate);
+  return c.json(result);
+});
+
+app.post("/api/resolve-bet", async (c) => {
   try {
-    const { marketSlug, date } = (await request.json()) as {
+    const { marketSlug, date } = await c.req.json<{
       marketSlug?: string;
       date?: string;
-    };
+    }>();
 
     if (!marketSlug || !date) {
-      return NextResponse.json({ error: "marketSlug and date are required" }, { status: 400 });
+      return c.json({ error: "marketSlug and date are required" }, 400);
     }
 
     const market = markets.find((m) => m.id === marketSlug);
@@ -32,7 +42,7 @@ export async function POST(request: Request) {
 
     const { events } = await fetchCosmicEvents();
     if (events.length === 0) {
-      return NextResponse.json({ error: "No cosmic data available" }, { status: 503 });
+      return c.json({ error: "No cosmic data available" }, 503);
     }
 
     const byType = new Map<string, typeof events>();
@@ -54,9 +64,10 @@ export async function POST(request: Request) {
       marketQuestion,
       marketSlug,
       nasaEvent,
+      env: c.env,
     });
 
-    return NextResponse.json({
+    return c.json({
       outcome,
       hash,
       nasaEventId: nasaEvent.id,
@@ -68,6 +79,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Resolve bet failed:", error);
-    return NextResponse.json({ error: "Resolution failed" }, { status: 500 });
+    return c.json({ error: "Resolution failed" }, 500);
   }
-}
+});
+
+app.all("*", (c) => c.env.ASSETS.fetch(c.req.raw as never) as never);
+
+export default app;

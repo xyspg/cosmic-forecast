@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { use, useMemo } from "react";
+import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
@@ -17,13 +14,20 @@ import type { Market } from "@/lib/types";
 
 const rawMarkets = marketsData as Market[];
 
-export default function ResolutionPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const idx = rawMarkets.findIndex((m) => m.id === slug);
-  const market = idx >= 0 ? rawMarkets[idx] : undefined;
-  if (!market) notFound();
+export const Route = createFileRoute("/resolution/$slug")({
+  loader: ({ params }) => {
+    const idx = rawMarkets.findIndex((m) => m.id === params.slug);
+    if (idx < 0) throw notFound();
+    return { market: rawMarkets[idx], index: idx };
+  },
+  component: ResolutionPage,
+});
 
-  const bureau = useMemo(() => enrich(market, idx), [market, idx]);
+function ResolutionPage() {
+  const { slug } = Route.useParams();
+  const { market, index } = Route.useLoaderData();
+
+  const bureau = useMemo(() => enrich(market, index), [market, index]);
 
   const hydrated = useHydrated();
   const storeResolution = useCosmicStore((s) => s.getResolution(slug));
@@ -62,7 +66,8 @@ export default function ResolutionPage({ params }: { params: Promise<{ slug: str
               window remains open.
             </div>
             <Link
-              href={`/market/${slug}`}
+              to="/market/$slug"
+              params={{ slug }}
               className="bg-ink tracking-stamp text-paper inline-block px-[22px] py-3 font-mono text-[11px] font-semibold uppercase no-underline"
             >
               Return to market ⟶
@@ -84,13 +89,14 @@ export default function ResolutionPage({ params }: { params: Promise<{ slug: str
               </div>
               <div className="flex flex-wrap gap-[10px]">
                 <Link
-                  href={`/market/${slug}`}
+                  to="/market/$slug"
+                  params={{ slug }}
                   className="border-ink bg-paper tracking-stamp text-ink border px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Market page
                 </Link>
                 <Link
-                  href="/"
+                  to="/"
                   className="bg-ink tracking-stamp text-paper px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Return to market index ⟶

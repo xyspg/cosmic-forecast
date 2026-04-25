@@ -1,6 +1,4 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 import marketsData from "@/data/markets.json";
@@ -82,7 +80,8 @@ export function ResolutionPanel() {
       {items.map((r, i) => (
         <Link
           key={r.id}
-          href={`/resolution/${r.id}`}
+          to="/resolution/$slug"
+          params={{ slug: r.id }}
           className={`block py-3 text-inherit no-underline ${i === items.length - 1 ? "" : "border-rule border-b border-dashed"}`}
         >
           <div className="bureau-mono text-ink-4 text-[9px] tracking-[0.1em] uppercase">

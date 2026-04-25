@@ -1,9 +1,7 @@
-"use client";
-
+import { Link, createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import Link from "next/link";
-import { notFound, useRouter, useSearchParams } from "next/navigation";
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
 
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
@@ -15,6 +13,7 @@ import { Nav } from "@/components/bureau/Nav";
 import { OracleStatus } from "@/components/bureau/OracleStatus";
 import { OrderTicket } from "@/components/bureau/OrderTicket";
 import { TopCounterparties } from "@/components/bureau/TopCounterparties";
+import MarketLoading from "@/components/loading/MarketLoading";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
 import marketsData from "@/data/markets.json";
@@ -25,28 +24,28 @@ import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { CosmicEventSnapshot, Market, ResolveBetResponse } from "@/lib/types";
 
-import MarketLoading from "./loading";
-
 const rawMarkets = marketsData as Market[];
 
-export default function MarketPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const marketIndex = rawMarkets.findIndex((m) => m.id === slug);
-  const rawMarket = marketIndex >= 0 ? rawMarkets[marketIndex] : undefined;
+const searchSchema = z.object({
+  side: z.enum(["yes", "no"]).optional(),
+});
 
-  if (!rawMarket) {
-    notFound();
-  }
+export const Route = createFileRoute("/market/$slug")({
+  validateSearch: searchSchema,
+  loader: ({ params }) => {
+    const idx = rawMarkets.findIndex((m) => m.id === params.slug);
+    if (idx < 0) throw notFound();
+    return { market: rawMarkets[idx], index: idx };
+  },
+  component: MarketPage,
+});
 
-  return <MarketPageContent market={rawMarket} index={marketIndex} />;
-}
+function MarketPage() {
+  const { market, index } = Route.useLoaderData();
+  const { side: sideParam } = Route.useSearch();
+  const initialSide: "YES" | "NO" = sideParam === "no" ? "NO" : "YES";
 
-function MarketPageContent({ market, index }: { market: Market; index: number }) {
-  const searchParams = useSearchParams();
-  const sideParam = searchParams.get("side");
-  const initialSide: "YES" | "NO" = sideParam?.toLowerCase() === "no" ? "NO" : "YES";
-
-  const router = useRouter();
+  const navigate = useNavigate();
   const ticker = useMarketTicker(market);
   const resolveMarket = useCosmicStore((s) => s.resolveMarket);
 
@@ -81,8 +80,7 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
       confidence,
       result.nasaEvent,
     );
-    router.push(`/resolution/${market.id}`);
-    // leave showWarp=true; navigation unmounts the market page and the warp with it
+    navigate({ to: "/resolution/$slug", params: { slug: market.id } });
   };
 
   const handleBetPlaced = useCallback(() => {
@@ -121,9 +119,6 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
 
       const resolveData = (await resolveRes.json()) as ResolveBetResponse;
 
-      // Required fields must all be present before we persist the resolution.
-      // A partial response (e.g. LLM timeout) used to write an orphan object
-      // that broke P&L and CosmicReport rendering. See KNOWN_ISSUES.md.
       if (resolveData?.outcome && resolveData?.nasaEventId && resolveData?.hash) {
         result = {
           outcome: resolveData.outcome,
@@ -270,7 +265,6 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
         <MarketHero m={bureau} yesCent={yesCent} noCent={noCent} />
 
         <div className="grid grid-cols-1 gap-6 pt-6 md:grid-cols-[minmax(0,1fr)_360px] md:gap-9">
-          {/* Chart — row 1 col 1 on desktop, first on mobile */}
           <motion.div
             animate={{ opacity: allInMode ? 0.55 : 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
@@ -284,7 +278,8 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
 
             {resolution && (
               <Link
-                href={`/resolution/${market.id}`}
+                to="/resolution/$slug"
+                params={{ slug: market.id }}
                 className="border-ink bg-paper-2 mt-6 flex flex-wrap items-center justify-between gap-[10px] border px-5 py-4 text-inherit no-underline"
               >
                 <div>
@@ -303,7 +298,6 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
             )}
           </motion.div>
 
-          {/* Sidebar — spans both rows on desktop; on mobile appears right after the chart */}
           <div className="flex min-w-0 flex-col gap-5 md:col-start-2 md:row-span-2 md:row-start-1">
             <OrderTicket
               market={market}
@@ -334,7 +328,6 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
             </motion.div>
           </div>
 
-          {/* Secondary info — row 2 col 1 on desktop, last on mobile */}
           <div className="min-w-0 md:col-start-1 md:row-start-2">
             <Methodology />
 
@@ -352,7 +345,8 @@ function MarketPageContent({ market, index }: { market: Market; index: number })
                   {relatedMarkets.map((rm) => (
                     <Link
                       key={rm.id}
-                      href={`/market/${rm.id}`}
+                      to="/market/$slug"
+                      params={{ slug: rm.id }}
                       className="border-rule bg-paper flex flex-col gap-[10px] border p-[14px] text-inherit no-underline"
                     >
                       <div

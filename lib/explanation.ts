@@ -1,5 +1,5 @@
 import type { CosmicEvent } from "@/lib/cosmic-data";
-import { getKV, key } from "@/lib/kv";
+import { type WorkerEnv, key } from "@/lib/kv";
 
 const CACHE_TTL = 60 * 60 * 12;
 
@@ -16,17 +16,17 @@ export async function generateExplanation(params: {
   marketQuestion: string;
   marketSlug: string;
   nasaEvent: CosmicEvent | null;
+  env: WorkerEnv;
 }): Promise<string> {
-  const { outcome, marketQuestion, marketSlug, nasaEvent } = params;
+  const { outcome, marketQuestion, marketSlug, nasaEvent, env } = params;
 
   const cacheKey = key("explanation", marketSlug, outcome);
-  const kv = await getKV();
-  const cached = await kv.get(cacheKey);
+  const cached = await env.KV.get(cacheKey);
   if (cached) return cached;
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
-  const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const apiKey = env.OPENAI_API_KEY;
+  const baseUrl = env.OPENAI_BASE_URL || "https://api.openai.com/v1";
+  const model = env.OPENAI_MODEL || "gpt-4o-mini";
 
   if (!apiKey) {
     return fallbackExplanation(outcome, nasaEvent);
@@ -80,7 +80,7 @@ Generate a 2-3 sentence scientific-sounding explanation of WHY this astronomical
     const explanation =
       data.choices?.[0]?.message?.content || fallbackExplanation(outcome, nasaEvent);
 
-    await kv.put(cacheKey, explanation, { expirationTtl: CACHE_TTL });
+    await env.KV.put(cacheKey, explanation, { expirationTtl: CACHE_TTL });
     return explanation;
   } catch (error) {
     console.error("Generate explanation failed:", error);

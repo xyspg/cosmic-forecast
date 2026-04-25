@@ -1,6 +1,4 @@
-"use client";
-
-import Link from "next/link";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { Disclaimer } from "@/components/bureau/Disclaimer";
@@ -11,7 +9,10 @@ import { WalletSkeleton } from "@/components/Skeleton";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCosmicStore } from "@/lib/store";
 
-// Apple Pay JS types
+export const Route = createFileRoute("/wallet")({
+  component: WalletPage,
+});
+
 interface ApplePaySessionConstructor {
   new (version: number, request: unknown): ApplePaySessionInstance;
   canMakePayments(): boolean;
@@ -93,7 +94,7 @@ function StmtBtn({
   );
 }
 
-export default function WalletPage() {
+function WalletPage() {
   const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
   const positions = useCosmicStore((s) => s.positions);
@@ -362,7 +363,7 @@ export default function WalletPage() {
           rows.length === 0 ? (
             <div className="border-rule text-ink-3 border border-t-0 px-5 py-12 text-center font-serif text-[15px] italic">
               No positions on file.{" "}
-              <Link href="/" className="text-ink underline">
+              <Link to="/" className="text-ink underline">
                 Browse the market index
               </Link>{" "}
               to open a position.
@@ -408,7 +409,8 @@ export default function WalletPage() {
                         </td>
                         <td className={TD_CLS}>
                           <Link
-                            href={`/market/${r.pos.marketId}`}
+                            to="/market/$slug"
+                            params={{ slug: r.pos.marketId }}
                             className="text-inherit no-underline"
                           >
                             <div className="bureau-serif max-w-[520px] text-[14px] leading-[1.3]">
