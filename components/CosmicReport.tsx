@@ -1,5 +1,3 @@
-"use client";
-
 import { motion } from "motion/react";
 
 import type { BureauMarket } from "@/lib/market-metadata";

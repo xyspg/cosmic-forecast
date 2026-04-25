@@ -1,5 +1,3 @@
-"use client";
-
 import { BrandMark } from "./BrandMark";
 
 export function Disclaimer() {
