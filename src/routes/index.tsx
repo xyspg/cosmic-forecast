@@ -1,5 +1,4 @@
-"use client";
-
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { CategoryBar } from "@/components/bureau/CategoryBar";
@@ -14,25 +13,22 @@ import { ResolutionPanel } from "@/components/bureau/ResolutionPanel";
 import { SolarPanel } from "@/components/bureau/SolarPanel";
 import { WirePanel } from "@/components/bureau/WirePanel";
 import marketsData from "@/data/markets.json";
-import { useHydrated } from "@/hooks/useHydrated";
 import { generatePriceHistory } from "@/lib/generate-price-history";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
 
-import HomeLoading from "./loading";
+export const Route = createFileRoute("/")({
+  component: HomePage,
+});
 
 const rawMarkets = marketsData as Market[];
 
-export default function HomePage() {
+function HomePage() {
   const [category, setCategory] = useState("All");
-  const hydrated = useHydrated();
   const resolutions = useCosmicStore((s) => s.resolutions);
 
-  const resolvedIds = useMemo(
-    () => (hydrated ? new Set(resolutions.map((r) => r.marketId)) : new Set<string>()),
-    [resolutions, hydrated],
-  );
+  const resolvedIds = useMemo(() => new Set(resolutions.map((r) => r.marketId)), [resolutions]);
 
   const enriched = useMemo(() => rawMarkets.map((m, i) => enrich(m, i)), []);
 
@@ -71,8 +67,6 @@ export default function HomePage() {
     () => enriched.reduce((acc, m) => acc + m.volume, 0),
     [enriched],
   );
-
-  if (!hydrated) return <HomeLoading />;
 
   return (
     <div className="bg-paper text-ink">

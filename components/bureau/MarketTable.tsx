@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useNavigate } from "@tanstack/react-router";
 
 import type { BureauMarket } from "@/lib/market-metadata";
 import { fmtNum, fmtUSDShort } from "@/lib/market-metadata";
@@ -19,7 +16,7 @@ export function MarketTable({
   markets: BureauMarket[];
   seriesById: Record<string, number[]>;
 }) {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   return (
     <div className="bureau-table-scroll">
@@ -48,7 +45,7 @@ export function MarketTable({
             return (
               <tr
                 key={m.id}
-                onClick={() => router.push(`/market/${m.id}`)}
+                onClick={() => navigate({ to: "/market/$slug", params: { slug: m.id } })}
                 className={`border-rule hover:bg-paper-2 cursor-pointer border-t ${zebra}`}
               >
                 <td
@@ -58,7 +55,8 @@ export function MarketTable({
                 </td>
                 <td className={TD_BASE}>
                   <Link
-                    href={`/market/${m.id}`}
+                    to="/market/$slug"
+                    params={{ slug: m.id }}
                     className="text-inherit no-underline"
                     onClick={(e) => e.stopPropagation()}
                   >

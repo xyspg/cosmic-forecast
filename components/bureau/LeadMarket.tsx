@@ -1,6 +1,4 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 
 import {
@@ -59,7 +57,7 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
         <span className="bureau-eyebrow">REF {m.ref}</span>
       </div>
 
-      <Link href={`/market/${slug}`} className="text-inherit no-underline">
+      <Link to="/market/$slug" params={{ slug }} className="text-inherit no-underline">
         <h1 className="bureau-serif mx-0 mt-0 mb-2 max-w-[95%] cursor-pointer text-[clamp(24px,6vw,40px)] leading-[1.08] font-medium tracking-[-0.025em] text-balance max-sm:max-w-full max-sm:text-[26px] max-sm:break-words">
           {m.question}
         </h1>
@@ -141,7 +139,8 @@ export function LeadMarket({ m, slug }: { m: BureauMarket; slug: string }) {
           <SpecRow k="Resolution" v={m.endsLabel} />
           <div className="flex-1" />
           <Link
-            href={`/market/${slug}`}
+            to="/market/$slug"
+            params={{ slug }}
             className="bg-ink tracking-eyebrow text-paper flex cursor-pointer justify-between border-0 px-[14px] py-3 text-left font-mono text-[11px] uppercase no-underline"
           >
             <span>Open market</span>

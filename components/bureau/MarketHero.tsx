@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 
 import type { BureauMarket } from "@/lib/market-metadata";
 
@@ -15,7 +15,7 @@ export function MarketHero({
     <>
       <div className="border-rule flex flex-wrap items-baseline justify-between gap-2 border-b pb-3 max-sm:flex-col max-sm:items-start max-sm:gap-[6px]">
         <div className="bureau-mono tracking-eyebrow text-ink-3 text-[10px] uppercase">
-          <Link href="/" className="text-inherit no-underline">
+          <Link to="/" className="text-inherit no-underline">
             ◀ Markets
           </Link>
           <span className="text-ink-4 mx-2">/</span>

@@ -1,8 +1,5 @@
-"use client";
-
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { use, useMemo } from "react";
+import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
@@ -10,37 +7,29 @@ import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
 import { Nav } from "@/components/bureau/Nav";
 import { CosmicReport } from "@/components/CosmicReport";
 import marketsData from "@/data/markets.json";
-import { useHydrated } from "@/hooks/useHydrated";
 import { enrich } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
 
 const rawMarkets = marketsData as Market[];
 
-export default function ResolutionPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const idx = rawMarkets.findIndex((m) => m.id === slug);
-  const market = idx >= 0 ? rawMarkets[idx] : undefined;
-  if (!market) notFound();
+export const Route = createFileRoute("/resolution/$slug")({
+  loader: ({ params }) => {
+    const idx = rawMarkets.findIndex((m) => m.id === params.slug);
+    if (idx < 0) throw notFound();
+    return { market: rawMarkets[idx], index: idx };
+  },
+  component: ResolutionPage,
+});
 
-  const bureau = useMemo(() => enrich(market, idx), [market, idx]);
+function ResolutionPage() {
+  const { slug } = Route.useParams();
+  const { market, index } = Route.useLoaderData();
 
-  const hydrated = useHydrated();
-  const storeResolution = useCosmicStore((s) => s.getResolution(slug));
-  const storePosition = useCosmicStore((s) => s.getPosition(slug));
-  const resolution = hydrated ? storeResolution : undefined;
-  const position = hydrated ? storePosition : undefined;
+  const bureau = useMemo(() => enrich(market, index), [market, index]);
 
-  if (!hydrated) {
-    return (
-      <div className="text-bone fixed inset-0 flex flex-col items-center justify-center gap-[14px] bg-black font-mono">
-        <div className="tracking-mark text-amber text-[10px] uppercase">◈ ATTESTATION FILED</div>
-        <div className="tracking-stamp text-bone-2 text-[12px] uppercase">
-          Retrieving record from public archive…
-        </div>
-      </div>
-    );
-  }
+  const resolution = useCosmicStore((s) => s.getResolution(slug));
+  const position = useCosmicStore((s) => s.getPosition(slug));
 
   return (
     <div className="bg-paper text-ink min-h-screen">
@@ -62,7 +51,8 @@ export default function ResolutionPage({ params }: { params: Promise<{ slug: str
               window remains open.
             </div>
             <Link
-              href={`/market/${slug}`}
+              to="/market/$slug"
+              params={{ slug }}
               className="bg-ink tracking-stamp text-paper inline-block px-[22px] py-3 font-mono text-[11px] font-semibold uppercase no-underline"
             >
               Return to market ⟶
@@ -84,13 +74,14 @@ export default function ResolutionPage({ params }: { params: Promise<{ slug: str
               </div>
               <div className="flex flex-wrap gap-[10px]">
                 <Link
-                  href={`/market/${slug}`}
+                  to="/market/$slug"
+                  params={{ slug }}
                   className="border-ink bg-paper tracking-stamp text-ink border px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Market page
                 </Link>
                 <Link
-                  href="/"
+                  to="/"
                   className="bg-ink tracking-stamp text-paper px-5 py-3 font-mono text-[11px] font-semibold uppercase no-underline"
                 >
                   Return to market index ⟶

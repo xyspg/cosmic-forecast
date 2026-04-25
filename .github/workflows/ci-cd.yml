@@ -37,10 +37,10 @@ jobs:
         with:
           path: |
             ~/.bun/install/cache
-            .next/cache
-          key: ${{ runner.os }}-bun-next-${{ hashFiles('bun.lock') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.css', 'next.config.ts', 'open-next.config.ts', 'wrangler.jsonc') }}
+            node_modules/.vite
+          key: ${{ runner.os }}-bun-vite-${{ hashFiles('bun.lock') }}-${{ hashFiles('**/*.ts', '**/*.tsx', '**/*.css', 'vite.config.ts', 'wrangler.jsonc') }}
           restore-keys: |
-            ${{ runner.os }}-bun-next-${{ hashFiles('bun.lock') }}-
+            ${{ runner.os }}-bun-vite-${{ hashFiles('bun.lock') }}-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -51,11 +51,8 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      - name: Build Next.js
+      - name: Build
         run: bun run build
-
-      - name: Build Cloudflare worker
-        run: bun x opennextjs-cloudflare build
 
       - name: Install Playwright browser
         run: bun x playwright install --with-deps chromium

@@ -90,7 +90,9 @@ const DONKI_BASE = "https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get";
 
 async function fetchJson<T>(url: string): Promise<T[]> {
   try {
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, {
+      cf: { cacheTtl: 3600, cacheEverything: true },
+    } as RequestInit);
     if (!res.ok) return [];
     return (await res.json()) as T[];
   } catch {
