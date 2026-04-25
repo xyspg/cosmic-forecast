@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 
 import marketsData from "@/data/markets.json";
-import { useHydrated } from "@/hooks/useHydrated";
 import { enrich } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
@@ -43,11 +42,9 @@ function eventTag(type: string): string {
 }
 
 export function ResolutionPanel() {
-  const hydrated = useHydrated();
   const resolutions = useCosmicStore((s) => s.resolutions);
 
   const items = useMemo(() => {
-    if (!hydrated) return [];
     return [...resolutions]
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 5)
@@ -65,9 +62,9 @@ export function ResolutionPanel() {
         };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
-  }, [hydrated, resolutions]);
+  }, [resolutions]);
 
-  if (!hydrated || items.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
     <section className="border-ink bg-paper border p-4">

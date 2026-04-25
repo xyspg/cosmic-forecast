@@ -5,8 +5,6 @@ import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
 import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
 import { Nav } from "@/components/bureau/Nav";
-import { WalletSkeleton } from "@/components/Skeleton";
-import { useHydrated } from "@/hooks/useHydrated";
 import { useCosmicStore } from "@/lib/store";
 
 export const Route = createFileRoute("/wallet")({
@@ -95,7 +93,6 @@ function StmtBtn({
 }
 
 function WalletPage() {
-  const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
   const positions = useCosmicStore((s) => s.positions);
   const resolutions = useCosmicStore((s) => s.resolutions);
@@ -243,17 +240,6 @@ function WalletPage() {
       </button>
     </div>
   );
-
-  if (!hydrated) {
-    return (
-      <div className="bg-paper min-h-screen">
-        <GovHeaderStrip />
-        <FlareTicker />
-        <Nav active="ledger" />
-        <WalletSkeleton />
-      </div>
-    );
-  }
 
   return (
     <div className="bg-paper text-ink min-h-screen">

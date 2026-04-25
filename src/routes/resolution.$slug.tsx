@@ -7,7 +7,6 @@ import { GovHeaderStrip } from "@/components/bureau/GovHeaderStrip";
 import { Nav } from "@/components/bureau/Nav";
 import { CosmicReport } from "@/components/CosmicReport";
 import marketsData from "@/data/markets.json";
-import { useHydrated } from "@/hooks/useHydrated";
 import { enrich } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
@@ -29,22 +28,8 @@ function ResolutionPage() {
 
   const bureau = useMemo(() => enrich(market, index), [market, index]);
 
-  const hydrated = useHydrated();
-  const storeResolution = useCosmicStore((s) => s.getResolution(slug));
-  const storePosition = useCosmicStore((s) => s.getPosition(slug));
-  const resolution = hydrated ? storeResolution : undefined;
-  const position = hydrated ? storePosition : undefined;
-
-  if (!hydrated) {
-    return (
-      <div className="text-bone fixed inset-0 flex flex-col items-center justify-center gap-[14px] bg-black font-mono">
-        <div className="tracking-mark text-amber text-[10px] uppercase">◈ ATTESTATION FILED</div>
-        <div className="tracking-stamp text-bone-2 text-[12px] uppercase">
-          Retrieving record from public archive…
-        </div>
-      </div>
-    );
-  }
+  const resolution = useCosmicStore((s) => s.getResolution(slug));
+  const position = useCosmicStore((s) => s.getPosition(slug));
 
   return (
     <div className="bg-paper text-ink min-h-screen">

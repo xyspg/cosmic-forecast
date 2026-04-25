@@ -13,11 +13,9 @@ import { Nav } from "@/components/bureau/Nav";
 import { OracleStatus } from "@/components/bureau/OracleStatus";
 import { OrderTicket } from "@/components/bureau/OrderTicket";
 import { TopCounterparties } from "@/components/bureau/TopCounterparties";
-import MarketLoading from "@/components/loading/MarketLoading";
 import { SpeedUpOverlay } from "@/components/SpeedUpOverlay";
 import { WarpAnimation } from "@/components/WarpAnimation";
 import marketsData from "@/data/markets.json";
-import { useHydrated } from "@/hooks/useHydrated";
 import { useMarketTicker } from "@/hooks/useMarketTicker";
 import { formatVolume } from "@/lib/fake-data";
 import { enrich, fmtUSDShort } from "@/lib/market-metadata";
@@ -164,17 +162,14 @@ function MarketPage() {
     [market.category, market.id],
   );
 
-  const hydrated = useHydrated();
-  const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
-  const storePnl = useCosmicStore((s) => s.getPnL(market.id));
-  const resolution = hydrated ? storeResolution : undefined;
-  const pnl = hydrated ? storePnl : null;
+  const resolution = useCosmicStore((s) => s.getResolution(market.id));
+  const pnl = useCosmicStore((s) => s.getPnL(market.id));
 
   const didHealOrphanRef = useRef(false);
   useEffect(() => {
-    if (!hydrated || didHealOrphanRef.current) return;
+    if (didHealOrphanRef.current) return;
     didHealOrphanRef.current = true;
-    if (!existingPosition || storeResolution) return;
+    if (!existingPosition || resolution) return;
 
     (async () => {
       const date = new Date().toISOString().split("T")[0];
@@ -202,12 +197,10 @@ function MarketPage() {
         // Leave state as-is
       }
     })();
-  }, [hydrated, existingPosition, storeResolution, market.id, resolveMarket, ticker]);
+  }, [existingPosition, resolution, market.id, resolveMarket, ticker]);
 
   const yesCent = Math.round(ticker.yesPrice * 100);
   const noCent = Math.round(ticker.noPrice * 100);
-
-  if (!hydrated) return <MarketLoading />;
 
   return (
     <div className="bg-paper text-ink">

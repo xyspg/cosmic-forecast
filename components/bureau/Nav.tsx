@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
-import { useHydrated } from "@/hooks/useHydrated";
 import { useCosmicStore } from "@/lib/store";
 
-import { Skeleton } from "../Skeleton";
 import { Wordmark } from "./Wordmark";
 
 function NavLink({ label, to, active }: { label: string; to?: "/" | "/wallet"; active?: boolean }) {
@@ -23,7 +21,6 @@ function NavLink({ label, to, active }: { label: string; to?: "/" | "/wallet"; a
 }
 
 export function Nav({ active = "markets" }: { active?: "markets" | "ledger" }) {
-  const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
 
   return (
@@ -40,11 +37,7 @@ export function Nav({ active = "markets" }: { active?: "markets" | "ledger" }) {
           <span className="text-ink-3 text-[9px] tracking-[0.18em] uppercase max-sm:hidden">
             Cash
           </span>
-          {hydrated ? (
-            <span className="bureau-num text-[14px] font-semibold">${balance.toFixed(2)}</span>
-          ) : (
-            <Skeleton className="h-[14px] w-16" />
-          )}
+          <span className="bureau-num text-[14px] font-semibold">${balance.toFixed(2)}</span>
         </div>
       </div>
     </div>

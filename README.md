@@ -41,7 +41,7 @@ There is no database, no auth, and no real money. Everything runs client-side wi
 - **Hono** — single Worker entry at `src/worker/index.ts`, handles `/api/*` and falls through to assets
 - **React 19** + TypeScript (strict)
 - **Tailwind CSS v4** via `@tailwindcss/vite`
-- **zustand 5** (persist → localStorage) — guard reads with `useHydrated()` until rehydration completes
+- **zustand 5** (persist → localStorage)
 - **motion/react** for animations
 - **zod** for `validateSearch` schemas
 - **oxlint + oxfmt**, **bun** as package manager
@@ -69,7 +69,7 @@ src/
   worker/index.ts       # Hono — /api/* + ASSETS fallback
 components/             # bureau/, loading/, ui/, top-level overlays
 data/markets.json       # 40 seeded market questions
-hooks/                  # useHydrated, useMarketTicker
+hooks/                  # useMarketTicker
 lib/                    # zustand store, NASA fetch, hash, LLM prompt
 public/                 # icon, _headers, screenshot
 scripts/                # Bun-only utilities (excluded from tsconfig)

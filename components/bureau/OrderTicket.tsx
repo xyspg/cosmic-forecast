@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
-import { useHydrated } from "@/hooks/useHydrated";
 import { fmtUSDShort } from "@/lib/market-metadata";
 import { useCosmicStore } from "@/lib/store";
 import type { Market } from "@/lib/types";
@@ -42,16 +41,11 @@ export function OrderTicket({
   const [amount, setAmount] = useState(100);
   const [isAllIn, setIsAllIn] = useState(false);
 
-  const hydrated = useHydrated();
   const balance = useCosmicStore((s) => s.balance);
   const placeBet = useCosmicStore((s) => s.placeBet);
-  const storePosition = useCosmicStore((s) => s.getPosition(market.id));
-  const storeResolution = useCosmicStore((s) => s.getResolution(market.id));
-  const storePnl = useCosmicStore((s) => s.getPnL(market.id));
-
-  const position = hydrated ? storePosition : undefined;
-  const resolution = hydrated ? storeResolution : undefined;
-  const pnl = hydrated ? storePnl : null;
+  const position = useCosmicStore((s) => s.getPosition(market.id));
+  const resolution = useCosmicStore((s) => s.getResolution(market.id));
+  const pnl = useCosmicStore((s) => s.getPnL(market.id));
 
   const price = side === "YES" ? yesPrice : noPrice;
   const shares = price > 0 ? amount / price : 0;

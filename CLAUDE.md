@@ -23,7 +23,7 @@ bun run typecheck  # tsc --noEmit
 - **Hono** — `src/worker/index.ts` is the single Worker entry; serves `/api/*` and falls through to assets
 - **React 19** + TypeScript (strict)
 - **Tailwind CSS v4** via `@tailwindcss/vite` — `@theme inline` in `src/styles.css` for custom colors
-- **zustand 5** with `persist` middleware (localStorage) — first render uses defaults until rehydration; guard reads with `useHydrated()` from `hooks/useHydrated.ts`
+- **zustand 5** with `persist` middleware (localStorage) — sync hydration on store creation, no SSR mismatch concern in pure CSR
 - **motion/react** for animations
 - **zod 4** for `validateSearch` schemas on routes
 - **oxlint** + **oxfmt** (not ESLint/Prettier/Biome) — `sortImports` and `sortTailwindcss` are enabled in `.oxfmtrc.json`
@@ -62,8 +62,6 @@ Params and search are **synchronous and typed** via `Route.useParams()` / `Route
 - `balance`: starting $1,000
 - `positions[]`: bets placed (marketId, side, amount, price, shares)
 - `resolutions[]`: resolved markets (outcome, explanation, NASA event, hash)
-
-**Hydration rule**: any component reading from the store must guard with `useHydrated()`. The first paint runs with default state (balance=1000, no positions); persist rehydrates from localStorage on mount.
 
 ### Worker / API
 
