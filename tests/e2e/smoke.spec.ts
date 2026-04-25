@@ -38,8 +38,10 @@ test.describe("smoke", () => {
 
   test("nav Ledger link jumps to wallet", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("link", { name: /^Ledger$/i }).click();
-    await expect(page).toHaveURL(/\/wallet$/);
+    await Promise.all([
+      page.waitForURL(/\/wallet$/),
+      page.getByRole("link", { name: /^Ledger$/i }).click(),
+    ]);
     await expect(page.getByText("Declarant ledger")).toBeVisible();
   });
 });

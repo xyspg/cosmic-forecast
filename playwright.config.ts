@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORT = process.env.PW_PORT ?? "3000";
 const BASE_URL = `http://localhost:${PORT}`;
+const serverCommand = process.env.CI
+  ? `bun run start --port ${PORT}`
+  : `bun run dev --port ${PORT}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -23,7 +26,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `bun run dev --port ${PORT}`,
+    command: serverCommand,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
