@@ -226,7 +226,7 @@ function WalletPage() {
 
   const depositForm = (
     <div className="border-ink bg-paper-2 border p-[18px]">
-      <div className="bureau-eyebrow mb-[10px]">Deposit principal — test mode</div>
+      <div className="bureau-eyebrow mb-[10px]">Deposit principal</div>
       <div className="mb-[10px] grid grid-cols-4 gap-[6px] max-sm:grid-cols-2">
         {DEPOSIT_AMOUNTS.map((a) => {
           const active = depositAmount === a;
@@ -539,7 +539,7 @@ function WalletPage() {
                       </td>
                       <td className={TD_CLS}>
                         <span className="bureau-mono text-ink-2 text-[11px]">
-                          Apple Pay · test mode
+                          Apple Pay
                         </span>
                       </td>
                       <td className={`${TD_CLS} text-center`}>
