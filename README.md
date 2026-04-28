@@ -28,7 +28,7 @@ bun run test       # Playwright e2e (excludes load tests)
 
 1. Browse markets on the homepage, click Yes/No → `/market/$slug?side=yes|no`
 2. Place a bet. Balance deducts; the position is saved to localStorage.
-3. A "Speed Up Time" overlay appears, leading into a warp-starfield animation.
+3. An "Engage time dilation" overlay appears, leading into a warp-starfield animation.
 4. During the animation, `POST /api/resolve-bet` deterministically maps a live NASA DONKI event (solar flares, CMEs, geomagnetic storms, etc.) to a YES/NO outcome and asks an OpenAI-compatible model to write a plausible-sounding cosmic rationale — both returned in a single response.
 5. The result reveals: outcome, P&L, and a fabricated scientific write-up.
 

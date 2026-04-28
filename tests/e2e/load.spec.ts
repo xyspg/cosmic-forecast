@@ -43,7 +43,7 @@ test("30 concurrent clients complete the bet flow", async ({ browser }) => {
         })
         .click();
 
-      const speedUp = page.getByRole("button", { name: /Speed up time/i });
+      const speedUp = page.getByRole("button", { name: /Engage time dilation/i });
       await expect(speedUp).toBeVisible({ timeout: 12_000 });
       await speedUp.click();
 

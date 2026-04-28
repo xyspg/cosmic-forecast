@@ -155,9 +155,11 @@ export function SpeedUpOverlay({
             </div>
 
             <div className="border-amber text-bone mt-[22px] border-l-2 px-4 py-[14px] font-serif text-[14px] leading-[1.55] italic">
-              The outcome awaits the next qualifying solar event. The Bureau makes available a
-              discretionary acceleration, under which the settlement window is collapsed to the
-              present instant. Operators may elect to wait, or to proceed.
+              The outcome awaits the next qualifying solar event. Under general relativity, time
+              elapses unevenly between observers in different reference frames; the Bureau makes
+              available a discretionary <span className="not-italic">time dilation</span>, under
+              which the operator&rsquo;s local clock is advanced to the settlement instant while the
+              market itself remains in its rest frame. Operators may elect to wait, or to proceed.
             </div>
 
             <div className="mt-[22px] grid grid-cols-[1fr_1.8fr] gap-3 max-sm:grid-cols-1 max-sm:gap-[10px]">
@@ -175,7 +177,7 @@ export function SpeedUpOverlay({
                 onClick={onSpeedUp}
                 className="border-amber text-amber hover:bg-amber relative flex cursor-pointer justify-between border bg-black px-[18px] py-4 text-left font-mono text-[11px] font-semibold tracking-[0.24em] uppercase transition-colors duration-200 hover:text-black"
               >
-                <span>◈ Speed up time</span>
+                <span>◈ Engage time dilation</span>
                 <span className="text-amber">⟶</span>
                 <span
                   className="border-amber pointer-events-none absolute -inset-px border"

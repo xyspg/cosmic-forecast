@@ -37,7 +37,7 @@ bun run typecheck  # tsc --noEmit
 
 1. User browses markets on homepage → clicks Yes/No → navigates to `/market/$slug?side=yes|no`
 2. Places a bet → balance deducts, position saved to zustand store
-3. After 2s, a dark overlay fades in with a mysterious "Speed Up Time" button (SpeedUpOverlay)
+3. After 2s, a dark overlay fades in with a mysterious "Engage time dilation" button (SpeedUpOverlay)
 4. Click → seamless transition to warp starfield animation (WarpAnimation)
 5. During animation: `POST /api/resolve-bet` returns the deterministic outcome **and** the LLM explanation in one response (the explanation is generated server-side inside the resolve handler, not as a separate route)
 6. Result reveals → CosmicReport with the explanation → balance updates with P&L
@@ -82,7 +82,7 @@ Params and search are **synchronous and typed** via `Route.useParams()` / `Route
 
 - `LeadMarket` / `FeaturedMarket` — hero card with interactive dual-line chart (hover crosshair + tooltips), scrolling comments
 - `MarketChartPanel` / `PriceChart` — detail page chart with hover interaction, floating +$X amounts, dual Yes/No lines
-- `SpeedUpOverlay` — dark overlay with motion/react, the "Speed Up Time" button
+- `SpeedUpOverlay` — dark overlay with motion/react, the "Engage time dilation" button (with a 1–2 sentence Bureau-styled explanation of relativistic time dilation)
 - `WarpAnimation` — full-screen starfield with cycling status messages
 - `OrderTicket` — Yes/No selector, amount input, position display, P&L after resolution
 

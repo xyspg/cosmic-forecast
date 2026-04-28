@@ -129,7 +129,7 @@ export function OrderTicket({
                 onClick={onRequestSpeedUp}
                 className="border-amber tracking-stamp text-amber hover:bg-amber mt-[14px] w-full cursor-pointer border bg-black py-[14px] font-mono text-[11px] font-semibold uppercase transition-colors duration-200 hover:text-black"
               >
-                ◈ Speed up settlement
+                ◈ Engage time dilation
               </button>
             )}
 

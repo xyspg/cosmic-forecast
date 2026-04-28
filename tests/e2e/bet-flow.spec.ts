@@ -33,7 +33,7 @@ async function runBetFlow(page: Page, side: "YES" | "NO", amount: number): Promi
   await submit.click();
 
   // SpeedUpOverlay opens immediately after placeBet succeeds.
-  const speedUp = page.getByRole("button", { name: /Speed up time/i });
+  const speedUp = page.getByRole("button", { name: /Engage time dilation/i });
   await expect(speedUp).toBeVisible({ timeout: 8_000 });
   await speedUp.click();
 
