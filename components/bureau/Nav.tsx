@@ -33,12 +33,16 @@ export function Nav({ active = "markets" }: { active?: "markets" | "ledger" }) {
         <NavLink label="Ledger" to="/wallet" active={active === "ledger"} />
       </div>
       <div className="flex items-center gap-[14px]">
-        <div className="border-ink bg-paper-2 flex items-center gap-[10px] border px-3 py-[6px] font-mono max-sm:px-[10px] max-sm:py-1">
+        <Link
+          to="/wallet"
+          aria-label="Open ledger"
+          className="border-ink bg-paper-2 hover:bg-ink hover:text-paper flex cursor-pointer items-center gap-[10px] border px-3 py-[6px] font-mono text-inherit no-underline transition-colors duration-150 max-sm:px-[10px] max-sm:py-1"
+        >
           <span className="text-ink-3 text-[9px] tracking-[0.18em] uppercase max-sm:hidden">
             Cash
           </span>
           <span className="bureau-num text-[14px] font-semibold">${balance.toFixed(2)}</span>
-        </div>
+        </Link>
       </div>
     </div>
   );
