@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Disclaimer } from "@/components/bureau/Disclaimer";
 import { FlareTicker } from "@/components/bureau/FlareTicker";
@@ -104,6 +104,22 @@ function WalletPage() {
   const [depositAmount, setDepositAmount] = useState(100);
   const [activeTab, setActiveTab] = useState<"positions" | "history" | "tax">("positions");
 
+  // Pre-load the Apple Pay success chime so the first play has zero latency.
+  // Played in the session.oncancel handler — that callback fires from a user
+  // gesture (Esc / Cancel), so Safari's autoplay policy lets it through.
+  const successSoundRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const audio = new Audio("/apple-pay-success.mp3");
+    audio.preload = "auto";
+    audio.volume = 0.85;
+    successSoundRef.current = audio;
+    return () => {
+      audio.pause();
+      successSoundRef.current = null;
+    };
+  }, []);
+
   const rows = useMemo(() => {
     return positions.map((pos) => {
       const res = resolutions.find((r) => r.marketId === pos.marketId);
@@ -185,6 +201,15 @@ function WalletPage() {
         session.completePaymentMethodSelection({ newTotal: paymentTotal });
       };
       session.oncancel = () => {
+        // Play the success chime SYNCHRONOUSLY before any awaits — keeps us
+        // inside the gesture stack so Safari permits autoplay.
+        const audio = successSoundRef.current;
+        if (audio) {
+          audio.currentTime = 0;
+          audio.play().catch(() => {
+            // Silently swallow — autoplay block, no audio device, etc.
+          });
+        }
         recordDeposit(depositAmount);
         setShowDeposit(false);
       };
